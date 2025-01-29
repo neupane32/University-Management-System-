@@ -13,15 +13,11 @@ import {
 @Entity('admin')
 export class Admin extends Base {
   @Column({
-    unique: true,
-    nullable: false,
+    unique: true
   })
   email: string;
 
-  @Column({name:"admin_name"})
-  univeristyName: string;
-
-  @Column({ select: false, nullable: false })
+  @Column({ select: false})
   password: string;
 
   @Column({
@@ -30,10 +26,4 @@ export class Admin extends Base {
     default: Role.ADMIN,
   })
   role: Role;
-
-  @Column({ name: 'verified', default: false })
-  Verified: boolean;
-
-  @Column({ name: 'otp', nullable: true })
-  otp: string;
 }
