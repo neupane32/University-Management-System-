@@ -1,0 +1,38 @@
+import universityService from "../services/university.service";
+import { StatusCodes } from "../constant/StatusCode";
+import { UniversityInterface } from "../interface/university.interface";
+import { Request, Response } from "express";
+import webTokenUtils from "../utils/webToken.utils";
+
+export class UniversityController {
+  async createUniversity(req: Request, res: Response) {
+    try {
+      await universityService.createUniversity(req.body as UniversityInterface);
+      res
+        .status(StatusCodes.CREATED)
+        .json({ message: "University Registred Successfully" });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+          message: error.message,
+        });
+      }
+    }
+  }
+
+//   async loginUniversity(req:Request, res:Response){
+//     try {
+//         const data = await universityService.loginUniversity(req.body);
+//         const token  = webTokenUtils.generateTokens(
+//             {
+//                 id: data.id,
+//             },
+//             data.role,
+//         );
+        
+//     } catch (error) {
+        
+//     }
+
+//   }
+} 
