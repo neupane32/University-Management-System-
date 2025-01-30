@@ -42,12 +42,12 @@ class AdminService {
         try {
             const adminLogin = await this.adminRepo.findOne({
                 where: [{ email : data.email}],
-                select: ['id', 'email', 'password'],
+                select: ['id', 'email', 'password','role'],
             });
             if (!adminLogin) throw HttpException.badRequest('The entered email is not registered yet');
             const isPassword = await bcryptservice.compare(data.password, adminLogin.password);
       if (!isPassword) throw HttpException.badRequest('Incorrect password');
-      return await this.getUserById(adminLogin.id);
+      return adminLogin;
         } catch (error: any) {
             if (error instanceof Error) {
               throw HttpException.badRequest(error.message);
@@ -56,24 +56,6 @@ class AdminService {
             }
         }
     }
-
-    async getUserById(id: string) {
-        try {
-          const query = this.adminRepo
-            .createQueryBuilder('admin')
-            .where('admin.id =:id', { id });
-    
-          const user = await query.getOne();
-          if (!user) throw new Error('user not found');
-          return user;
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            throw new Error(error.message);
-          } else {
-            throw new Error('User not found');
-          }
-        }
-      }
 }
 
 export default new AdminService();
