@@ -3,11 +3,14 @@ import { AppDataSource } from "../config/database.config";
 import { AdminInterface } from "../interface/admin.interface";
 import BcryptService from "../utils/bcrypt.utils";
 import HttpException from "../utils/HttpException.utils";
+import { University } from "../entities/university/university.entity";
 const bcryptservice = new BcryptService();
 
 class AdminService {
     constructor (
-        private readonly adminRepo = AppDataSource.getRepository(Admin)
+        private readonly adminRepo = AppDataSource.getRepository(Admin),
+        private readonly uniRepo = AppDataSource.getRepository(University)
+
     ) {
 
     }
@@ -48,7 +51,7 @@ class AdminService {
             const isPassword = await bcryptservice.compare(data.password, adminLogin.password);
       if (!isPassword) throw HttpException.badRequest('Incorrect password');
       return adminLogin;
-        } catch (error: any) {
+        } catch (error) {
             if (error instanceof Error) {
               throw HttpException.badRequest(error.message);
             } else {
@@ -56,6 +59,41 @@ class AdminService {
             }
         }
     }
-}
+
+    async viewUniversity(admin_id:string){
+        try {
+            const admin = await this.adminRepo.findOneBy({id:admin_id})
+            if(!admin) throw new Error("Unauthorized")
+
+                const universities = await this.uniRepo
+                if(!universities) throw new Error("University not found")
+                return universities
+            } catch (error:any) {
+              throw new Error(error.message)
+            }
+            
+        } catch (error) {
+            if (error instanceof Error) {
+              throw HttpException.badRequest(error.message);
+            } else {
+              throw HttpException.badRequest('Invalid credentials');
+            }
+        }
+
+        async deleteUniversity(admin_id:string, uni_id:string){
+            try {
+              const admin = await this.adminRepo.findOneBy({id:admin_id})
+              if(!admin) throw new Error("Unauthorized")
+        
+                const uni = await this.uniRepo.findOneBy({id:uni_id})
+              if(!admin) throw new Error("Not found")
+        
+                await this.uniRepo.delete({id:uni_id})
+                return 'University deleted'
+            } catch (error:any) {
+              throw new Error(error.message)
+            }
+          }
+    }
 
 export default new AdminService();
