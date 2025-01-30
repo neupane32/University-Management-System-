@@ -43,14 +43,15 @@ class UniversityService {
 
     async loginUniversity(data: UniversityInterface) {
         try {
-            const login = await this.uniRepo.findOne({
+            const universityLogin = await this.uniRepo.findOne({
                 where: [{ email: data.email }],
                 select: ['id', 'email', 'password','role'],
             });
             // if(!user?.Verified) throw HttpException.unauthorized("Otp is not verified yet")
-      if (!login) throw HttpException.badRequest('Entered email is not registered yet');
-            const isPassword = await bcryptservice.compare(data.password, login.password);
+      if (!universityLogin) throw HttpException.badRequest('Entered email is not registered yet');
+            const isPassword = await bcryptservice.compare(data.password, universityLogin.password);
             if (!isPassword) throw HttpException.badRequest('Incorrect password');
+            return universityLogin;
         } catch (error: any) {
             if (error instanceof Error) {
               throw HttpException.badRequest(error.message);

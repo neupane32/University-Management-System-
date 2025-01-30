@@ -20,19 +20,30 @@ export class UniversityController {
     }
   }
 
-//   async loginUniversity(req:Request, res:Response){
-//     try {
-//         const data = await universityService.loginUniversity(req.body);
-//         const token  = webTokenUtils.generateTokens(
-//             {
-//                 id: data.id,
-//             },
-//             data.role,
-//         );
+  async loginUniversity(req:Request, res:Response){
+    try {
+        const data = await universityService.loginUniversity(req.body);
         
-//     } catch (error) {
+        const token = webTokenUtils.generateTokens(
+            {
+                id: data.id,
+            },
+            data.role,
+        );
+        res.status(StatusCodes.SUCCESS).json({
+            data: {
+                id: data.id,
+                email: data.email,
+                tokens:{
+                    accessToken: token.accessToken,
+                },
+                message: 'university Login Successfully'
+            },
+        });
         
-//     }
+    } catch (error) {
+        
+    }
 
-//   }
+  }
 } 
