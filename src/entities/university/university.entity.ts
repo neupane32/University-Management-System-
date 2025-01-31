@@ -33,5 +33,6 @@ export class University extends Base {
   
     @Column({ name: 'payment_verified', default: false, nullable: true })
     payment_verified: boolean;
+    program: any;
 
 }

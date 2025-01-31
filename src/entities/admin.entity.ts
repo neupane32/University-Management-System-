@@ -9,6 +9,7 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm';
+import { Program } from './Programs/program.entity';
 
 @Entity('admin')
 export class Admin extends Base {
@@ -26,4 +27,8 @@ export class Admin extends Base {
     default: Role.ADMIN,
   })
   role: Role;
+
+
+  @OneToMany(() => Program, (program) => program.university, { cascade: true})
+  program: Program;
 }
