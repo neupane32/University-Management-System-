@@ -67,13 +67,13 @@ class UniversityService {
 
   async addProgram(uni_id:string, data: ProgramInterface){
     try {
-        const uni = await this.uniRepo.findOneBy({id:uni_id});
-        if(!uni) throw new Error('University Not found');
+        const uniId = await this.uniRepo.findOneBy({id:uni_id});
+        if(!uniId) throw new Error('University Not found');
 
         const addProgram = this.progRepo.create({
             name: data.name,
             duration: data.duration,
-            university: uni
+            university: uniId
         });
         await this.progRepo.save(addProgram);
         return 'Program created successfully';
@@ -85,6 +85,29 @@ class UniversityService {
           throw HttpException.badRequest("Invalid credentials");
         }
       }
+  }
+
+  async findProgram(uni_id:string){
+    try {
+        const uni = await this.uniRepo.findOneBy({id: uni_id});
+        if(!uni) throw new Error('University Not found');
+
+        const program = await this.progRepo.createQueryBuilder('program')
+        .leftJoinAndSelect('program.uni', 'uni')
+        .where('program.uni_id = :uni_id', {uni_id})
+        .getMany()
+
+        if(program.length ===0) throw new Error("Program not found");
+        return program;
+
+    } catch (error) {
+        if (error instanceof Error) {
+            throw HttpException.badRequest(error.message);
+          } else {
+            throw HttpException.badRequest("Invalid credentials");
+          } 
+        
+    }
   }
 }
 
