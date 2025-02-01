@@ -10,6 +10,8 @@ router.post('/uni-login', catchAsync(universityController.loginUniversity));
 router.post('/uni-addProgram', catchAsync(universityController.addProgram));
 router.get('/uni-findProgram', catchAsync(universityController.findProgram));
 router.post('/uni-addModule', catchAsync(universityController.addModule));
+router.post('/uni-updateModule', catchAsync(universityController.updateModule));
+
 
 
 

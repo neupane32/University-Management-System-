@@ -136,6 +136,33 @@ class UniversityService {
       }
     }
   }
+
+  async updateModule(uni_id:string, module_id:string, data:ModuleInterface){
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const prog = await this.progRepo.findOneBy({ id: module_id });
+      if (!prog) throw new Error("No Program not found");
+
+      const updateModule = await this.modRepo.update({university:uni, id: module_id!},
+        {
+          name: data.name,
+          module_code: data.module_code,
+          program: prog,
+          university: uni
+        }
+      );
+      return 'Module update Successfully';
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Module not found");
+      }
+    }
+
+  }
 }
 
 export default new UniversityService();
