@@ -1,6 +1,7 @@
+import { Module } from "../../entities/module/module.entity";
 import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 
 @Entity('University')
 export class University extends Base {
@@ -34,5 +35,9 @@ export class University extends Base {
     @Column({ name: 'payment_verified', default: false, nullable: true })
     payment_verified: boolean;
     program: any;
+
+
+    @OneToMany(() => Module, (module) => module.university, {cascade: true})
+    module: Module;
 
 }

@@ -3,16 +3,18 @@ import { UniversityInterface } from "../interface/university.interface";
 import { University } from "../entities/university/university.entity";
 import BcryptService from "../utils/bcrypt.utils";
 import HttpException from "../utils/HttpException.utils";
-import { log } from "console";
 import { ProgramInterface } from "../interface/program.interface";
 import { Program } from "../entities/Programs/program.entity";
+import { ModuleInterface } from "../interface/module.interface";
+import { Module } from "../entities/module/module.entity";
 
 const bcryptservice = new BcryptService();
 
 class UniversityService {
   constructor(
     private readonly uniRepo = AppDataSource.getRepository(University),
-    private readonly progRepo = AppDataSource.getRepository(Program)
+    private readonly progRepo = AppDataSource.getRepository(Program),
+    private readonly modRepo = AppDataSource.getRepository(Module)
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -65,48 +67,73 @@ class UniversityService {
     }
   }
 
-  async addProgram(uni_id:string, data: ProgramInterface){
+  async addProgram(uni_id: string, data: ProgramInterface) {
     try {
-        const uniId = await this.uniRepo.findOneBy({id:uni_id});
-        if(!uniId) throw new Error('University Not found');
+      const uniId = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uniId) throw new Error("University Not found");
 
-        const addProgram = this.progRepo.create({
-            name: data.name,
-            duration: data.duration,
-            university: uniId
-        });
-        await this.progRepo.save(addProgram);
-        return 'Program created successfully';
-        
+      const addProgram = this.progRepo.create({
+        name: data.name,
+        duration: data.duration,
+        university: uniId,
+      });
+      await this.progRepo.save(addProgram);
+      return "Program created successfully";
     } catch (error) {
-        if (error instanceof Error) {
-          throw HttpException.badRequest(error.message);
-        } else {
-          throw HttpException.badRequest("Invalid credentials");
-        }
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
       }
+    }
   }
 
-  async findProgram(uni_id:string){
+  async findProgram(uni_id: string) {
     try {
-        const uni = await this.uniRepo.findOneBy({id: uni_id});
-        if(!uni) throw new Error('University Not found');
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
-        const program = await this.progRepo.createQueryBuilder('program')
-        .leftJoinAndSelect('program.uni', 'uni')
-        .where('program.uni_id = :uni_id', {uni_id})
-        .getMany()
+      const program = await this.progRepo
+        .createQueryBuilder("program")
+        .leftJoinAndSelect("program.uni", "uni")
+        .leftJoinAndSelect('program.module', 'module')
+        .where("program.uni_id = :uni_id", { uni_id })
+        .getMany();
 
-        if(program.length ===0) throw new Error("Program not found");
-        return program;
-
+      if (program.length === 0) throw new Error("Program not found");
+      return program;
     } catch (error) {
-        if (error instanceof Error) {
-            throw HttpException.badRequest(error.message);
-          } else {
-            throw HttpException.badRequest("Invalid credentials");
-          } 
-        
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
+      }
+    }
+  }
+
+  async addModule(uni_id: string, prog_id: string, data: ModuleInterface) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const program = await this.progRepo.findOneBy({ id: prog_id });
+      if (!program) throw new Error("Program not found");
+
+      const addModule = this.modRepo.create({
+        name: data.name,
+        module_code: data.module_code,
+        university: uni,
+        program: program,
+      });
+
+      await this.modRepo.save(addModule);
+      return addModule;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Course not found");
+      }
     }
   }
 }
