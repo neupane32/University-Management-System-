@@ -4,6 +4,7 @@ import { UniversityInterface } from "../interface/university.interface";
 import { Request, Response } from "express";
 import webTokenUtils from "../utils/webToken.utils";
 import { ProgramInterface } from "../interface/program.interface";
+import { ModuleInterface } from "../interface/module.interface";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
@@ -76,4 +77,18 @@ export class UniversityController {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
       }
   }
-} 
+
+  async addModule(req:Request, res:Response) {
+    try {
+      const uni_id = req.user?.id
+      const prog_id = req.params.id;
+
+      const data = await universityService.addModule(uni_id as string, prog_id, req.body as ModuleInterface);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+}
