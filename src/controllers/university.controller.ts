@@ -105,4 +105,34 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async findModule(req:Request, res:Response){
+    try {
+      const user_id = req.user?.id
+
+      const data = await universityService.findModule(user_id as string)
+
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async deleteModule(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const module_id = req.params.id;
+
+      const data  =await universityService.deleteModule(uni_id as string, module_id);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+
 }
