@@ -91,4 +91,18 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async updateModule(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const prog_id = req.params.id;
+
+      const data = await universityService.updateModule(uni_id as string, prog_id, req.body as ModuleInterface)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }
