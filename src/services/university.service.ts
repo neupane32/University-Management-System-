@@ -96,7 +96,7 @@ class UniversityService {
       const program = await this.progRepo
         .createQueryBuilder("program")
         .leftJoinAndSelect("program.uni", "uni")
-        .leftJoinAndSelect('program.module', 'module')
+        .leftJoinAndSelect("program.module", "module")
         .where("program.uni_id = :uni_id", { uni_id })
         .getMany();
 
@@ -137,7 +137,7 @@ class UniversityService {
     }
   }
 
-  async updateModule(uni_id:string, module_id:string, data:ModuleInterface){
+  async updateModule(uni_id: string, module_id: string, data: ModuleInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
@@ -145,15 +145,16 @@ class UniversityService {
       const prog = await this.progRepo.findOneBy({ id: module_id });
       if (!prog) throw new Error("No Program not found");
 
-      const updateModule = await this.modRepo.update({university:uni, id: module_id!},
+      const updateModule = await this.modRepo.update(
+        { university: uni, id: module_id! },
         {
           name: data.name,
           module_code: data.module_code,
           program: prog,
-          university: uni
+          university: uni,
         }
       );
-      return 'Module update Successfully';
+      return "Module update Successfully";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -161,7 +162,44 @@ class UniversityService {
         throw new Error("Module not found");
       }
     }
+  }
 
+  async findModule(user_id: string) {
+    try {
+      const findMod = await this.modRepo
+        .createQueryBuilder("module")
+        .leftJoinAndSelect("module.university", "university")
+
+        .where("module.admin = :user_id", { user_id })
+        .getMany();
+
+      return findMod;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Module not found");
+      }
+    }
+  }
+
+  async deleteModule(uni_id: string, module_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("admin not found");
+
+      const module = await this.modRepo.findOneBy({ id: module_id });
+      if (!module) throw new Error("No Faculty found");
+
+      await this.modRepo.delete({ university: uni, id: module_id! });
+      return "Module Deleted successfully";
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Module not found");
+      }
+    }
   }
 }
 
