@@ -7,6 +7,8 @@ import { ProgramInterface } from "../interface/program.interface";
 import { Program } from "../entities/Programs/program.entity";
 import { ModuleInterface } from "../interface/module.interface";
 import { Module } from "../entities/module/module.entity";
+import { TeacherInterface } from "../interface/teacher.interface";
+import { Teacher } from "../entities/teacher/teacher.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -14,7 +16,8 @@ class UniversityService {
   constructor(
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly progRepo = AppDataSource.getRepository(Program),
-    private readonly modRepo = AppDataSource.getRepository(Module)
+    private readonly modRepo = AppDataSource.getRepository(Module),
+    private readonly TeachRepo = AppDataSource.getRepository(Teacher)
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -201,6 +204,118 @@ class UniversityService {
       }
     }
   }
+
+  async addTeacher(uni_id: string, data: TeacherInterface) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const teacher = this.TeachRepo.create({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        gender: data.gender,
+        contact: data.contact,
+        university: uni,
+      });
+      return teacher;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Teacher not found");
+      }
+    }
+  }
+
+  async updateTeacher(uni_id: string, teacher_id: string, data:TeacherInterface){
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const teacher = await this.uniRepo.findOneBy({ id: teacher_id });
+      if (!teacher) throw new Error("Teacher not found Not found");
+
+      const update = this.TeachRepo.update({id:teacher_id},{
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        gender: data.gender,
+        contact: data.contact,
+        university: uni,
+      })
+      return 'Teacher Update successfully';
+
+      
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Teacher not found");
+      }
+    }
+  }
+
+  async getTeachers(uni_id: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      
+      if (!university) {
+        throw new Error("University not found");
+      }
+  
+      const teachers = await this.TeachRepo.find({ where: { university } });
+  
+      if (!teachers.length) {
+        throw new Error("No teachers found for this university");
+      }
+      return teachers;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to fetch teachers");
+    }
+  }
+  
+
+  async getTeacherById(uni_id: string, teacherId: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      const teacher = await this.TeachRepo.findOne({
+        where: { id: teacherId, university: { id: uni_id } },
+      });
+  
+      if (!teacher) throw new Error("Teacher not found");
+  
+      return teacher;
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to get teacher");
+    }
+  }
+
+  async deleteTeacher(uni_id: string, teacher_id: string) {
+    try {
+      const teacher = await this.TeachRepo.findOne({
+        where: { id: teacher_id, university: { id: uni_id } },
+      });
+
+      if (!teacher) {
+        throw new Error("Teacher not found or does not belong to the university");
+      }
+
+      await this.TeachRepo.delete({ id: teacher_id });
+
+      return "Teacher deleted successfully";
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+}
+
+  
+
+
+  
+  
 }
 
 export default new UniversityService();
