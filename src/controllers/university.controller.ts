@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import webTokenUtils from "../utils/webToken.utils";
 import { ProgramInterface } from "../interface/program.interface";
 import { ModuleInterface } from "../interface/module.interface";
+import { TeacherInterface } from "../interface/teacher.interface";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
@@ -134,5 +135,70 @@ export class UniversityController {
     }
   }
 
+  async addTeacher(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const data = await universityService.addTeacher(uni_id as string, req.body as TeacherInterface)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 
+  async updateTeacher(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const teacher_id = req.params.id
+      const data = await universityService.updateTeacher(uni_id as string, teacher_id as string, req.body as TeacherInterface)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      })
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTeacher(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const data = await universityService.getTeachers(uni_id as string)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTeacherById(req:Request, res: Response){
+    try {
+      const uni_id = req.user?.id
+      const teacher_id = req.params.id
+
+      const data = await universityService.getTeacherById(uni_id as string, teacher_id)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async deleteTeacher(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id
+      const teacher_id = req.params.id
+
+      const data = await universityService.deleteTeacher(uni_id as string, teacher_id)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }
+
+

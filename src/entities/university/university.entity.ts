@@ -2,6 +2,7 @@ import { Module } from "../../entities/module/module.entity";
 import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
 import { Column, Entity, OneToMany } from "typeorm";
+import { Teacher } from "../../entities/teacher/teacher.entity";
 
 @Entity('University')
 export class University extends Base {
@@ -39,5 +40,8 @@ export class University extends Base {
 
     @OneToMany(() => Module, (module) => module.university, {cascade: true})
     module: Module;
+
+    @OneToMany(() => Teacher, (teacher) => teacher.university, {cascade: true})
+    teacher: Teacher;
 
 }
