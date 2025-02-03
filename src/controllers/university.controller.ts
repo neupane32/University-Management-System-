@@ -6,6 +6,7 @@ import webTokenUtils from "../utils/webToken.utils";
 import { ProgramInterface } from "../interface/program.interface";
 import { ModuleInterface } from "../interface/module.interface";
 import { TeacherInterface } from "../interface/teacher.interface";
+import { ResourceInterface } from "../interface/resource.interface";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
@@ -127,6 +128,31 @@ export class UniversityController {
       const module_id = req.params.id;
 
       const data  =await universityService.deleteModule(uni_id as string, module_id);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async addResource(req:Request, res:Response){
+    try {
+      const content = (req.files as Express.Multer.File[])?.map((file: Express.Multer.File) => {
+        return{
+          name: file?.filename,
+          mimetype: file?.mimetype,
+          type: req.body?.type,
+        };
+      });
+
+      const user_id = req.user?.id as string
+      const data = await universityService.addResource(
+        content as any,
+        user_id,
+        req.body as ResourceInterface,
+      );
+
       res.status(StatusCodes.SUCCESS).json({
         data,
       });

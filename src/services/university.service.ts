@@ -9,6 +9,8 @@ import { ModuleInterface } from "../interface/module.interface";
 import { Module } from "../entities/module/module.entity";
 import { TeacherInterface } from "../interface/teacher.interface";
 import { Teacher } from "../entities/teacher/teacher.entity";
+import { ResourceInterface } from "../interface/resource.interface";
+import { Resource } from "../entities/resources/resource.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -17,7 +19,9 @@ class UniversityService {
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly progRepo = AppDataSource.getRepository(Program),
     private readonly modRepo = AppDataSource.getRepository(Module),
-    private readonly TeachRepo = AppDataSource.getRepository(Teacher)
+    private readonly TeachRepo = AppDataSource.getRepository(Teacher),
+    private readonly resourceRepo = AppDataSource.getRepository(Resource)
+
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -201,6 +205,44 @@ class UniversityService {
         throw new Error(error.message);
       } else {
         throw new Error("Module not found");
+      }
+    }
+  }
+
+  async addResource(content: any[], uni_id:string, data: ResourceInterface){
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const resource = this.resourceRepo.create({
+        name: data.name,
+        title: data.title,
+        university: uni
+      });
+
+      const saveResource = await this.resourceRepo.save(resource);
+
+      if (content && content.length > 0) {
+        for (const file of content) {
+          const resourceFile = this.resourceRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            type: file.type,
+            university: uni,
+          });
+  
+          const savedFile = await this.resourceRepo.save(resourceFile);
+          savedFile.transferFileFromTempToUpload(saveResource.id, savedFile.type);
+        }
+      }
+
+      return "Resource added successfully";
+      
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Resource not found");
       }
     }
   }
