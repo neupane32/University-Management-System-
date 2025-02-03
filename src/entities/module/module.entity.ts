@@ -1,7 +1,8 @@
 import { University } from "../../entities/university/university.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Resource } from "../../entities/resources/resource.entity";
 
 @Entity('module')
 export class Module extends Base {
@@ -18,5 +19,9 @@ export class Module extends Base {
     @ManyToOne(() => University, (university) => university.module, {onDelete: 'CASCADE'})
     @JoinColumn({name: 'uni_id'})
     university: University;
+
+    @OneToMany(() => Resource, (resource) => resource.module)
+    module: Module[];
+    resource: any;
 
 }

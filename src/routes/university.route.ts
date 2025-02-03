@@ -24,6 +24,11 @@ router.get('/uni-getTeacherById', catchAsync(universityController.getTeacherById
 router.delete('/uni-deleteTeacher', catchAsync(universityController.deleteTeacher));
 
 
+//resource operation
+router.post('/uni-addResource', catchAsync(universityController.addResource));
+
+
+
 
 
 
