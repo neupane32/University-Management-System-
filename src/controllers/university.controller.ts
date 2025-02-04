@@ -136,31 +136,6 @@ export class UniversityController {
     }
   }
 
-  async addResource(req:Request, res:Response){
-    try {
-      const content = (req.files as Express.Multer.File[])?.map((file: Express.Multer.File) => {
-        return{
-          name: file?.filename,
-          mimetype: file?.mimetype,
-          type: req.body?.type,
-        };
-      });
-
-      const user_id = req.user?.id as string
-      const data = await universityService.addResource(
-        content as any,
-        user_id,
-        req.body as ResourceInterface,
-      );
-
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
-
   async addTeacher(req:Request, res:Response){
     try {
       const uni_id = req.user?.id

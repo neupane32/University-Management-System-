@@ -208,45 +208,7 @@ class UniversityService {
       }
     }
   }
-
-  async addResource(content: any[], uni_id:string, data: ResourceInterface){
-    try {
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University Not found");
-
-      const resource = this.resourceRepo.create({
-        name: data.name,
-        title: data.title,
-        university: uni
-      });
-
-      const saveResource = await this.resourceRepo.save(resource);
-
-      if (content && content.length > 0) {
-        for (const file of content) {
-          const resourceFile = this.resourceRepo.create({
-            name: file.name,
-            mimetype: file.mimetype,
-            type: file.type,
-            university: uni,
-          });
   
-          const savedFile = await this.resourceRepo.save(resourceFile);
-          savedFile.transferFileFromTempToUpload(saveResource.id, savedFile.type);
-        }
-      }
-
-      return "Resource added successfully";
-      
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error("Resource not found");
-      }
-    }
-  }
-
   async addTeacher(uni_id: string, data: TeacherInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });

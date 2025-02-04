@@ -7,6 +7,7 @@ import path from "path";
 import fs from 'fs';
 import { getTempFolderPath, getUploadFolderpath } from "../../utils/path.utils";
 import { DotenvConfig } from "../../config/env.config";
+import { Teacher } from "../../entities/teacher/teacher.entity";
 
 
 @Entity('resource')
@@ -29,9 +30,9 @@ type: MediaType
 @JoinColumn({ name: 'module_id' })
 module: Module;
 
-@ManyToOne(() => University, (university) => university.resources, { onDelete: 'CASCADE' })
-@JoinColumn({ name: 'university_id' })
-university: University;
+@ManyToOne(() => Teacher, (teacher) => teacher.resources, { onDelete: 'CASCADE' })
+@JoinColumn({ name: 'teacher_id' })
+teacher: Teacher
 
 public path:string;
 

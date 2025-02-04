@@ -1,7 +1,10 @@
 import { Router } from "express";
 import path from "path";
 import admin from '../routes/admin.routes';
-import university from './university.route'
+import university from './university.route';
+import teacher from './teacher.route';
+
+
 export interface IndexRoute {
     path: string;
     route: Router;
@@ -18,6 +21,12 @@ const routes: IndexRoute[] = [
     {
         path: '/uni',
         route: university
+
+    },
+
+    {
+        path: '/teach',
+        route: teacher
 
     },
 ];
