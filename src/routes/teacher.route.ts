@@ -13,6 +13,8 @@ router.use(authorization([Role.TEACHER]));
 
 router.post('/add-resource', catchAsync(teacherController.addResource));
 router.patch('/update-resource', catchAsync(teacherController.updateResource));
+router.delete('/delete-resource', catchAsync(teacherController.deleteResource));
+
 
 
 export default router;
