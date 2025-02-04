@@ -4,6 +4,7 @@ import { ResourceInterface } from "../interface/resource.interface";
 import { Resource } from "../entities/resources/resource.entity";
 import { Module } from "../entities/module/module.entity";
 import { Teacher } from "../entities/teacher/teacher.entity";
+import { TeacherInterface } from "../interface/teacher.interface";
 
 class TeacherService {
   constructor(
@@ -107,6 +108,35 @@ class TeacherService {
       throw new Error(error.message || "Failed to update resource");
     }
   }
+
+  async deleteResource(teacher_id: string, resource_id: string) {
+    try {
+        const teacher = await this.teacherRepo.findOne({
+            where: { id: teacher_id },
+            relations: ["module"],
+        });
+        if (!teacher) throw new Error("Teacher not found");
+
+        const resource = await this.resourceRepo.findOne({
+            where: { id: resource_id },
+            relations: ["module"],
+        });
+        if (!resource) throw new Error("Resource not found");
+
+        if (resource.module.id !== teacher.module.id) {
+            throw new Error("Unauthorized: You can only delete resources from your module");
+        }
+
+        await this.resourceRepo.delete(resource.id);
+
+        return "Resource deleted successfully";
+    } catch (error) {
+        throw new Error(error.message || "Failed to delete resource");
+    }
+}
+
+
+
 }
 
 export default TeacherService;

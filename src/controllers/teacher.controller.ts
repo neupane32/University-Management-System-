@@ -62,5 +62,18 @@ export class TeacherController {
             }
     }
 
+    async deleteResource(req: Request, res: Response) {
+        try {
+          const teacherId = req.user?.id as string;
+          const resource_id = req.params.id;
+    
+          const data = await teacherService.deleteResource(teacherId, resource_id);
+    
+          return res.status(StatusCodes.SUCCESS).json({ data });
+        } catch (error: any) {
+          return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+        }
+    }
+
 
 }
