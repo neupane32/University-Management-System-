@@ -3,6 +3,7 @@ import { Program } from "../../entities/Programs/program.entity";
 import Base from "../../entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
+import { Teacher } from "../../entities/teacher/teacher.entity";
 
 @Entity('module')
 export class Module extends Base {
@@ -23,5 +24,8 @@ export class Module extends Base {
     @OneToMany(() => Resource, (resource) => resource.module)
     module: Module[];
     resource: any;
+
+    @OneToMany(() => Teacher, (teacher) => teacher.module, { cascade: true })
+    teacher: Teacher[];
 
 }

@@ -45,7 +45,4 @@ export class University extends Base {
     @OneToMany(() => Teacher, (teacher) => teacher.university, {cascade: true})
     teacher: Teacher;
 
-    @OneToMany(() => Resource, (resource) => resource.university, { cascade: true })
-  resources: Resource[];
-
 }
