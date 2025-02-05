@@ -11,6 +11,10 @@ import { TeacherInterface } from "../interface/teacher.interface";
 import { Teacher } from "../entities/teacher/teacher.entity";
 import { ResourceInterface } from "../interface/resource.interface";
 import { Resource } from "../entities/resources/resource.entity";
+import { StudentInterface } from "../interface/student.interface";
+import { Student } from "../entities/student/student.entity";
+import { StudentDetails } from "../entities/student/studentDetails.entity";
+import { Gender } from "../constant/enum";
 
 const bcryptservice = new BcryptService();
 
@@ -20,8 +24,11 @@ class UniversityService {
     private readonly progRepo = AppDataSource.getRepository(Program),
     private readonly modRepo = AppDataSource.getRepository(Module),
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
-    private readonly resourceRepo = AppDataSource.getRepository(Resource)
-
+    private readonly resourceRepo = AppDataSource.getRepository(Resource),
+    private readonly studentRepo = AppDataSource.getRepository(Student),
+    private readonly studentDetailsRepo = AppDataSource.getRepository(
+      StudentDetails
+    )
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -208,16 +215,18 @@ class UniversityService {
       }
     }
   }
-  
+
   async addTeacher(uni_id: string, data: TeacherInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
+      const hashPassword = await bcryptservice.hash(data.password);
+
       const teacher = this.TeachRepo.create({
         name: data.name,
         email: data.email,
-        password: data.password,
+        password: hashPassword,
         gender: data.gender,
         contact: data.contact,
         university: uni,
@@ -232,7 +241,11 @@ class UniversityService {
     }
   }
 
-  async updateTeacher(uni_id: string, teacher_id: string, data:TeacherInterface){
+  async updateTeacher(
+    uni_id: string,
+    teacher_id: string,
+    data: TeacherInterface
+  ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -240,17 +253,17 @@ class UniversityService {
       const teacher = await this.uniRepo.findOneBy({ id: teacher_id });
       if (!teacher) throw new Error("Teacher not found Not found");
 
-      const update = this.TeachRepo.update({id:teacher_id},{
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        gender: data.gender,
-        contact: data.contact,
-        university: uni,
-      })
-      return 'Teacher Update successfully';
-
-      
+      const update = this.TeachRepo.update(
+        { id: teacher_id },
+        {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          gender: data.gender,
+          contact: data.contact,
+        }
+      );
+      return "Teacher Update successfully";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -263,34 +276,35 @@ class UniversityService {
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
-      
+
       if (!university) {
         throw new Error("University not found");
       }
-  
+
       const teachers = await this.TeachRepo.find({ where: { university } });
-  
+
       if (!teachers.length) {
         throw new Error("No teachers found for this university");
       }
       return teachers;
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "Failed to fetch teachers");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch teachers"
+      );
     }
   }
-  
 
   async getTeacherById(uni_id: string, teacherId: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
+
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacherId, university: { id: uni_id } },
       });
-  
+
       if (!teacher) throw new Error("Teacher not found");
-  
+
       return teacher;
     } catch (error: any) {
       throw new Error(error.message || "Failed to get teacher");
@@ -304,7 +318,9 @@ class UniversityService {
       });
 
       if (!teacher) {
-        throw new Error("Teacher not found or does not belong to the university");
+        throw new Error(
+          "Teacher not found or does not belong to the university"
+        );
       }
 
       await this.TeachRepo.delete({ id: teacher_id });
@@ -313,13 +329,41 @@ class UniversityService {
     } catch (error: any) {
       throw new Error(error.message);
     }
-}
+  }
 
-  
+  async addStudent(uni_id: string, data: StudentInterface) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
+      const hashPassword = await bcryptservice.hash(data.password);
 
-  
-  
+      const student = this.studentRepo.create({
+        email: data.email,
+        username: data.username,
+        password: hashPassword,
+        uni: uni,
+      });
+
+      await this.studentRepo.save(student);
+
+      const studentDetails = this.studentDetailsRepo.create({
+        first_name: data.first_name,
+        middle_name: data.middle_name,
+        last_name: data.last_name,
+        phone_number: data.phone_number,
+        DOB: data.DOB,
+        gender: Gender[data.gender as keyof typeof Gender],
+        student: student,
+      });
+
+      await this.studentDetailsRepo.save(studentDetails);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
 }
 
 export default new UniversityService();
