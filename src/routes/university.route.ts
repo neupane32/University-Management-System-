@@ -25,6 +25,9 @@ router.delete('/uni-deleteTeacher', catchAsync(universityController.deleteTeache
 
 //student operation
 router.post('/uni-addStudnet', catchAsync(universityController.addStudent));
+router.patch('/uni-editStudent', catchAsync(universityController.editStudent));
+router.get('/uni-getStudents', catchAsync(universityController.getStudent));
+router.delete('/uni-deleteStudent', catchAsync(universityController.deleteStudent));
 
 
 

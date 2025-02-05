@@ -15,6 +15,7 @@ import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
 import { StudentDetails } from "../entities/student/studentDetails.entity";
 import { Gender } from "../constant/enum";
+import { truncate } from "fs";
 
 const bcryptservice = new BcryptService();
 
@@ -250,7 +251,7 @@ class UniversityService {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const teacher = await this.uniRepo.findOneBy({ id: teacher_id });
+      const teacher = await this.TeachRepo.findOneBy({ id: teacher_id });
       if (!teacher) throw new Error("Teacher not found Not found");
 
       const update = this.TeachRepo.update(
@@ -358,6 +359,96 @@ class UniversityService {
       });
 
       await this.studentDetailsRepo.save(studentDetails);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
+
+  async getStudent(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const students = await this.studentRepo
+        .createQueryBuilder("student")
+        .leftJoinAndSelect("student.details", "details")
+        .leftJoinAndSelect("student.uni", "uni")
+        .where("uni_id = :uni_id", { uni_id })
+        .getMany();
+
+      return students;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
+
+  async editStudent(
+    uni_id: string,
+    student_id: string,
+    data: StudentInterface
+  ) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const student = await this.studentRepo.findOne({
+        where: { id: student_id },
+        relations: ["details"],
+      });
+      if (!student) throw HttpException.notFound("Student not found");
+
+      (student.email = data.email || student.email),
+        (student.username = data.username || student.username),
+        (student.details.first_name =
+          data.first_name || student.details.first_name),
+        (student.details.middle_name =
+          data.middle_name || student.details.middle_name);
+      (student.details.last_name = data.last_name || student.details.last_name),
+        (student.details.phone_number =
+          data.phone_number || student.details.phone_number),
+        (student.details.DOB = data.DOB || student.details.DOB),
+        (student.details.gender =
+          Gender[data.gender as keyof typeof Gender] || student.details.gender);
+
+      await this.studentRepo.save(student);
+      await this.studentDetailsRepo.save(student.details);
+      return student;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
+
+  async deleteStudent(uni_id:string, student_id: string){
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const student = await this.studentRepo.findOne({
+        where: { id: student_id },
+        relations: ["details"],
+      });
+      if (!student) throw HttpException.notFound("Student not found");
+
+      const adminOfStudent = await this.studentRepo.findOneBy({ uni: uni })
+      if (adminOfStudent) {
+         const deleteStudent = await this.studentRepo
+        .createQueryBuilder('student')
+        .delete()
+        .from(Student)
+        .where('student.id =:student_id', { student_id })
+        .execute();
+      } else {
+        throw HttpException.unauthorized('You do not have access to delete student')
+      }
+     
+      return 'Student deleted successfully';
+      
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
