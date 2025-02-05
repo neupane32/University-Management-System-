@@ -23,6 +23,10 @@ router.get('/uni-getTeachers', catchAsync(universityController.getTeacher));
 router.get('/uni-getTeacherById', catchAsync(universityController.getTeacherById));
 router.delete('/uni-deleteTeacher', catchAsync(universityController.deleteTeacher));
 
+//student operation
+router.post('/uni-addStudnet', catchAsync(universityController.addStudent));
+
+
 
 
 
