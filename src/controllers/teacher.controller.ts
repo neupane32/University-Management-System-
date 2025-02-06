@@ -2,6 +2,7 @@ import { ResourceInterface } from "../interface/resource.interface";
 import TeacherService from "../services/teacher.service";
 import { Request, Response } from "express";
 import { StatusCodes } from "../constant/StatusCode";
+import { AnnouncementInterface } from "../interface/announcement.interface";
 
 const teacherService = new TeacherService();
 
@@ -73,6 +74,49 @@ export class TeacherController {
         } catch (error: any) {
           return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
         }
+    }
+
+    async createAnnouncement(req:Request, res:Response){
+        try {
+            const teacher_id = req.user?.id
+            const module_id = req.user?.id
+
+            const data = await teacherService.createAnnouncement(teacher_id as string, module_id as string, req.body as AnnouncementInterface);
+            res.status(StatusCodes.SUCCESS).json({
+                data,
+              });
+            } catch (error: any) {
+              res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+            }
+    }
+
+    async updateAnnouncement(req:Request, res:Response){
+        try {
+            const teacher_id = req.user?.id
+            const module_id = req.user?.id
+            const id = req.params.id
+
+            const data = await teacherService.updateAnnouncement(teacher_id as string, module_id as string, id, req.body as AnnouncementInterface);
+            res.status(StatusCodes.SUCCESS).json({
+                data,
+              });
+            } catch (error: any) {
+              res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+            }
+    }
+
+    async deleteAnnouncement(req:Request, res:Response){
+        try {
+            const id = req.params.id
+
+
+            const data = await teacherService.deleteAnnouncement(id as string);
+            res.status(StatusCodes.SUCCESS).json({
+                data,
+              });
+            } catch (error: any) {
+              res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+            }
     }
 
 
