@@ -15,6 +15,13 @@ router.post('/add-resource', catchAsync(teacherController.addResource));
 router.patch('/update-resource', catchAsync(teacherController.updateResource));
 router.delete('/delete-resource', catchAsync(teacherController.deleteResource));
 
+router.post('/create-announce', catchAsync(teacherController.createAnnouncement));
+router.patch('/update-announce', catchAsync(teacherController.updateAnnouncement));
+router.delete('/delete-announce', catchAsync(teacherController.deleteAnnouncement));
+
+
+
+
 
 
 export default router;

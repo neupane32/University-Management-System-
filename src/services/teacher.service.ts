@@ -5,13 +5,18 @@ import { Resource } from "../entities/resources/resource.entity";
 import { Module } from "../entities/module/module.entity";
 import { Teacher } from "../entities/teacher/teacher.entity";
 import { TeacherInterface } from "../interface/teacher.interface";
+import { AnnouncementInterface } from "../interface/announcement.interface";
+import { Announcement } from "../entities/announcement/announcement.entity";
+import { StringMappingType } from "typescript";
 
 class TeacherService {
   constructor(
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly moduleRepo = AppDataSource.getRepository(Module),
     private readonly teacherRepo = AppDataSource.getRepository(Teacher),
-    private readonly resourceRepo = AppDataSource.getRepository(Resource)
+    private readonly resourceRepo = AppDataSource.getRepository(Resource),
+    private readonly announceRepo = AppDataSource.getRepository(Announcement),
+
   ) {}
 
   async addResource(teacher_id: string, module_id: string, content: any[], data: ResourceInterface) {
@@ -134,6 +139,67 @@ class TeacherService {
         throw new Error(error.message || "Failed to delete resource");
     }
 }
+
+async createAnnouncement(teacher_id: string, module_id: string, data:AnnouncementInterface){
+    try {
+        const teacher = await this.teacherRepo.findOneBy({id: teacher_id})
+        const module = await this.moduleRepo.findOneBy({id: module_id})
+
+        const announcement = this.announceRepo.create({
+            announce_name: data.announce_name,
+            annoounce_title: data.announce_title,
+            announce_date: data.announce_date,
+            teacher: teacher,
+            module: module
+        });
+
+        await this.announceRepo.save(announcement);
+        return announcement;
+    } catch (error) {
+        throw new Error(error.message || "Failed to create announcement");
+    }
+}
+
+async updateAnnouncement(id: string, teacher_id: string, module_id: string, data: AnnouncementInterface) {
+    try {
+        const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+        const module = await this.moduleRepo.findOneBy({ id: module_id });
+        const announcement = await this.announceRepo.findOneBy({ id });
+
+        if (!announcement) {
+            throw new Error("Announcement not found");
+        }
+
+        announcement.announce_name = data.announce_name;
+        announcement.annoounce_title = data.announce_title;
+        announcement.announce_date = data.announce_date;
+        announcement.teacher = teacher;
+        announcement.module = module;
+
+        await this.announceRepo.save(announcement);
+        return announcement;
+    } catch (error) {
+        throw new Error(error.message || "Failed to update announcement");
+    }
+}
+
+async deleteAnnouncement(id: string) {
+    try {
+        const announcement = await this.announceRepo.findOneBy({ id });
+
+        if (!announcement) {
+            throw new Error("Announcement not found");
+        }
+
+        await this.announceRepo.remove(announcement);
+        return { message: "Announcement deleted successfully" };
+    } catch (error) {
+        throw new Error(error.message || "Failed to delete announcement");
+    }
+}
+
+
+
 
 
 
