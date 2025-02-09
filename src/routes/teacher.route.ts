@@ -10,6 +10,8 @@ const teacherController = new TeacherController;
 router.use(authentication());
 router.use(authorization([Role.TEACHER]));
 
+router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
+
 
 router.post('/add-resource', catchAsync(teacherController.addResource));
 router.patch('/update-resource', catchAsync(teacherController.updateResource));
