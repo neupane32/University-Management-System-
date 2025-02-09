@@ -53,7 +53,7 @@ async getTeacherById(id: string): Promise<University> {
         .where('uni.id = :id', { id });
 
         const teach = await query.getOne();
-        if(!teach) throw new error ( 'Teacher not found');
+        if(!teach) throw new Error ( 'Teacher not found');
         return teach;
     } catch (error) {
         if (error instanceof Error) {
