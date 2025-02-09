@@ -1,0 +1,58 @@
+import { Student } from "../entities/student/student.entity";
+import { AppDataSource } from "../config/database.config";
+import { University } from "../entities/university/university.entity";
+import { StudentInterface } from "../interface/student.interface";
+import HttpException from "../utils/HttpException.utils";
+import BcryptService from "../utils/bcrypt.utils";
+
+const bcryptService = new BcryptService();
+class StudentService {
+  constructor(
+    private readonly studentRepo = AppDataSource.getRepository(Student),
+    private readonly uniRepo = AppDataSource.getRepository(University)
+  ) {}
+
+  async loginStudent(data: StudentInterface): Promise<University> {
+    try {
+      const student = await this.studentRepo.findOne({
+        where: [{ email: data.email }],
+        select: ["id", "email", "password"],
+      });
+
+      if (!student)
+        throw HttpException.badRequest("Entered Email is not regustred yet!!");
+      const isPassword = await bcryptService.compare(
+        data.password,
+        student.password
+      );
+      if (!isPassword) throw HttpException.badRequest("Incorrect password");
+
+      return await this.getStudentById(student.id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
+      }
+    }
+  }
+
+  async getStudentById(id: string): Promise<University> {
+    try {
+        const query = this.uniRepo
+        .createQueryBuilder('uni')
+        .where('uni.id = :id', { id });
+
+        const teach = await query.getOne();
+        if(!teach) throw new Error ( 'Teacher not found');
+        return teach;
+    } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        } else {
+          throw new Error('User not found');
+        }
+      }
+  }
+}
+export default StudentService
