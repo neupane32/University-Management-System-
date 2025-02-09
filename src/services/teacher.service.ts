@@ -8,6 +8,11 @@ import { TeacherInterface } from "../interface/teacher.interface";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { StringMappingType } from "typescript";
+import { Auth } from "typeorm";
+import BcryptService from "../utils/bcrypt.utils";
+import HttpException from "../utils/HttpException.utils";
+import { error } from "console";
+const bcryptService = new BcryptService()
 
 class TeacherService {
   constructor(
@@ -18,6 +23,47 @@ class TeacherService {
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
 
   ) {}
+
+  async loginTeacher(data: TeacherInterface): Promise<University>{
+    try {
+        const teacher = await this.teacherRepo.findOne({
+            where: [{email: data.email}],
+            select: ['id', 'email', 'password'],
+        })
+
+    if (!teacher) throw HttpException.badRequest('Entered email is not registered yet');
+    const isPassword = await bcryptService.compare(data.password, teacher.password);
+      if (!isPassword) throw HttpException.badRequest('Incorrect password');
+
+      return await this.getTeacherById(teacher.id);
+
+    } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.badRequest('Invalid credentials');
+        }
+      }
+}
+
+async getTeacherById(id: string): Promise<University> {
+    try {
+        const query = this.uniRepo
+        .createQueryBuilder('uni')
+        .where('uni.id = :id', { id });
+
+        const teach = await query.getOne();
+        if(!teach) throw new error ( 'Teacher not found');
+        return teach;
+    } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        } else {
+          throw new Error('User not found');
+        }
+      }
+
+}
 
   async addResource(teacher_id: string, module_id: string, content: any[], data: ResourceInterface) {
     try {
