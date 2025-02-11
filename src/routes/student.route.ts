@@ -11,3 +11,5 @@ router.use(authentication())
 router.use(authorization([Role.STUDNET]));
 
 router.post('/student-login', catchAsync(studentController.loginStudent));
+router.get('/get-announcements/:module_id', catchAsync(studentController.getAnnouncements));
+

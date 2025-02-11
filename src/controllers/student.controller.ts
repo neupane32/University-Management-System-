@@ -38,4 +38,19 @@ export class StudentController {
         }
       }
   }
+
+  async getAnnouncements(req:Request, res:Response){
+    try {
+        const module_id = req.params.module_id;
+
+        const data = await studentService.getAnnouncments(module_id);
+
+        res.status(StatusCodes.SUCCESS).json({
+            data,
+        });
+
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }

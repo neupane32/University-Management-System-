@@ -4,12 +4,15 @@ import { University } from "../entities/university/university.entity";
 import { StudentInterface } from "../interface/student.interface";
 import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
+import { Announcement } from "../entities/announcement/announcement.entity";
 
 const bcryptService = new BcryptService();
 class StudentService {
   constructor(
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly uniRepo = AppDataSource.getRepository(University)
+    private readonly uniRepo = AppDataSource.getRepository(University),
+    private readonly announceRepo = AppDataSource.getRepository(Announcement),
+    
   ) {}
 
   async loginStudent(data: StudentInterface): Promise<University> {
@@ -53,6 +56,25 @@ class StudentService {
           throw new Error('User not found');
         }
       }
+  }
+
+  async getAnnouncments(module_id: string) {
+    try {
+            const announcements = await this.announceRepo.find({
+                where: { module: { id: module_id } },
+                relations: ["teacher", "module"],
+                order: { announce_date: "DESC" }
+            });
+
+            if (!announcements.length) {
+                throw new Error("No announcements found for this module");
+            }
+
+            return announcements;
+        
+    } catch (error) {
+        throw new Error(error.message || "Failed to fetch announcements");
+    }
   }
 }
 export default StudentService
