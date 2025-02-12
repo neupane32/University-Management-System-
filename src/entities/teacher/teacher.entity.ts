@@ -5,6 +5,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Module } from "../../entities/module/module.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
+import { Assignment } from "../../entities/Assignment/assignment.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
@@ -53,6 +54,9 @@ export class Teacher extends Base {
 
     @OneToMany(() => Announcement, (announce) => announce.teacher, {cascade: true})
     announcement: Announcement[];
+
+    @OneToMany(()=> Assignment, (assignment) => assignment.teacher, {cascade: true})
+    assignments: Assignment;
 
 
 }

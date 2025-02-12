@@ -5,6 +5,7 @@ import { StudentInterface } from "../interface/student.interface";
 import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
 import { Announcement } from "../entities/announcement/announcement.entity";
+import { Assignment } from "../entities/Assignment/assignment.entity";
 
 const bcryptService = new BcryptService();
 class StudentService {
@@ -12,6 +13,8 @@ class StudentService {
     private readonly studentRepo = AppDataSource.getRepository(Student),
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
+    private readonly assignmentRepo = AppDataSource.getRepository(Assignment)
+    
     
   ) {}
 
@@ -74,6 +77,25 @@ class StudentService {
         
     } catch (error) {
         throw new Error(error.message || "Failed to fetch announcements");
+    }
+  }
+
+  async getAssignments(module_id: string) {
+    try {
+        const assignments = await this.assignmentRepo.find({
+            where: {module: { id: module_id}},
+            relations: ["teacher", "module"],
+            order: {due_date: "DESC"}
+        });
+
+        if(!assignments.length){ 
+            throw new Error("No Assignments found for this module");
+        }
+
+        return assignments;
+
+    } catch (error) {
+        throw new Error(error.message || "Failed to fetch assignments");
     }
   }
 }
