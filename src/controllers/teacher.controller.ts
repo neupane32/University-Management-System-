@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "../constant/StatusCode";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import webTokenUtils from "../utils/webToken.utils";
+import { AssignmentInterface } from "../interface/assignment.interface";
 
 const teacherService = new TeacherService();
 
@@ -157,6 +158,24 @@ export class TeacherController {
       const id = req.params.id;
 
       const data = await teacherService.deleteAnnouncement(id as string);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async createAssignment(req:Request, res: Response){
+    try {
+      const teacher_id = req.user?.id;
+      const module_id = req.user?.id;
+
+      const data = await teacherService.createAssignment(
+        teacher_id as string,
+        module_id as string,
+        req.body as AssignmentInterface
+      );
       res.status(StatusCodes.SUCCESS).json({
         data,
       });

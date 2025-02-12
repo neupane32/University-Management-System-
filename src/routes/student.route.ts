@@ -13,3 +13,6 @@ router.use(authorization([Role.STUDNET]));
 router.post('/student-login', catchAsync(studentController.loginStudent));
 router.get('/get-announcements/:module_id', catchAsync(studentController.getAnnouncements));
 
+router.get('/get-assignments/:module_id', catchAsync(studentController.getAssignments));
+
+
