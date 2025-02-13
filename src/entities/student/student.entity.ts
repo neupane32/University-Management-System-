@@ -31,8 +31,7 @@ export class Student extends Base {
   active: boolean;
 
   @ManyToOne(() => University, (uni) => uni.student, {
-    onDelete: "CASCADE",
-  })
+    onDelete: "CASCADE" })
   @JoinColumn({ name: "uni_id" })
   uni: University;
 

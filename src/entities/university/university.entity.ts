@@ -5,6 +5,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Student } from "../../entities/student/student.entity";
+import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 
 @Entity('University')
 export class University extends Base {
@@ -48,5 +49,8 @@ export class University extends Base {
 
     @OneToMany(() => Student, (student) => student.uni, {cascade: true})
     student: Student;
+
+    @OneToMany(() => ExamRoutine, (routine) => routine.university, {onDelete: "CASCADE"})
+    routine: ExamRoutine;
 
 }
