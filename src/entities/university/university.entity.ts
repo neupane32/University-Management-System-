@@ -50,7 +50,8 @@ export class University extends Base {
     @OneToMany(() => Student, (student) => student.uni, {cascade: true})
     student: Student;
 
-    @OneToMany(() => ExamRoutine, (routine) => routine.university, {onDelete: "CASCADE"})
-    routine: ExamRoutine;
+    @OneToMany(() => ExamRoutine, (routine) => routine.approved_by, { onDelete: "CASCADE" })
+    examRoutines: ExamRoutine[];
+    
 
 }

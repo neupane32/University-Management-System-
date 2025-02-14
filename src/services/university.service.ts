@@ -16,6 +16,7 @@ import { Student } from "../entities/student/student.entity";
 import { StudentDetails } from "../entities/student/studentDetails.entity";
 import { Gender } from "../constant/enum";
 import { truncate } from "fs";
+import { ExamRoutine, RoutineStatus } from "../entities/examRoutine/examRoutine.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -27,9 +28,10 @@ class UniversityService {
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly studentDetailsRepo = AppDataSource.getRepository(
-      StudentDetails
-    )
+    private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
+    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
+
+
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -452,6 +454,27 @@ class UniversityService {
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
+      }
+    }
+  }
+
+  async approveRoutine(uni_id: string, routine_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+  
+      const routine = await this.routineRepo.findOneBy({ id: routine_id });
+      if (!routine) throw new Error("Exam routine not found");
+  
+      routine.status = RoutineStatus.APPROVED;
+      routine.approved_by = uni;
+  
+      return await this.routineRepo.save(routine);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Failed to approve routine");
       }
     }
   }
