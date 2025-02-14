@@ -24,6 +24,9 @@ router.delete('/delete-announce', catchAsync(teacherController.deleteAnnouncemen
 router.post('/create-assignment', catchAsync(teacherController.createAssignment));
 
 
+router.post('/create-routine', catchAsync(teacherController.createRoutine));
+
+
 
 
 

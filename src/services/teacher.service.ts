@@ -14,6 +14,8 @@ import HttpException from "../utils/HttpException.utils";
 import { error } from "console";
 import { AssignmentInterface } from "../interface/assignment.interface";
 import { Assignment } from "../entities/Assignment/assignment.entity";
+import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
+import { ExamRoutineInterface } from "../interface/examRoutine.interface";
 const bcryptService = new BcryptService();
 
 class TeacherService {
@@ -23,7 +25,9 @@ class TeacherService {
     private readonly teacherRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
-    private readonly assignmentRepo = AppDataSource.getRepository(Assignment)
+    private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
+    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
+
   ) {}
 
   async loginTeacher(data: TeacherInterface): Promise<University> {
@@ -300,6 +304,23 @@ class TeacherService {
     } catch (error) {
       throw new Error(error.message || "Failed to create assignment");
     }
+  }
+
+  async createRoutine(teacher_id: string, module_id: string, data: ExamRoutineInterface) {
+
+    const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+      const module = await this.moduleRepo.findOneBy({ id: module_id });
+
+      const routine = this.routineRepo.create({
+        title: data.title,
+        description: data.description,
+        exam_date: data.exam_date,
+        teacher: teacher,
+        module: module,
+      });
+      await this.routineRepo.save(routine);
+      return routine;
+
   }
 }
 

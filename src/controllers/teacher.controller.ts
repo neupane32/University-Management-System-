@@ -5,6 +5,7 @@ import { StatusCodes } from "../constant/StatusCode";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import webTokenUtils from "../utils/webToken.utils";
 import { AssignmentInterface } from "../interface/assignment.interface";
+import { ExamRoutineInterface } from "../interface/examRoutine.interface";
 
 const teacherService = new TeacherService();
 
@@ -175,6 +176,24 @@ export class TeacherController {
         teacher_id as string,
         module_id as string,
         req.body as AssignmentInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async createRoutine(req:Request, res: Response){
+    try {
+      const teacher_id = req.user?.id;
+      const module_id = req.user?.id;
+
+      const data = await teacherService.createRoutine(
+        teacher_id as string,
+        module_id as string,
+        req.body as ExamRoutineInterface
       );
       res.status(StatusCodes.SUCCESS).json({
         data,
