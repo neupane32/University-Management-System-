@@ -32,6 +32,7 @@ export class Student extends Base {
 
   @ManyToOne(() => University, (uni) => uni.student, {
     onDelete: "CASCADE" })
+    
   @JoinColumn({ name: "uni_id" })
   uni: University;
 

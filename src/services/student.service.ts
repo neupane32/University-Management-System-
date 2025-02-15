@@ -6,6 +6,7 @@ import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { Assignment } from "../entities/Assignment/assignment.entity";
+import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
 
 const bcryptService = new BcryptService();
 class StudentService {
@@ -13,8 +14,8 @@ class StudentService {
     private readonly studentRepo = AppDataSource.getRepository(Student),
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
-    private readonly assignmentRepo = AppDataSource.getRepository(Assignment)
-    
+    private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
+    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
     
   ) {}
 
