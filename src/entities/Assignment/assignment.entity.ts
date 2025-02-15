@@ -1,9 +1,10 @@
 import { timeStamp } from "console";
 import Base from "../../entities/base.entity";
 import { basename } from "path";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Module } from "../../entities/module/module.entity";
+import { AssignmentEntity } from "./submitAssignment.entity";
 
 @Entity('Assignment')
 export class Assignment extends Base {
@@ -24,4 +25,6 @@ export class Assignment extends Base {
     @JoinColumn({name: "module_id"})
     module: Module;
 
+    @OneToMany(() => AssignmentEntity, submission => submission.assignment)
+    submissions: AssignmentEntity[];
 }
