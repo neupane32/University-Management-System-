@@ -66,4 +66,18 @@ export class StudentController {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async submitAssignment(req: Request, res: Response) {
+    try {
+        const { studentId, assignmentId, submissionDesc } = req.body;
+        const data = await studentService.submitAssignment(studentId, assignmentId, submissionDesc);
+
+        res.status(StatusCodes.SUCCESS).json({
+            data,
+            message: "Assignment submitted successfully",
+        });
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+}
 }
