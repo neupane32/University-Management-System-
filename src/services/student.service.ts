@@ -7,6 +7,7 @@ import BcryptService from "../utils/bcrypt.utils";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { Assignment } from "../entities/Assignment/assignment.entity";
 import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
+import { submitAssignmnet } from "../entities/Assignment/submitAssignment.entity";
 
 const bcryptService = new BcryptService();
 class StudentService {
@@ -15,7 +16,9 @@ class StudentService {
     private readonly uniRepo = AppDataSource.getRepository(University),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
     private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
+    private readonly submissionRepo = AppDataSource.getRepository(submitAssignmnet),
     private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
+
     
   ) {}
 
@@ -99,5 +102,26 @@ class StudentService {
         throw new Error(error.message || "Failed to fetch assignments");
     }
   }
+
+  async submitAssignment(student_id: string, assignment_id: string, submissionDesc: string) {
+    try {
+      const student = await this.studentRepo.findOne({ where: { id: student_id } });
+      const assignment = await this.assignmentRepo.findOne({ where: { id: assignment_id } });
+
+      if (!student || !assignment) {
+        throw new Error("Student or Assignment not found");
+    }
+
+        const submission = this.submissionRepo.create({
+            submission_desc: submissionDesc,
+            assignment: assignment,
+        });
+
+        await this.submissionRepo.save(submission);
+        return submission;
+    } catch (error) {
+        throw new Error(error.message || "Failed to submit assignment");
+    }
+}
 }
 export default StudentService

@@ -15,4 +15,5 @@ router.get('/get-announcements/:module_id', catchAsync(studentController.getAnno
 
 router.get('/get-assignments/:module_id', catchAsync(studentController.getAssignments));
 
-
+//route for submitting an assignment
+router.post('/submit-assignment', catchAsync(studentController.submitAssignment));
