@@ -35,10 +35,4 @@ export class ExamRoutine extends Base {
   @ManyToOne(() => University, (university) => university.examRoutines, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "approved_by" })
   approved_by: University | null;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

@@ -1,10 +1,12 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Assignment } from "./assignment.entity";
-
-
 
 @Entity()
 export class submitAssignmnet{
+
+    @PrimaryGeneratedColumn()
+    id: string;
+    
     @Column()
     submission_desc: string;
 
