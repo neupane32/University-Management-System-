@@ -14,12 +14,12 @@ router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
 
 
 router.post('/add-resource', catchAsync(teacherController.addResource));
-router.patch('/update-resource', catchAsync(teacherController.updateResource));
-router.delete('/delete-resource', catchAsync(teacherController.deleteResource));
+router.patch('/update-resource/:id', catchAsync(teacherController.updateResource));
+router.delete('/delete-resource/:id', catchAsync(teacherController.deleteResource));
 
 router.post('/create-announce', catchAsync(teacherController.createAnnouncement));
-router.patch('/update-announce', catchAsync(teacherController.updateAnnouncement));
-router.delete('/delete-announce', catchAsync(teacherController.deleteAnnouncement));
+router.patch('/update-announce/:id', catchAsync(teacherController.updateAnnouncement));
+router.delete('/delete-announce/:id', catchAsync(teacherController.deleteAnnouncement));
 
 router.post('/create-assignment', catchAsync(teacherController.createAssignment));
 
