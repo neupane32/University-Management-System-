@@ -30,11 +30,13 @@ class TeacherService {
 
   ) {}
 
-  async loginTeacher(data: TeacherInterface): Promise<University> {
+  async loginTeacher(data: TeacherInterface): Promise<Teacher> {
     try {
       const teacher = await this.teacherRepo.findOne({
         where: [{ email: data.email }],
-        select: ["id", "email", "password"],
+        select: ["id", "email", "password",
+          'role'
+        ],
       });
 
       if (!teacher)
@@ -55,9 +57,9 @@ class TeacherService {
     }
   }
 
-  async getTeacherById(id: string): Promise<University> {
+  async getTeacherById(id: string): Promise<Teacher> {
     try {
-      const query = this.uniRepo
+      const query = this.teacherRepo
         .createQueryBuilder("uni")
         .where("uni.id = :id", { id });
 
@@ -301,6 +303,28 @@ class TeacherService {
 
       await this.assignmentRepo.save(assignment);
       return assignment;
+    } catch (error) {
+      throw new Error(error.message || "Failed to create assignment");
+    }
+  }
+  async updateAssignment(
+    teacher_id: string,
+    assigment_id: string,
+    data: AssignmentInterface
+  ) {
+    try {
+      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+      if(!teacher) throw new Error("You are not authorized")
+
+      const assignment = await this.assignmentRepo.findOneBy({ id:assigment_id, teacher:{id:teacher_id} });
+  if(!assignment) throw new Error("Assignment not found")
+      const assignments = this.assignmentRepo.update({id:assigment_id},{
+        title: data.title,
+        description: data.description,
+        due_date: data.due_Date,
+
+      });
+      return assignments;
     } catch (error) {
       throw new Error(error.message || "Failed to create assignment");
     }

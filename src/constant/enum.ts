@@ -25,4 +25,10 @@ export enum Environment {
     FEMALE = 'FEMALE',
     NULL = 'NULL',
   }
+
+  export enum RoutineStatus {
+    PENDING = "pending",
+    APPROVED = "approved",
+    REJECTED = "rejected"
+  }
   
