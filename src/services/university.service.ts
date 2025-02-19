@@ -14,9 +14,9 @@ import { Resource } from "../entities/resources/resource.entity";
 import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
 import { StudentDetails } from "../entities/student/studentDetails.entity";
-import { Gender } from "../constant/enum";
+import { Gender, RoutineStatus } from "../constant/enum";
 import { truncate } from "fs";
-import { ExamRoutine, RoutineStatus } from "../entities/examRoutine/examRoutine.entity";
+import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -208,7 +208,7 @@ class UniversityService {
       const module = await this.modRepo.findOneBy({ id: module_id });
       if (!module) throw new Error("No Faculty found");
 
-      await this.modRepo.delete({ university: uni, id: module_id! });
+      await this.modRepo.delete({ university: uni });
       return "Module Deleted successfully";
     } catch (error) {
       if (error instanceof Error) {

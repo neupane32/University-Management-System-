@@ -3,12 +3,8 @@ import Base from "../../entities/base.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { Module } from "../../entities/module/module.entity";
 import { University } from "../../entities/university/university.entity";
+import { RoutineStatus } from "../../constant/enum";
 
-export enum RoutineStatus {
-  PENDING = "pending",
-  APPROVED = "approved",
-  REJECTED = "rejected"
-}
 
 @Entity("ExamRoutine")
 export class ExamRoutine extends Base {
