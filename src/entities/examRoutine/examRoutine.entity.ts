@@ -4,6 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColu
 import { Module } from "../../entities/module/module.entity";
 import { University } from "../../entities/university/university.entity";
 import { RoutineStatus } from "../../constant/enum";
+import { Student } from "../../entities/student/student.entity";
 
 
 @Entity("ExamRoutine")
@@ -31,4 +32,8 @@ export class ExamRoutine extends Base {
   @ManyToOne(() => University, (university) => university.examRoutines, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "approved_by" })
   approved_by: University | null;
+
+  @ManyToOne(()=> Student, (student) => student.routine, {onDelete: "CASCADE"})
+  @JoinColumn({name: "student_id"})
+  student: Student;
 }

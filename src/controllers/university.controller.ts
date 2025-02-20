@@ -297,4 +297,14 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async getRoutinesForAdmin(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getRoutinesForAdmin(uni_id as string);
+      res.status(StatusCodes.SUCCESS).json({ data });
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }

@@ -1,8 +1,9 @@
 import { University } from "../../entities/university/university.entity";
 import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity, OneToOne, ManyToOne, JoinColumn } from "typeorm";
+import { Column, Entity, OneToOne,OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { StudentDetails } from "./studentDetails.entity";
+import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 
 @Entity("studnet")
 export class Student extends Base {
@@ -40,4 +41,7 @@ export class Student extends Base {
     cascade: true,
   })
   details: StudentDetails;
+
+  @OneToMany(() => ExamRoutine, (routine) => routine.student, {cascade: true})
+      routine : ExamRoutine;
 }

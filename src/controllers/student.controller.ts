@@ -80,4 +80,17 @@ export class StudentController {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
 }
+
+async getRoutine(req:Request, res:Response){
+  try {
+    const student_id = req.params.id;
+    const data = await studentService.getApproveRoutine(student_id);
+
+    res.status(StatusCodes.SUCCESS).json({ data,
+      message: "Routine get successfully",
+     });
+  } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+}
 }
