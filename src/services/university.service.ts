@@ -478,6 +478,24 @@ class UniversityService {
       }
     }
   }
+
+  async getRoutinesForAdmin(uni_id: string) {
+    try {
+        const uni = await this.uniRepo.findOneBy({ id: uni_id });
+        if (!uni) throw new Error("University not found");
+
+        const routines = await this.routineRepo.find({
+            relations: ["teacher", "module", "approved_by"],
+        });
+
+        return routines;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+}
+
 }
 
 export default new UniversityService();

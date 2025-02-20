@@ -25,6 +25,8 @@ router.post('/create-assignment', catchAsync(teacherController.createAssignment)
 
 
 router.post('/create-routine', catchAsync(teacherController.createRoutine));
+router.get('/get-routine', catchAsync(teacherController.getTeacherRoutines));
+
 
 
 

@@ -202,4 +202,16 @@ export class TeacherController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async getTeacherRoutines(req:Request , res:Response){
+    try {
+      const teacher_id = req.params.id;
+      const data = await teacherService.getTeacherRoutines(teacher_id);
+      res.status(StatusCodes.SUCCESS).json({ data,
+        message: "Routine get successfully",
+       });
+    } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }

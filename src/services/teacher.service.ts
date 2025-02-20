@@ -346,6 +346,20 @@ class TeacherService {
       return routine;
 
   }
+
+  async getTeacherRoutines(teacher_id: string) {
+    try {
+        const routines = await this.routineRepo.find({
+            where: { teacher: { id: teacher_id } },
+            relations: ["module", "approved_by"],
+        });
+
+        return routines;
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to fetch teacher's routines");
+    }
+}
+
 }
 
 export default TeacherService;
