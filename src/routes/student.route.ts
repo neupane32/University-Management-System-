@@ -18,3 +18,5 @@ router.get('/get-assignments/:module_id', catchAsync(studentController.getAssign
 
 router.post('/submit-assignment', catchAsync(studentController.submitAssignment));
 router.get('/routines', catchAsync(studentController.getRoutine));
+
+export default router;

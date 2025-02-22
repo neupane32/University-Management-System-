@@ -3,6 +3,7 @@ import path from "path";
 import admin from '../routes/admin.routes';
 import university from './university.route';
 import teacher from './teacher.route';
+import subscription from './subscription.routes';
 
 
 export interface IndexRoute {
@@ -27,6 +28,12 @@ const routes: IndexRoute[] = [
     {
         path: '/teach',
         route: teacher
+
+    },
+
+    {
+        path: '/subscription',
+        route: subscription
 
     },
 ];
