@@ -54,6 +54,22 @@ export class UniversityController {
     }
   }
 
+  async uniProfile(req:Request, res: Response){
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.uniProfile(
+        uni_id as string,
+        req.body as UniversityInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data: data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+
+  }
+
   async addProgram(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -73,6 +89,7 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const data = await universityService.findProgram(uni_id as string);
+
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -81,6 +98,41 @@ export class UniversityController {
     }
   }
 
+  async updateProgram(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const prog_id = req.params.id;
+      
+
+      const data = await universityService.updateProgam(
+        uni_id as string,
+        prog_id,
+        req.body as ProgramInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async deleteProgram(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const program_id = req.params.id;
+
+      const data = await universityService.deleteProgram(
+        uni_id as string,
+        program_id
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
   async addModule(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -102,11 +154,11 @@ export class UniversityController {
   async updateModule(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const prog_id = req.params.id;
+      const module_id = req.params.id;
 
       const data = await universityService.updateModule(
         uni_id as string,
-        prog_id,
+        module_id,
         req.body as ModuleInterface
       );
       res.status(StatusCodes.SUCCESS).json({
@@ -119,10 +171,13 @@ export class UniversityController {
 
   async findModule(req: Request, res: Response) {
     try {
-      const user_id = req.user?.id;
+      const uni_id = req.user?.id;
+      const prog_id = req.params.id;
 
-      const data = await universityService.findModule(user_id as string);
-
+      const data = await universityService.findModules (
+        uni_id as string,
+        prog_id
+      )
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -150,9 +205,11 @@ export class UniversityController {
 
   async addTeacher(req: Request, res: Response) {
     try {
+      const module_id = req.params.id;
       const uni_id = req.user?.id;
       const data = await universityService.addTeacher(
         uni_id as string,
+        module_id,
         req.body as TeacherInterface
       );
       res.status(StatusCodes.SUCCESS).json({
@@ -167,6 +224,7 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
+      console.log("🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:", teacher_id)
       const data = await universityService.updateTeacher(
         uni_id as string,
         teacher_id as string,
@@ -229,8 +287,10 @@ export class UniversityController {
   async addStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
+      const program_id = req.body.program_id;
       const data = await universityService.addStudent(
         uni_id as string,
+        program_id as string,
         req.body as StudentInterface
       );
       res.status(StatusCodes.SUCCESS).json({

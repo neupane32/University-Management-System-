@@ -4,8 +4,9 @@ import Base from "../../entities/base.entity";
 import { Column, Entity, OneToOne,OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { StudentDetails } from "./studentDetails.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+import { Program } from "../../entities/Programs/program.entity";
 
-@Entity("studnet")
+@Entity("student")
 export class Student extends Base {
   @Column({
     unique: true,
@@ -41,6 +42,10 @@ export class Student extends Base {
     cascade: true,
   })
   details: StudentDetails;
+
+  @ManyToOne(() => Program, (program) => program.student , { onDelete: "CASCADE"})
+  @JoinColumn({name: "prog_id"})
+  program: Program;
 
   @OneToMany(() => ExamRoutine, (routine) => routine.student, {cascade: true})
       routine : ExamRoutine;

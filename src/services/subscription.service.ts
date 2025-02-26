@@ -9,32 +9,42 @@ import { Subscription } from "../entities/Subscription/subscription.entity";
 const bcryptService = new BcryptService();
 class SubscriptionService {
   constructor(
-    private readonly subscriptionRepo = AppDataSource.getRepository(Subscription),
-   
+    private readonly subscriptionRepo = AppDataSource.getRepository(
+      Subscription
+    )
   ) {}
 
-  async addSubscription(data: any){
-    
-    const addSubscription = this.subscriptionRepo.create({
+  async addSubscription(data: any) {
+    try {
+      const addSubscription = this.subscriptionRepo.create({
         title: data.title,
         duration: Number(data.duration),
         bonus: Number(data.bonus),
-        mostPoopular: data.mostPopular
-
+        mostPoopular: data.mostPopular,
       });
       await this.subscriptionRepo.save(addSubscription);
       return addSubscription;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch Add Subscription"
+      );
+    }
   }
 
-  async getSubscription(){
-    
-    const getSubscription = await this.subscriptionRepo.find()
-    return getSubscription;
+  async getSubscription() {
+    try {
+      const getSubscription = await this.subscriptionRepo.find();
+      return getSubscription;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch get Subscription"
+      );
+    }
   }
-
-  
-  }
-
-
+}
 
 export default SubscriptionService;
