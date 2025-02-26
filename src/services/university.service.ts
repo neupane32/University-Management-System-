@@ -17,6 +17,8 @@ import { StudentDetails } from "../entities/student/studentDetails.entity";
 import { Gender, RoutineStatus } from "../constant/enum";
 import { truncate } from "fs";
 import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
+import { Announcement } from "../entities/announcement/announcement.entity";
+import { AnnouncementInterface } from "../interface/announcement.interface";
 
 const bcryptservice = new BcryptService();
 
@@ -28,10 +30,13 @@ class UniversityService {
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
+    private readonly studentDetailsRepo = AppDataSource.getRepository(
+      StudentDetails
+    ),
     private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
-
-
+    private readonly AnnouncementRepo = AppDataSource.getRepository(
+      Announcement
+    )
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -84,13 +89,13 @@ class UniversityService {
     }
   }
 
-  async uniProfile(uni_id: string, data:UniversityInterface){
+  async uniProfile(uni_id: string, data: UniversityInterface) {
     try {
-      const uni = await this.uniRepo.findOneBy({id: uni_id})
-      if(!uni) throw new Error ("University Not found")
-        
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
       const uniProfile = await this.uniRepo.findOne({
-        where: [{ email: data.email }]
+        where: [{ email: data.email }],
       });
       return uniProfile;
     } catch (error) {
@@ -103,7 +108,6 @@ class UniversityService {
   }
 
   async addProgram(uni_id: string, data: ProgramInterface) {
-    console.log("🚀 ~ UniversityService ~ addProgram ~ uni_id:", uni_id)
     try {
       const uniId = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uniId) throw new Error("University Not found");
@@ -124,24 +128,32 @@ class UniversityService {
     }
   }
 
-  async updateProgam(uni_id:string,program_id: string,  data: ProgramInterface){
+  async updateProgam(
+    uni_id: string,
+    program_id: string,
+    data: ProgramInterface
+  ) {
     try {
-      const uni = await this.uniRepo.findOneBy({id: uni_id})
-      if(!uni) throw new Error ("University Not found")
-      console.log("🚀 ~ UniversityService ~ updateProgam ~ uni:", uni)
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+      console.log("🚀 ~ UniversityService ~ updateProgam ~ uni:", uni);
 
-      const program = await this.progRepo.findOneBy({id: program_id, university: {id: uni_id}})
-      if(!program) throw new Error ("Program Not found")
-
-      const updateProgram = await this.progRepo.update({
+      const program = await this.progRepo.findOneBy({
         id: program_id,
+        university: { id: uni_id },
+      });
+      if (!program) throw new Error("Program Not found");
 
-      }, {
-        name: data.name,
-        duration: data.duration
-      })
+      const updateProgram = await this.progRepo.update(
+        {
+          id: program_id,
+        },
+        {
+          name: data.name,
+          duration: data.duration,
+        }
+      );
       return updateProgram;
-
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -149,7 +161,6 @@ class UniversityService {
         throw HttpException.badRequest("Invalid credentials");
       }
     }
-
   }
 
   async findProgram(uni_id: string) {
@@ -157,7 +168,9 @@ class UniversityService {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const program = await this.progRepo.findBy({university:{id:uni_id}})
+      const program = await this.progRepo.findBy({
+        university: { id: uni_id },
+      });
 
       if (!program) throw new Error("Program not found");
       return program;
@@ -178,9 +191,9 @@ class UniversityService {
       const program = await this.progRepo.findOneBy({ id: program_id });
       if (!program) throw new Error("No Program found");
 
-     await this.progRepo.delete({ id: program.id });
-     
-     return "Program deleted successfully";
+      await this.progRepo.delete({ id: program.id });
+
+      return "Program deleted successfully";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -189,7 +202,6 @@ class UniversityService {
       }
     }
   }
-
 
   async addModule(uni_id: string, prog_id: string, data: ModuleInterface) {
     try {
@@ -246,10 +258,13 @@ class UniversityService {
 
       const program = await this.progRepo.findOneBy({ id: prog_id });
       if (!program) throw new Error("Program not found");
-  
-      const modules = await this.modRepo.find({where:{id:prog_id}, relations:["program"]});
-      if(!module) throw new Error ("Module Not found");
-  
+
+      const modules = await this.modRepo.find({
+        where: { id: prog_id },
+        relations: ["program"],
+      });
+      if (!module) throw new Error("Module Not found");
+
       return modules;
     } catch (error) {
       if (error instanceof Error) {
@@ -259,7 +274,6 @@ class UniversityService {
       }
     }
   }
-  
 
   async deleteModule(uni_id: string, module_id: string) {
     try {
@@ -280,19 +294,22 @@ class UniversityService {
     }
   }
 
-  async addTeacher(uni_id: string,module_id: string,  data: TeacherInterface) {
+  async addTeacher(uni_id: string, module_id: string, data: TeacherInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const module = await this.modRepo.findOne({where:{id:module_id}, relations:["program"]})
-      if(!module) throw new Error("Module Not found");
-      console.log("🚀 ~ UniversityService ~ addTeacher ~ module:", module.program)
+      const module = await this.modRepo.findOne({
+        where: { id: module_id },
+        relations: ["program"],
+      });
+      if (!module) throw new Error("Module Not found");
 
-      const program = await this.progRepo.findOne({where:{id:module.program.id}})
-      if(!program) throw new Error("Program Not found");
+      const program = await this.progRepo.findOne({
+        where: { id: module.program.id },
+      });
+      if (!program) throw new Error("Program Not found");
 
-      console.log("🚀 ~ UniversityService ~ addTeacher ~ program:", program)
       const hashPassword = await bcryptservice.hash(data.password);
 
       const teacher = this.TeachRepo.create({
@@ -302,10 +319,10 @@ class UniversityService {
         gender: data.gender,
         contact: data.contact,
         university: uni,
-        module:module,
-        program:module.program
+        module: module,
+        program: module.program,
       });
-      await this.TeachRepo.save(teacher)
+      await this.TeachRepo.save(teacher);
       return teacher;
     } catch (error) {
       if (error instanceof Error) {
@@ -355,7 +372,10 @@ class UniversityService {
         throw new Error("University not found");
       }
 
-      const teachers = await this.TeachRepo.find({ where: { university:{id:uni_id} },relations:["module"] });
+      const teachers = await this.TeachRepo.find({
+        where: { university: { id: uni_id } },
+        relations: ["module"],
+      });
       if (!teachers.length) {
         throw new Error("No teachers found for this university");
       }
@@ -404,32 +424,31 @@ class UniversityService {
     }
   }
 
-  async addStudent(uni_id: string, program_id: string,  data: StudentInterface) {
+  async addStudent(uni_id: string, program_id: string, data: StudentInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const program = await this.progRepo.findOneBy({id: program_id});
-      if(!program) throw new Error("Program Not found");
+      const program = await this.progRepo.findOneBy({ id: program_id });
+      if (!program) throw new Error("Program Not found");
 
       const hashPassword = await bcryptservice.hash(data.password);
 
       const student = this.studentRepo.create({
         email: data.email,
-        username: data.username,
         password: hashPassword,
         uni: uni,
-        program: program
+        program: program,
       });
       await this.studentRepo.save(student);
 
       const studentDetails = this.studentDetailsRepo.create({
-        first_name: data.first_name,
-        middle_name: data.middle_name,
-        last_name: data.last_name,
-        phone_number: data.phone_number,
-        DOB: data.DOB,
-        gender: Gender[data.gender as keyof typeof Gender],
+        first_name: data.details.first_name,
+        middle_name: data.details.middle_name,
+        last_name: data.details.last_name,
+        phone_number: data.details.phone_number,
+        DOB: data.details.DOB,
+        gender: Gender[data.details.gender as keyof typeof Gender],
         student: student,
       });
 
@@ -447,9 +466,12 @@ class UniversityService {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const student = await this.studentRepo.find({ where: { uni:{id:uni_id} },relations:["program"] });
-      
-      return student;
+      const students = await this.studentRepo.find({
+        where: { uni: { id: uni_id } },
+        relations: ["program", "details"],
+      });
+
+      return students;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -473,17 +495,18 @@ class UniversityService {
       if (!student) throw HttpException.notFound("Student not found");
 
       (student.email = data.email || student.email),
-        (student.username = data.username || student.username),
         (student.details.first_name =
-          data.first_name || student.details.first_name),
+          data.details.first_name || student.details.first_name),
         (student.details.middle_name =
-          data.middle_name || student.details.middle_name);
-      (student.details.last_name = data.last_name || student.details.last_name),
+          data.details.middle_name || student.details.middle_name);
+      (student.details.last_name =
+        data.details.last_name || student.details.last_name),
         (student.details.phone_number =
-          data.phone_number || student.details.phone_number),
-        (student.details.DOB = data.DOB || student.details.DOB),
+          data.details.phone_number || student.details.phone_number),
+        (student.details.DOB = data.details.DOB || student.details.DOB),
         (student.details.gender =
-          Gender[data.gender as keyof typeof Gender] || student.details.gender);
+          Gender[data.details.gender as keyof typeof Gender] ||
+          student.details.gender);
 
       await this.studentRepo.save(student);
       await this.studentDetailsRepo.save(student.details);
@@ -495,31 +518,19 @@ class UniversityService {
     }
   }
 
-  async deleteStudent(uni_id:string, student_id: string){
+  async deleteStudent(uni_id: string, student_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
       const student = await this.studentRepo.findOne({
-        where: { id: student_id },
+        where: { id: student_id, uni: { id: uni_id } },
         relations: ["details"],
       });
       if (!student) throw HttpException.notFound("Student not found");
+      await this.studentRepo.delete({ id: student.id });
 
-      const adminOfStudent = await this.studentRepo.findOneBy({ uni: uni })
-      if (adminOfStudent) {
-         const deleteStudent = await this.studentRepo
-        .createQueryBuilder('student')
-        .delete()
-        .from(Student)
-        .where('student.id =:student_id', { student_id })
-        .execute();
-      } else {
-        throw HttpException.unauthorized('You do not have access to delete student')
-      }
-     
-      return 'Student deleted successfully';
-      
+      return "Student deleted successfully";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -527,17 +538,112 @@ class UniversityService {
     }
   }
 
+  async postAnnouncement(uni_id: string, data: AnnouncementInterface) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+     
+
+      const createAnnouncement = this.AnnouncementRepo.create({
+        announce_name: data.announce_name,
+        announce_title: data.announce_title,
+        announce_date: data.announce_date,
+        university: uni
+      });
+
+
+      const result = await this.AnnouncementRepo.save(createAnnouncement);
+      return createAnnouncement;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid data");
+      }
+    }
+  }
+
+  async getAnnouncement(uni_id: string){
+    try{
+    const uni = await this.uniRepo.findOneBy({ id: uni_id });
+    if (!uni) throw new Error("University not found");
+
+    const getAnnouncement = await this.AnnouncementRepo.find({
+      where: {university: {id:uni_id}},
+      relations: ["university"],
+    });
+    return getAnnouncement;
+  }
+  catch (error) {
+    throw HttpException.badRequest("Failed to fetch announcements");
+  }
+}
+async updateAnnouncement(
+  uni_id: string,
+  announcement_id: string,
+  data: AnnouncementInterface
+) {
+  try {
+    const uni = await this.uniRepo.findOneBy({ id: uni_id });
+    if (!uni) throw new Error("University Not found");
+
+    const announcement = await this.AnnouncementRepo.findOneBy({
+      id: announcement_id,
+      university: { id: uni_id },
+    });
+    if (!announcement) throw new Error("Announcement Not found");
+
+    const updateAnnouncement = await this.AnnouncementRepo.update(
+      {
+        id: announcement_id,
+      },
+      {
+        announce_name: data.announce_name,
+        announce_title: data.announce_title,
+        announce_date: data.announce_date
+      }
+    );
+    return updateAnnouncement;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw HttpException.badRequest(error.message);
+    } else {
+      throw HttpException.badRequest("Invalid credentials");
+    }
+  }
+}
+
+async deleteAnnouncement(uni_id: string, announcement_id: string) {
+  try {
+    const uni = await this.uniRepo.findOneBy({ id: uni_id });
+    if (!uni) throw new Error("Uni not found");
+
+    const announcement = await this.AnnouncementRepo.findOneBy({ id: announcement_id });
+    if (!announcement) throw new Error("No any Announcement found");
+
+    await this.AnnouncementRepo.delete({ id: announcement.id });
+
+    return "Announcement deleted successfully";
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Announcement not found");
+    }
+  }
+}
+
   async approveRoutine(uni_id: string, routine_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-  
+
       const routine = await this.routineRepo.findOneBy({ id: routine_id });
       if (!routine) throw new Error("Exam routine not found");
-  
+
       routine.status = RoutineStatus.APPROVED;
       routine.approved_by = uni;
-  
+
       return await this.routineRepo.save(routine);
     } catch (error) {
       if (error instanceof Error) {
@@ -550,21 +656,20 @@ class UniversityService {
 
   async getRoutinesForAdmin(uni_id: string) {
     try {
-        const uni = await this.uniRepo.findOneBy({ id: uni_id });
-        if (!uni) throw new Error("University not found");
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
 
-        const routines = await this.routineRepo.find({
-            relations: ["teacher", "module", "approved_by"],
-        });
+      const routines = await this.routineRepo.find({
+        relations: ["teacher", "module", "approved_by"],
+      });
 
-        return routines;
+      return routines;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
       }
     }
-}
-
+  }
 }
 
 export default new UniversityService();

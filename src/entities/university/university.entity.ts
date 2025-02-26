@@ -6,6 +6,8 @@ import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Student } from "../../entities/student/student.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+import { Announcement } from "../../entities/announcement/announcement.entity";
+import { Program } from "../../entities/Programs/program.entity";
 
 @Entity('University')
 export class University extends Base {
@@ -38,7 +40,10 @@ export class University extends Base {
   
     @Column({ name: 'payment_verified', default: false, nullable: true })
     payment_verified: boolean;
-    program: any;
+    
+
+    @OneToMany(() => Program, (Program) => Program.university, {cascade: true})
+    program: Program;
 
 
     @OneToMany(() => Module, (module) => module.university, {cascade: true})
@@ -50,8 +55,11 @@ export class University extends Base {
     @OneToMany(() => Student, (student) => student.uni, {cascade: true})
     student: Student;
 
-    @OneToMany(() => ExamRoutine, (routine) => routine.approved_by, { onDelete: "CASCADE" })
-    examRoutines: ExamRoutine[];
+    @OneToMany(() => Announcement, (announcement) => announcement.university, {cascade:true})
+    announcement: Announcement;
+
+    @OneToMany(() => ExamRoutine, (routine) => routine.approved_by, { cascade:true })
+    examRoutines: ExamRoutine;
     
 
 }

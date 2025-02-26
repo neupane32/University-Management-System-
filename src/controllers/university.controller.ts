@@ -8,6 +8,7 @@ import { ModuleInterface } from "../interface/module.interface";
 import { TeacherInterface } from "../interface/teacher.interface";
 import { ResourceInterface } from "../interface/resource.interface";
 import { StudentInterface } from "../interface/student.interface";
+import { AnnouncementInterface } from "../interface/announcement.interface";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
@@ -54,7 +55,7 @@ export class UniversityController {
     }
   }
 
-  async uniProfile(req:Request, res: Response){
+  async uniProfile(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
       const data = await universityService.uniProfile(
@@ -67,7 +68,6 @@ export class UniversityController {
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
-
   }
 
   async addProgram(req: Request, res: Response) {
@@ -102,7 +102,6 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
-      
 
       const data = await universityService.updateProgam(
         uni_id as string,
@@ -174,10 +173,10 @@ export class UniversityController {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
 
-      const data = await universityService.findModules (
+      const data = await universityService.findModules(
         uni_id as string,
         prog_id
-      )
+      );
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -224,7 +223,10 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
-      console.log("🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:", teacher_id)
+      console.log(
+        "🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:",
+        teacher_id
+      );
       const data = await universityService.updateTeacher(
         uni_id as string,
         teacher_id as string,
@@ -348,6 +350,66 @@ export class UniversityController {
     }
   }
 
+  async postAnnouncement(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const data = req.body;
+
+      const response = await universityService.postAnnouncement(uni_id, data);
+      res.status(StatusCodes.SUCCESS).json({
+        response,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getAnnouncement(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+
+      const getAnnouncement = await universityService.getAnnouncement(uni_id);
+      res.status(StatusCodes.SUCCESS).json({ data: getAnnouncement });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async updateAnnouncement(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const announcement_id = req.params.id;
+
+      const data = await universityService.updateAnnouncement(
+        uni_id as string,
+        announcement_id,
+        req.body as AnnouncementInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async deleteAnnouncement(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const announcement_id = req.params.id;
+
+      const data = await universityService.deleteAnnouncement(
+        uni_id as string,
+        announcement_id
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
   async approveRoutine(req: Request, res: Response) {
     try {
       const { uni_id, routine_id } = req.params;
@@ -358,13 +420,15 @@ export class UniversityController {
     }
   }
 
-  async getRoutinesForAdmin(req:Request, res:Response){
+  async getRoutinesForAdmin(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const data = await universityService.getRoutinesForAdmin(uni_id as string);
+      const data = await universityService.getRoutinesForAdmin(
+        uni_id as string
+      );
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
 }

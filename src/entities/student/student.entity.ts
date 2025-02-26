@@ -6,18 +6,13 @@ import { StudentDetails } from "./studentDetails.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 import { Program } from "../../entities/Programs/program.entity";
 
-@Entity("student")
+@Entity("studnet")
 export class Student extends Base {
   @Column({
     unique: true,
     nullable: false,
   })
   email: string;
-
-  @Column({
-    unique: true,
-  })
-  username: string;
 
   @Column({ select: false, nullable: false })
   password: string;

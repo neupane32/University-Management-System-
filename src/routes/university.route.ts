@@ -9,8 +9,15 @@ const universityController = new UniversityController();
 // University Auth Routes
 router.post('/uni-signup', catchAsync(universityController.createUniversity));
 router.post('/uni-login', catchAsync(universityController.loginUniversity));
-router.get('/uni/uni-profile', catchAsync(universityController.uniProfile));
+router.get('/uni/uni-profile/:id', catchAsync(universityController.uniProfile));
 router.use(authentication());
+
+//Announcement Routes
+router.post('/uni/post-announcement', catchAsync(universityController.postAnnouncement));
+router.get('/uni/get-announcement', catchAsync(universityController.getAnnouncement));
+router.patch('/uni/update-announcement/:id', catchAsync(universityController.updateAnnouncement));
+router.delete('/uni/delete-Announcement/:id', catchAsync(universityController.deleteAnnouncement));
+
 // Program Routes
 router.post('/uni/programs', catchAsync(universityController.addProgram));
 router.get('/uni/find-programs', catchAsync(universityController.findProgram));
@@ -31,10 +38,10 @@ router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById))
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 
 // Student Routes
-router.post('/uni/add-students', catchAsync(universityController.addStudent));
+router.post('/uni/add-students/:id', catchAsync(universityController.addStudent));
 router.get('/uni/find-students', catchAsync(universityController.getStudent));
-router.patch('/uni/students/:id', catchAsync(universityController.editStudent));
-router.delete('/uni/students/:id', catchAsync(universityController.deleteStudent));
+router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent));
+router.delete('/uni/delete-student/:id', catchAsync(universityController.deleteStudent));
 
 // Routine Approval Route
 router.patch('/uni/approve-routine/:uni_id/:routine_id', catchAsync(universityController.approveRoutine));

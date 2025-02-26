@@ -228,7 +228,7 @@ class TeacherService {
 
       const announcement = this.announceRepo.create({
         announce_name: data.announce_name,
-        annoounce_title: data.announce_title,
+        announce_title: data.announce_title,
         announce_date: data.announce_date,
         teacher: teacher,
         module: module,
@@ -257,7 +257,7 @@ class TeacherService {
       }
 
       announcement.announce_name = data.announce_name;
-      announcement.annoounce_title = data.announce_title;
+      announcement.announce_title = data.announce_title;
       announcement.announce_date = data.announce_date;
       announcement.teacher = teacher;
       announcement.module = module;
