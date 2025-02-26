@@ -1,12 +1,13 @@
 import { University } from "../../entities/university/university.entity";
 import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Module } from "../../entities/module/module.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Assignment } from "../../entities/Assignment/assignment.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+import { Program } from "../../entities/Programs/program.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
@@ -50,6 +51,10 @@ export class Teacher extends Base {
   @JoinColumn({ name: 'module_id' })
   module: Module;
 
+  @ManyToOne(() => Program, (program) => program.teacher, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'program_id' })
+  program: Program;
+
    @OneToMany(() => Resource, (resource) => resource.teacher, { cascade: true })
     resources: Resource[];
 
@@ -61,6 +66,9 @@ export class Teacher extends Base {
 
     @OneToMany(() => ExamRoutine, (routine) => routine.teacher, {cascade: true})
     routine: ExamRoutine;
+
+
+
 
 
 }
