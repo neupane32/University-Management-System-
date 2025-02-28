@@ -9,7 +9,8 @@ const universityController = new UniversityController();
 // University Auth Routes
 router.post('/uni-signup', catchAsync(universityController.createUniversity));
 router.post('/uni-login', catchAsync(universityController.loginUniversity));
-router.get('/uni/uni-profile/:id', catchAsync(universityController.uniProfile));
+router.get('/profile', catchAsync(universityController.uniProfile));
+router.patch('/update-profile/:id', catchAsync(universityController.updateProfile));
 router.use(authentication());
 
 //Announcement Routes

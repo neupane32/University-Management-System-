@@ -107,6 +107,30 @@ class UniversityService {
     }
   }
 
+  async updateProfile(uni_id: string, data:UniversityInterface){
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const updatePorifle  = await this.uniRepo.update({
+
+          id: uni_id,
+        },
+        {
+          email: data.email,
+          universityName: data.university_name
+        }
+      );
+      return updatePorifle;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
+      }
+    }
+  }
+
   async addProgram(uni_id: string, data: ProgramInterface) {
     try {
       const uniId = await this.uniRepo.findOneBy({ id: uni_id });
@@ -136,7 +160,6 @@ class UniversityService {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
-      console.log("🚀 ~ UniversityService ~ updateProgam ~ uni:", uni);
 
       const program = await this.progRepo.findOneBy({
         id: program_id,
