@@ -70,6 +70,22 @@ export class UniversityController {
     }
   }
 
+  async updateProfile(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+
+      const data = await universityService.updateProfile(
+        uni_id as string,
+        req.body as UniversityInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
   async addProgram(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
