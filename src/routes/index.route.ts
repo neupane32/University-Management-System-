@@ -30,7 +30,7 @@ const routes: IndexRoute[] = [
     },
 
     {
-        path: '/teach',
+        path: '/teacher',
         route: teacher
 
     },

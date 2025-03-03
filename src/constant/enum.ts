@@ -31,4 +31,10 @@ export enum Environment {
     APPROVED = "approved",
     REJECTED = "rejected"
   }
+
+  
+export enum DurationType {
+  SEMESTER = "semester",
+  YEAR = "year"
+}
   

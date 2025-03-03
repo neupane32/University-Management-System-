@@ -217,14 +217,13 @@ class TeacherService {
     }
   }
 
-  async createAnnouncement(
-    teacher_id: string,
-    module_id: string,
-    data: AnnouncementInterface
-  ) {
+  async createAnnouncement(teacher_id: string, module_id: string, data: AnnouncementInterface) {
     try {
       const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+      if(!teacher) throw new Error("Teacher Not found");
+
       const module = await this.moduleRepo.findOneBy({ id: module_id });
+      if(!module) throw new Error ("Module not found");
 
       const announcement = this.announceRepo.create({
         announce_name: data.announce_name,
@@ -240,6 +239,24 @@ class TeacherService {
       throw new Error(error.message || "Failed to create announcement");
     }
   }
+  async getAnnouncement(announcement_id: string) {
+    try {
+      const announcement = await this.announceRepo.findOne({
+        where: { id: announcement_id },
+        relations: ['teacher', 'module'],
+      });
+  
+      if (!announcement) {
+        throw new Error('Announcement not found');
+      }
+  
+      return announcement;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to retrieve announcement');
+    }
+  }
+  
+
 
   async updateAnnouncement(
     id: string,

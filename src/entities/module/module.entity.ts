@@ -10,6 +10,7 @@ import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 
 @Entity('module')
 export class Module extends Base {
+    [x: string]: any;
     @Column()
     name: string;
 
@@ -24,9 +25,11 @@ export class Module extends Base {
     @JoinColumn({name: 'uni_id'})
     university: University;
 
-    @OneToMany(() => Resource, (resource) => resource.module)
+    @Column()
+    durationReference: number;
+
+    @OneToMany(() => Resource, (resource) => resource.module, {cascade: true})
     module: Module[];
-    resource: any;
 
     @OneToMany(() => Teacher, (teacher) => teacher.module, { cascade: true })
     teacher: Teacher[];

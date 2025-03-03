@@ -5,6 +5,7 @@ import { Column, Entity, OneToOne,OneToMany, ManyToOne, JoinColumn } from "typeo
 import { StudentDetails } from "./studentDetails.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 import { Program } from "../../entities/Programs/program.entity";
+import { Section } from "../../entities/Section/section.entity";
 
 @Entity("studnet")
 export class Student extends Base {
@@ -27,6 +28,7 @@ export class Student extends Base {
   @Column({ name: "active", default: false })
   active: boolean;
 
+
   @ManyToOne(() => University, (uni) => uni.student, {
     onDelete: "CASCADE" })
     
@@ -41,6 +43,10 @@ export class Student extends Base {
   @ManyToOne(() => Program, (program) => program.student , { onDelete: "CASCADE"})
   @JoinColumn({name: "prog_id"})
   program: Program;
+
+  @ManyToOne(() => Section, (section) => section.students , { onDelete: "CASCADE"})
+  @JoinColumn({name: "section_id"})
+  section: Section;
 
   @OneToMany(() => ExamRoutine, (routine) => routine.student, {cascade: true})
       routine : ExamRoutine;

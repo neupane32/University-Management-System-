@@ -12,4 +12,6 @@ interface Details {
     phone_number: string;
     DOB: string;
     gender: string;
+    admissionYear: number;
 }
+
