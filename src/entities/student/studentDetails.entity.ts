@@ -22,6 +22,9 @@ export class StudentDetails extends Base {
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
 
+  @Column()
+     admissionYear: number;
+
   @OneToOne(() => Student, (student) => student.details, {
     onDelete: "CASCADE",
   })

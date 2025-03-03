@@ -13,6 +13,8 @@ import { AnnouncementInterface } from "../interface/announcement.interface";
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
     try {
+      console.log("🚀 ~ UniversityController ~ createUniversity ~ req.body:", req.body)
+
       await universityService.createUniversity(req.body as UniversityInterface);
       res
         .status(StatusCodes.CREATED)
@@ -166,23 +168,23 @@ export class UniversityController {
     }
   }
 
-  async updateModule(req: Request, res: Response) {
-    try {
-      const uni_id = req.user?.id;
-      const module_id = req.params.id;
+  // async updateModule(req: Request, res: Response) {
+  //   try {
+  //     const uni_id = req.user?.id;
+  //     const module_id = req.params.id;
 
-      const data = await universityService.updateModule(
-        uni_id as string,
-        module_id,
-        req.body as ModuleInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  //     const data = await universityService.updateModule(
+  //       uni_id as string,
+  //       module_id,
+  //       req.body as ModuleInterface
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
   async findModule(req: Request, res: Response) {
     try {
@@ -331,23 +333,31 @@ export class UniversityController {
     }
   }
 
-  async editStudent(req: Request, res: Response) {
-    try {
-      const uni_id = req.user?.id;
-      const student_id = req.params.id;
+  async getStudentsWithoutSection(req:Request, res: Response) {
+    const uni_id = req.user?.id;
+    
+    const find = await universityService.getStudentWithoutSection(uni_id)
+    console.log("🚀 ~ UniversityController ~ getStudentsWithoutSection ~ find:", find)
+ 
+  };
 
-      const data = await universityService.editStudent(
-        uni_id as string,
-        student_id as string,
-        req.body as StudentInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  // async editStudent(req: Request, res: Response) {
+  //   try {
+  //     const uni_id = req.user?.id;
+  //     const student_id = req.params.id;
+
+  //     const data = await universityService.editStudent(
+  //       uni_id as string,
+  //       student_id as string,
+  //       req.body as StudentInterface
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
   async deleteStudent(req: Request, res: Response) {
     try {

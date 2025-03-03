@@ -9,9 +9,16 @@ const universityController = new UniversityController();
 // University Auth Routes
 router.post('/uni-signup', catchAsync(universityController.createUniversity));
 router.post('/uni-login', catchAsync(universityController.loginUniversity));
-router.get('/profile', catchAsync(universityController.uniProfile));
-router.patch('/update-profile/:id', catchAsync(universityController.updateProfile));
+
 router.use(authentication());
+
+//uni profile
+router.get('/profile', catchAsync(universityController.uniProfile));
+router.get('/noSection', catchAsync(universityController.getStudentsWithoutSection));
+
+router.patch('/update-profile/:id', catchAsync(universityController.updateProfile));
+
+
 
 //Announcement Routes
 router.post('/uni/post-announcement', catchAsync(universityController.postAnnouncement));
@@ -27,7 +34,7 @@ router.delete('/uni/delete-program/:id', catchAsync(universityController.deleteP
 
 // Module Routes
 router.post('/uni/add-modules/:id', catchAsync(universityController.addModule));
-router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
+// router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
 router.get('/uni/find-modules', catchAsync(universityController.findModule)); 
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 
@@ -41,7 +48,7 @@ router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteT
 // Student Routes
 router.post('/uni/add-students/:id', catchAsync(universityController.addStudent));
 router.get('/uni/find-students', catchAsync(universityController.getStudent));
-router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent));
+// router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent));
 router.delete('/uni/delete-student/:id', catchAsync(universityController.deleteStudent));
 
 // Routine Approval Route

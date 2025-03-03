@@ -134,6 +134,17 @@ export class TeacherController {
     }
   }
 
+  async getAnnouncement(req: Request, res: Response) {
+    try {
+      const teacher_id = req.user?.id;
+
+      const getAnnouncement = await teacherService.getAnnouncement(teacher_id);
+      res.status(StatusCodes.SUCCESS).json({ data: getAnnouncement });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
   async updateAnnouncement(req: Request, res: Response) {
     try {
       const teacher_id = req.user?.id;

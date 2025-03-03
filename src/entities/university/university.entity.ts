@@ -8,6 +8,7 @@ import { Student } from "../../entities/student/student.entity";
 import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Program } from "../../entities/Programs/program.entity";
+import { Section } from "../../entities/Section/section.entity";
 
 @Entity('University')
 export class University extends Base {
@@ -45,6 +46,8 @@ export class University extends Base {
     @OneToMany(() => Program, (Program) => Program.university, {cascade: true})
     program: Program;
 
+    @OneToMany(() => Section, (sections) => sections.university, {cascade: true})
+    sections: Section;;
 
     @OneToMany(() => Module, (module) => module.university, {cascade: true})
     module: Module;

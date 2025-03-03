@@ -7,17 +7,20 @@ import { catchAsync } from "../utils/catchAsync.utils";
 
 const router: Router = Router();
 const teacherController = new TeacherController;
-router.use(authentication());
-router.use(authorization([Role.TEACHER]));
 
 router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
+
+
+router.use(authentication());
+router.use(authorization([Role.TEACHER]));
 
 
 router.post('/add-resource', catchAsync(teacherController.addResource));
 router.patch('/update-resource/:id', catchAsync(teacherController.updateResource));
 router.delete('/delete-resource/:id', catchAsync(teacherController.deleteResource));
 
-router.post('/create-announce', catchAsync(teacherController.createAnnouncement));
+router.post('/create-announcement', catchAsync(teacherController.createAnnouncement));
+router.get('/get-announcement', catchAsync(teacherController.getAnnouncement));
 router.patch('/update-announce/:id', catchAsync(teacherController.updateAnnouncement));
 router.delete('/delete-announce/:id', catchAsync(teacherController.deleteAnnouncement));
 
