@@ -518,44 +518,47 @@ class UniversityService {
     }
   }
 
-  // async editStudent(
-  //   uni_id: string,
-  //   student_id: string,
-  //   data: StudentInterface
-  // ) {
-  //   try {
-  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!uni) throw new Error("University Not found");
+  async editStudent(
+    uni_id: string,
+    student_id: string,
+    data: StudentInterface
+  ) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
-  //     const student = await this.studentRepo.findOne({
-  //       where: { id: student_id },
-  //       relations: ["details"],
-  //     });
-  //     if (!student) throw HttpException.notFound("Student not found");
+      const student = await this.studentRepo.findOne({
+        where: { id: student_id },
+        relations: ["details"],
+      });
+      if (!student) throw HttpException.notFound("Student not found");
 
-  //     (student.email = data.email || student.email),
-  //       (student.details.first_name =
-  //         data.details.first_name || student.details.first_name),
-  //       (student.details.middle_name =
-  //         data.details.middle_name || student.details.middle_name);
-  //     (student.details.last_name =
-  //       data.details.last_name || student.details.last_name),
-  //       (student.details.phone_number =
-  //         data.details.phone_number || student.details.phone_number),
-  //       (student.details.DOB = data.details.DOB || student.details.DOB),
-  //       (student.details.gender =
-  //         Gender[data.details.gender as keyof typeof Gender] ||
-  //         student.details.gender);
+      (student.email = data.email || student.email),
+        (student.details.first_name =
+          data.details.first_name || student.details.first_name),
+        (student.details.middle_name =
+          data.details.middle_name || student.details.middle_name);
+      (student.details.last_name =
+        data.details.last_name || student.details.last_name),
+        (student.details.phone_number =
+          data.details.phone_number || student.details.phone_number),
+        (student.details.DOB = data.details.DOB || student.details.DOB),
+        (student.details.gender =
+          Gender[data.details.gender as keyof typeof Gender] ||
+          student.details.gender);
+        (student.details.admissionYear = 
+          data.details.admissionYear || student.details.admissionYear
+        );
 
-  //     await this.studentRepo.save(student);
-  //     await this.studentDetailsRepo.save(student.details);
-  //     return student;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(error.message);
-  //     }
-  //   }
-  // }
+      await this.studentRepo.save(student);
+      await this.studentDetailsRepo.save(student.details);
+      return student;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
 
   async deleteStudent(uni_id: string, student_id: string) {
     try {

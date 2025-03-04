@@ -341,23 +341,23 @@ export class UniversityController {
  
   };
 
-  // async editStudent(req: Request, res: Response) {
-  //   try {
-  //     const uni_id = req.user?.id;
-  //     const student_id = req.params.id;
+  async editStudent(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const student_id = req.params.id;
 
-  //     const data = await universityService.editStudent(
-  //       uni_id as string,
-  //       student_id as string,
-  //       req.body as StudentInterface
-  //     );
-  //     res.status(StatusCodes.SUCCESS).json({
-  //       data,
-  //     });
-  //   } catch (error: any) {
-  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-  //   }
-  // }
+      const data = await universityService.editStudent(
+        uni_id as string,
+        student_id as string,
+        req.body as StudentInterface
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 
   async deleteStudent(req: Request, res: Response) {
     try {

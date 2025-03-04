@@ -48,7 +48,7 @@ router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteT
 // Student Routes
 router.post('/uni/add-students/:id', catchAsync(universityController.addStudent));
 router.get('/uni/find-students', catchAsync(universityController.getStudent));
-// router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent));
+router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent));
 router.delete('/uni/delete-student/:id', catchAsync(universityController.deleteStudent));
 
 // Routine Approval Route
