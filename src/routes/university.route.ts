@@ -34,7 +34,7 @@ router.delete('/uni/delete-program/:id', catchAsync(universityController.deleteP
 
 // Module Routes
 router.post('/uni/add-modules/:id', catchAsync(universityController.addModule));
-// router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
+router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
 router.get('/uni/find-modules', catchAsync(universityController.findModule)); 
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 

@@ -9,7 +9,6 @@ import { ModuleInterface } from "../interface/module.interface";
 import { Module } from "../entities/module/module.entity";
 import { TeacherInterface } from "../interface/teacher.interface";
 import { Teacher } from "../entities/teacher/teacher.entity";
-import { ResourceInterface } from "../interface/resource.interface";
 import { Resource } from "../entities/resources/resource.entity";
 import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
@@ -30,13 +29,9 @@ class UniversityService {
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly studentDetailsRepo = AppDataSource.getRepository(
-      StudentDetails
-    ),
+    private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
     private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
-    private readonly AnnouncementRepo = AppDataSource.getRepository(
-      Announcement
-    )
+    private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement)
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -44,10 +39,9 @@ class UniversityService {
       const emailExist = await this.uniRepo.findOneBy({
         email: data.email,
       });
-      console.log("🚀 ~ UniversityService ~ createUniversity ~ emailExist:", emailExist)
-
-      if (emailExist) throw new Error("The email is already exists");
    
+      if (emailExist) throw new Error("The email is already exists");
+
       const hashPassword = await bcryptservice.hash(data.password);
       const auth = this.uniRepo.create({
         email: data.email,
@@ -71,7 +65,7 @@ class UniversityService {
         where: [{ email: data.email }],
         select: ["id", "email", "password", "role"],
       });
-      // if(!user?.Verified) throw HttpException.unauthorized("Otp is not verified yet")
+
       if (!universityLogin)
         throw HttpException.badRequest("Entered email is not registered yet");
       const isPassword = await bcryptservice.compare(
@@ -107,18 +101,18 @@ class UniversityService {
     }
   }
 
-  async updateProfile(uni_id: string, data:UniversityInterface){
+  async updateProfile(uni_id: string, data: UniversityInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const updatePorifle  = await this.uniRepo.update({
-
+      const updatePorifle = await this.uniRepo.update(
+        {
           id: uni_id,
         },
         {
           email: data.email,
-          universityName: data.university_name
+          universityName: data.university_name,
         }
       );
       return updatePorifle;
@@ -133,41 +127,36 @@ class UniversityService {
 
   async addProgram(uni_id: string, data: ProgramInterface) {
     try {
-        const uni = await this.uniRepo.findOneBy({ id: uni_id });
-        if (!uni) throw new Error("University not found");
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
 
-        if (!Object.values(DurationType).includes(data.durationType)) {
-            throw new Error("Invalid duration type. Must be 'semester' or 'year'.");
-        }
+      if (!Object.values(DurationType).includes(data.durationType)) {
+        throw new Error("Invalid duration type. Must be 'semester' or 'year'.");
+      }
 
-        if (data.duration <= 0) {
-            throw new Error("Program duration must be greater than 0.");
-        }
+      if (data.duration <= 0) {
+        throw new Error("Program duration must be greater than 0.");
+      }
 
-        const addProgram = this.progRepo.create({
-            name: data.name,
-            durationType: data.durationType,
-            duration: data.duration,         
-            university: uni,
-        });
+      const addProgram = this.progRepo.create({
+        name: data.name,
+        durationType: data.durationType,
+        duration: data.duration,
+        university: uni,
+      });
 
-        await this.progRepo.save(addProgram);
-        return "Program created successfully";
+      await this.progRepo.save(addProgram);
+      return "Program created successfully";
     } catch (error) {
-        if (error instanceof Error) {
-            throw HttpException.badRequest(error.message);
-        } else {
-            throw HttpException.badRequest("Invalid request");
-        }
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid request");
+      }
     }
-}
+  }
 
-
-  async updateProgam(
-    uni_id: string,
-    program_id: string,
-    data: ProgramInterface
-  ) {
+  async updateProgam(uni_id: string, program_id: string, data: ProgramInterface ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -184,6 +173,7 @@ class UniversityService {
         },
         {
           name: data.name,
+          durationType: data.durationType,
           duration: data.duration,
         }
       );
@@ -264,27 +254,40 @@ class UniversityService {
     }
   }
 
-  // async updateModule(uni_id: string, module_id: string, data: ModuleInterface) {
-  //   try {
-  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!uni) throw new Error("University not found");
-
-  //     const module = await this.modRepo.findOneBy({ id: module_id });
-  //     if (!module) throw new Error("Module not found");
-
-  //     await this.modRepo.update(module_id, {
-  //       name: data.name,
-  //       module_code: data.module_code,
-  //     });
-  //     return "Module updated successfully";
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(error.message);
-  //     } else {
-  //       throw new Error("Module not found");
-  //     }
-  //   }
-  // }
+  async updateModule(
+    uni_id: string,
+    module_id: string,
+    data: any
+  ) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      const module = await this.modRepo.findOneBy({
+        id: module_id,
+        university: { id: uni_id },
+      });
+      if (!module) throw new Error("Module not found");
+  
+      const updatedModule = await this.modRepo.update(
+        { id: module_id },
+        {
+          name: data.name,
+          module_code: data.module_code,
+          durationReference: data.durationReference,
+        }
+      );
+  
+      return updatedModule;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Failed to update module");
+      }
+    }
+  }
+  
 
   async findModules(uni_id: string, prog_id: string) {
     try {
@@ -578,15 +581,13 @@ class UniversityService {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-     
 
       const createAnnouncement = this.AnnouncementRepo.create({
         announce_name: data.announce_name,
         announce_title: data.announce_title,
         announce_date: data.announce_date,
-        university: uni
+        university: uni,
       });
-
 
       const result = await this.AnnouncementRepo.save(createAnnouncement);
       return createAnnouncement;
@@ -599,75 +600,76 @@ class UniversityService {
     }
   }
 
-  async getAnnouncement(uni_id: string){
-    try{
-    const uni = await this.uniRepo.findOneBy({ id: uni_id });
-    if (!uni) throw new Error("University not found");
+  async getAnnouncement(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
 
-    const getAnnouncement = await this.AnnouncementRepo.find({
-      where: {university: {id:uni_id}},
-      relations: ["university"],
-    });
-    return getAnnouncement;
+      const getAnnouncement = await this.AnnouncementRepo.find({
+        where: { university: { id: uni_id } },
+        relations: ["university"],
+      });
+      return getAnnouncement;
+    } catch (error) {
+      throw HttpException.badRequest("Failed to fetch announcements");
+    }
   }
-  catch (error) {
-    throw HttpException.badRequest("Failed to fetch announcements");
-  }
-}
-async updateAnnouncement(
-  uni_id: string,
-  announcement_id: string,
-  data: AnnouncementInterface
-) {
-  try {
-    const uni = await this.uniRepo.findOneBy({ id: uni_id });
-    if (!uni) throw new Error("University Not found");
+  async updateAnnouncement(
+    uni_id: string,
+    announcement_id: string,
+    data: AnnouncementInterface
+  ) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
-    const announcement = await this.AnnouncementRepo.findOneBy({
-      id: announcement_id,
-      university: { id: uni_id },
-    });
-    if (!announcement) throw new Error("Announcement Not found");
-
-    const updateAnnouncement = await this.AnnouncementRepo.update(
-      {
+      const announcement = await this.AnnouncementRepo.findOneBy({
         id: announcement_id,
-      },
-      {
-        announce_name: data.announce_name,
-        announce_title: data.announce_title,
-        announce_date: data.announce_date
+        university: { id: uni_id },
+      });
+      if (!announcement) throw new Error("Announcement Not found");
+
+      const updateAnnouncement = await this.AnnouncementRepo.update(
+        {
+          id: announcement_id,
+        },
+        {
+          announce_name: data.announce_name,
+          announce_title: data.announce_title,
+          announce_date: data.announce_date,
+        }
+      );
+      return updateAnnouncement;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
       }
-    );
-    return updateAnnouncement;
-  } catch (error) {
-    if (error instanceof Error) {
-      throw HttpException.badRequest(error.message);
-    } else {
-      throw HttpException.badRequest("Invalid credentials");
     }
   }
-}
 
-async deleteAnnouncement(uni_id: string, announcement_id: string) {
-  try {
-    const uni = await this.uniRepo.findOneBy({ id: uni_id });
-    if (!uni) throw new Error("Uni not found");
+  async deleteAnnouncement(uni_id: string, announcement_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("Uni not found");
 
-    const announcement = await this.AnnouncementRepo.findOneBy({ id: announcement_id });
-    if (!announcement) throw new Error("No any Announcement found");
+      const announcement = await this.AnnouncementRepo.findOneBy({
+        id: announcement_id,
+      });
+      if (!announcement) throw new Error("No any Announcement found");
 
-    await this.AnnouncementRepo.delete({ id: announcement.id });
+      await this.AnnouncementRepo.delete({ id: announcement.id });
 
-    return "Announcement deleted successfully";
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error("Announcement not found");
+      return "Announcement deleted successfully";
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Announcement not found");
+      }
     }
   }
-}
 
   async approveRoutine(uni_id: string, routine_id: string) {
     try {
@@ -707,13 +709,12 @@ async deleteAnnouncement(uni_id: string, announcement_id: string) {
     }
   }
 
-  async getStudentWithoutSection(uni_id: string){
-    
+  async getStudentWithoutSection(uni_id: string) {
     const studentsWithoutSection = await this.studentRepo.find({
       where: { section: null },
       relations: ["details", "program", "uni"], // Add relations if needed
     });
-  
+
     return studentsWithoutSection;
   }
 }

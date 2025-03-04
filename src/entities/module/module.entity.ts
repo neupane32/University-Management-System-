@@ -25,7 +25,7 @@ export class Module extends Base {
     @JoinColumn({name: 'uni_id'})
     university: University;
 
-    @Column()
+    @Column('int')
     durationReference: number;
 
     @OneToMany(() => Resource, (resource) => resource.module, {cascade: true})
