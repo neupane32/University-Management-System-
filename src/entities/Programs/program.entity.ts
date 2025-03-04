@@ -20,7 +20,6 @@ export class Program extends Base {
     })
     durationType: DurationType;
 
-   
 
     @Column()
     duration: number;
