@@ -713,6 +713,9 @@ class UniversityService {
   }
 
   async getStudentWithoutSection(uni_id: string) {
+    const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+      
     const studentsWithoutSection = await this.studentRepo.find({
       where: { section: null },
       relations: ["details", "program", "uni"], // Add relations if needed
