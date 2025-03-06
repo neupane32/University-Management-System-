@@ -16,9 +16,8 @@ export class UniversityController {
       console.log("🚀 ~ UniversityController ~ createUniversity ~ req.body:", req.body)
 
       await universityService.createUniversity(req.body as UniversityInterface);
-      res
-        .status(StatusCodes.CREATED)
-        .json({ message: "University Registred Successfully" });
+      res.status(StatusCodes.CREATED).json
+      ({ message: "University Registred Successfully" });
     } catch (error) {
       if (error instanceof Error) {
         res.status(StatusCodes.BAD_REQUEST).json({
@@ -334,12 +333,26 @@ export class UniversityController {
   }
 
   async getStudentsWithoutSection(req:Request, res: Response) {
+    try{
     const uni_id = req.user?.id;
-    
-    const find = await universityService.getStudentWithoutSection(uni_id)
-    console.log("🚀 ~ UniversityController ~ getStudentsWithoutSection ~ find:", find)
- 
+    const data = await universityService.getStudentWithoutSection(uni_id);
+    res.status(StatusCodes.SUCCESS).json({
+      data,
+    });
+  }
+  catch(error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
   };
+
+  async updateSection(req: Request, res:Response){
+    try {
+      
+    } catch (error) {
+      
+    }
+    
+  }
 
   async editStudent(req: Request, res: Response) {
     try {
