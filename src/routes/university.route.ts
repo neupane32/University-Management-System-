@@ -55,6 +55,7 @@ router.get('/uni/routines', catchAsync(universityController.getRoutinesForAdmin)
 
 //section routes
 router.get('/uni/noSection', catchAsync(universityController.getStudentsWithoutSection));
+router.patch('/uni/update-section', catchAsync(universityController.updateSection));
 
 
 export default router;
