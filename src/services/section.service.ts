@@ -40,28 +40,72 @@ class SectionService {
     }
   }
 
-  async getSections(uni_id: string, program_id: string) {
+  async getSections(uni_id: string, prog_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-  
-      const program = await this.programRepo.findOneBy({ id: program_id });
+
+      const program = await this.programRepo.findOneBy({ id: prog_id });
       if (!program) throw new Error("Program not found");
 
       const sections = await this.sectionRepo.find({
-        where: {
-          university: uni,
-          program: program,
-        },
+        where: { id: prog_id },
+        relations: ["program"],
       });
-  
-      if (sections.length === 0) throw new Error("No sections found");
+      if (!module) throw new Error("Module Not found");
+
       return sections;
     } catch (error) {
       if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
+        throw new Error(error.message);
       } else {
-        throw HttpException.badRequest("Invalid request");
+        throw new Error("An unexpected error occurred while fetching modules");
+      }
+    }
+  }
+
+  async updateSection(uni_id: string, section_id: string, data: SectionInterface ) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      const section = await this.sectionRepo.findOneBy({
+        id: section_id,
+        university: { id: uni_id },
+      });
+      if (!section) throw new Error("Section not found");
+  
+      const updateSection = await this.sectionRepo.update(
+        { id: section_id },
+        {
+          name: data.name,
+        }
+      );
+      return updateSection;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Failed to update section");
+      }
+    }
+  }
+
+  async deleteSection(uni_id: string, section_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const section = await this.sectionRepo.findOneBy({ id: section_id });
+      if (!module) throw new Error("Module not found");
+
+      await this.sectionRepo.delete(section_id);
+      return "Section deleted successfully";
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Section not found");
       }
     }
   }

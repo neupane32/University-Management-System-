@@ -11,7 +11,11 @@ const sectionController = new SectionController();
 router.use(authentication())
 router.use(authorization([Role.UNIVERSITY]));
 
+//Section Operation
 router.post('/create-section', catchAsync(sectionController.addSection));
 router.get('/get-section', catchAsync(sectionController.getSections));
+router.patch('/update-section', catchAsync(sectionController.updateSection));
+router.delete('/delete-section/:id', catchAsync(sectionController.deleteSection));
+
 
 export default router;
