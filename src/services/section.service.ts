@@ -15,30 +15,31 @@ class SectionService {
 
   ){}
 
-  async addSection(uni_id: string, program_id: string,  data: SectionInterface) {
-    try {
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University not found");
-
-      const program = await this.programRepo.findOneBy({id: program_id})
-      if(!program) throw new Error("Program Not Found");
-
-      const addSection = this.sectionRepo.create({
-        name: data.name,
-        university: uni,
-        program: program
-      });
-
-      await this.sectionRepo.save(addSection);
-      return "Section created successfully";
-    } catch (error) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.badRequest("Invalid request");
-      }
-    }
-  }
+  async addSection(uni_id: string, prog_id: string, data: SectionInterface) {
+     try {
+       const uni = await this.uniRepo.findOneBy({ id: uni_id });
+       if (!uni) throw new Error("University not found");
+ 
+       const program = await this.programRepo.findOneBy({ id: prog_id });
+       if (!program) throw new Error("Program not found");
+ 
+       const addModule = this.sectionRepo.create({
+         name: data.name,
+         university: uni,
+         program: program,
+       });
+ 
+       await this.sectionRepo.save(addModule);
+       return addModule;
+      
+     } catch (error) {
+       if (error instanceof Error) {
+         throw new Error(error.message);
+       } else {
+         throw new Error("Section not found");
+       }
+     }
+   }
 
   async getSections(uni_id: string, prog_id: string) {
     try {
@@ -64,23 +65,31 @@ class SectionService {
     }
   }
 
-  async updateSection(uni_id: string, section_id: string, data: SectionInterface ) {
+  async updateSection(uni_id: string, section_id: string, data: any, program_id:string ) {
+    console.log("🚀 ~ SectionService ~ updateSection ~ data:", data)
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
+      console.log("🚀 ~ SectionService ~ updateSection ~ university:", university)
+  const program = await this.programRepo.findOneBy({id:program_id})
+  if(!program){
+    throw new Error("Program not found")
+  }
       const section = await this.sectionRepo.findOneBy({
         id: section_id,
         university: { id: uni_id },
       });
+      console.log("🚀 ~ SectionService ~ updateSection ~ section:", section)
       if (!section) throw new Error("Section not found");
   
       const updateSection = await this.sectionRepo.update(
         { id: section_id },
         {
           name: data.name,
+          program:program
         }
       );
+      console.log("🚀 ~ SectionService ~ updateSection ~ updateSection:", updateSection)
       return updateSection;
     } catch (error) {
       if (error instanceof Error) {

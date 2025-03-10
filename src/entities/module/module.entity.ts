@@ -6,7 +6,7 @@ import { Resource } from "../../entities/resources/resource.entity";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Assignment } from "../../entities/Assignment/assignment.entity";
-import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+// import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
 
 @Entity('module')
 export class Module extends Base {
@@ -40,7 +40,7 @@ export class Module extends Base {
     @OneToMany(()=> Assignment, (assignment)=> assignment.module, {cascade: true})
     assignments: Assignment[];
 
-    @OneToMany(()=> ExamRoutine, (routine)=> routine.module, {cascade: true})
-    examRoutines: ExamRoutine[];
+    // @OneToMany(()=> ExamRoutine, (routine)=> routine.module, {cascade: true})
+    // examRoutines: ExamRoutine[];
 
 }

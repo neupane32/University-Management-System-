@@ -3,7 +3,7 @@ import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
 import { Column, Entity, OneToOne,OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { StudentDetails } from "./studentDetails.entity";
-import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+import { Routine } from "../../entities/Routine/routine.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import { Section } from "../../entities/Section/section.entity";
 
@@ -48,6 +48,6 @@ export class Student extends Base {
   @JoinColumn({name: "section_id"})
   section: Section;
 
-  @OneToMany(() => ExamRoutine, (routine) => routine.student, {cascade: true})
-      routine : ExamRoutine;
+  @OneToMany(() => Routine, (routine) => routine.student, {cascade: true})
+      routine : Routine;
 }

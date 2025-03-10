@@ -15,7 +15,6 @@ import { Student } from "../entities/student/student.entity";
 import { StudentDetails } from "../entities/student/studentDetails.entity";
 import { DurationType, Gender, RoutineStatus } from "../constant/enum";
 import { truncate } from "fs";
-import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 
@@ -30,7 +29,6 @@ class UniversityService {
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
     private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
-    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine),
     private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement)
   ) {}
 
@@ -192,12 +190,11 @@ class UniversityService {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const program = await this.progRepo.findBy({
-        university: { id: uni_id },
-      });
+      return await this.progRepo.find({
+        where: { university: { id: uni_id } },
+        relations: ["university"]
+      })
 
-      if (!program) throw new Error("Program not found");
-      return program;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -674,43 +671,43 @@ class UniversityService {
     }
   }
 
-  async approveRoutine(uni_id: string, routine_id: string) {
-    try {
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University not found");
+  // async approveRoutine(uni_id: string, routine_id: string) {
+  //   try {
+  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
+  //     if (!uni) throw new Error("University not found");
 
-      const routine = await this.routineRepo.findOneBy({ id: routine_id });
-      if (!routine) throw new Error("Exam routine not found");
+  //     const routine = await this.routineRepo.findOneBy({ id: routine_id });
+  //     if (!routine) throw new Error("Exam routine not found");
 
-      routine.status = RoutineStatus.APPROVED;
-      routine.approved_by = uni;
+  //     routine.status = RoutineStatus.APPROVED;
+  //     routine.approved_by = uni;
 
-      return await this.routineRepo.save(routine);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error("Failed to approve routine");
-      }
-    }
-  }
+  //     return await this.routineRepo.save(routine);
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error(error.message);
+  //     } else {
+  //       throw new Error("Failed to approve routine");
+  //     }
+  //   }
+  // }
 
-  async getRoutinesForAdmin(uni_id: string) {
-    try {
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University not found");
+  // async getRoutinesForAdmin(uni_id: string) {
+  //   try {
+  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
+  //     if (!uni) throw new Error("University not found");
 
-      const routines = await this.routineRepo.find({
-        relations: ["teacher", "module", "approved_by"],
-      });
+  //     const routines = await this.routineRepo.find({
+  //       relations: ["teacher", "module", "approved_by"],
+  //     });
 
-      return routines;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-    }
-  }
+  //     return routines;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error(error.message);
+  //     }
+  //   }
+  // }
 
   async getStudentWithoutSection(uni_id: string) {
     const uni = await this.uniRepo.findOneBy({ id: uni_id });
@@ -718,7 +715,7 @@ class UniversityService {
       
     const studentsWithoutSection = await this.studentRepo.find({
       where: { section: null },
-      relations: ["details", "program", "uni"], // Add relations if needed
+      relations: ["details", "program", "uni"],
     });
 
     return studentsWithoutSection;

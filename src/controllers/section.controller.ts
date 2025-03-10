@@ -5,10 +5,12 @@ import { SectionInterface } from "../interface/section.interface";
 import { StatusCodes } from "../constant/StatusCode";
 
 export class SectionController {
-  async addSection(req: Request, res: Response) {
+
+async addSection(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const prog_id = req.params.id
+      const prog_id = req.params.id;
+      console.log("🚀 ~ SectionController ~ addSection ~ prog_id:", prog_id)
 
       const data = await sectionService.addSection(
         uni_id as string,
@@ -16,7 +18,7 @@ export class SectionController {
         req.body as SectionInterface
       );
       res.status(StatusCodes.SUCCESS).json({
-        data: data,
+        data,
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -44,11 +46,14 @@ export class SectionController {
        try {
          const uni_id = req.user?.id;
          const section_id = req.params.id;
+         console.log("🚀 ~ SectionController ~ updateSection ~ section_id:", section_id)
+         const prog_id = req.params.prog_id;
+         console.log("🚀 ~ SectionController ~ updateSection ~ prog_id:", prog_id)
    
          const data = await sectionService.updateSection(
            uni_id as string,
            section_id,
-           req.body as SectionInterface
+           req.body as SectionInterface, prog_id
          );
          res.status(StatusCodes.SUCCESS).json({
            data,

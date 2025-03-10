@@ -12,9 +12,9 @@ router.use(authentication())
 router.use(authorization([Role.UNIVERSITY]));
 
 //Section Operation
-router.post('/create-section', catchAsync(sectionController.addSection));
+router.post('/create-section/:id', catchAsync(sectionController.addSection));
 router.get('/get-section', catchAsync(sectionController.getSections));
-router.patch('/update-section', catchAsync(sectionController.updateSection));
+router.patch('/update-section/:id/:prog_id', catchAsync(sectionController.updateSection));
 router.delete('/delete-section/:id', catchAsync(sectionController.deleteSection));
 
 
