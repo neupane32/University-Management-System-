@@ -29,7 +29,7 @@ export class Program extends Base {
     university: University;
 
     @OneToMany(() => Section, (sections) => sections.program, { cascade: true })
-    sections: Section;;
+    sections: Section[];
 
     @OneToMany(() => Module, (module) => module.program, { cascade: true })
     module: Module;

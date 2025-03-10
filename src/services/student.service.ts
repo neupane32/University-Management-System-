@@ -6,7 +6,7 @@ import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { Assignment } from "../entities/Assignment/assignment.entity";
-import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
+// import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
 import { submitAssignmnet } from "../entities/Assignment/submitAssignment.entity";
 
 const bcryptService = new BcryptService();
@@ -19,7 +19,7 @@ class StudentService {
     private readonly submissionRepo = AppDataSource.getRepository(
       submitAssignmnet
     ),
-    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
+    // private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
   ) {}
 
   async loginStudent(data: StudentInterface): Promise<Student> {
@@ -130,17 +130,17 @@ class StudentService {
     }
   }
 
-  async getApproveRoutine(student_id: string){
-    try {
-      const routines = await this.routineRepo.find({
-        where: {student: {id: student_id}},
-        relations: ["module", "approved_by"],
-      });
-    } catch (error) {
-      throw new Error(error.message || "Failed to get routine");
-    }
+  // async getApproveRoutine(student_id: string){
+  //   try {
+  //     const routines = await this.routineRepo.find({
+  //       where: {student: {id: student_id}},
+  //       relations: ["module", "approved_by"],
+  //     });
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to get routine");
+  //   }
 
-  }
+  // }
 
 
 }

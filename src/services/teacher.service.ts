@@ -14,8 +14,8 @@ import HttpException from "../utils/HttpException.utils";
 import { error } from "console";
 import { AssignmentInterface } from "../interface/assignment.interface";
 import { Assignment } from "../entities/Assignment/assignment.entity";
-import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
-import { ExamRoutineInterface } from "../interface/examRoutine.interface";
+// import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
+// import { ExamRoutineInterface } from "../interface/routine.interface";
 const bcryptService = new BcryptService();
 
 class TeacherService {
@@ -26,7 +26,7 @@ class TeacherService {
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
     private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
-    private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
+    // private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
 
   ) {}
 
@@ -346,36 +346,6 @@ class TeacherService {
       throw new Error(error.message || "Failed to create assignment");
     }
   }
-
-  async createRoutine(teacher_id: string, module_id: string, data: ExamRoutineInterface) {
-
-    const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      const module = await this.moduleRepo.findOneBy({ id: module_id });
-
-      const routine = this.routineRepo.create({
-        title: data.title,
-        description: data.description,
-        exam_date: data.exam_date,
-        teacher: teacher,
-        module: module,
-      });
-      await this.routineRepo.save(routine);
-      return routine;
-
-  }
-
-  async getTeacherRoutines(teacher_id: string) {
-    try {
-        const routines = await this.routineRepo.find({
-            where: { teacher: { id: teacher_id } },
-            relations: ["module", "approved_by"],
-        });
-
-        return routines;
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : "Failed to fetch teacher's routines");
-    }
-}
 
 }
 

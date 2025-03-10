@@ -5,7 +5,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Student } from "../../entities/student/student.entity";
-import { ExamRoutine } from "../../entities/examRoutine/examRoutine.entity";
+import { Routine } from "../../entities/Routine/routine.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import { Section } from "../../entities/Section/section.entity";
@@ -61,8 +61,8 @@ export class University extends Base {
     @OneToMany(() => Announcement, (announcement) => announcement.university, {cascade:true})
     announcement: Announcement;
 
-    @OneToMany(() => ExamRoutine, (routine) => routine.approved_by, { cascade:true })
-    examRoutines: ExamRoutine;
+    @OneToMany(() => Routine, (routine) => routine.approved_by, { cascade:true })
+    examRoutines: Routine;
     
 
 }

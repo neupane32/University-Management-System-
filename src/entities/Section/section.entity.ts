@@ -3,6 +3,7 @@ import Base from "../../entities/base.entity";
 import { University } from "../../entities/university/university.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import { Student } from "../../entities/student/student.entity";
+import { StudentSection } from "./studentSection.entity";
 
 
 @Entity("section")
@@ -21,5 +22,8 @@ export class Section extends Base {
 
     @OneToMany(() => Student, (student) => student.section, { cascade: true })
     students: Student[];
+
+    @OneToMany(() => StudentSection, (studentSection) => studentSection.section, { cascade: true })
+    studentSection: Student[];
     
 }

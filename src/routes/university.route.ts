@@ -49,9 +49,9 @@ router.get('/uni/find-students', catchAsync(universityController.getStudent));
 router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent)); 
 router.delete('/uni/delete-student/:id', catchAsync(universityController.deleteStudent));
 
-// Routine Approval Route
-router.patch('/uni/approve-routine/:uni_id/:routine_id', catchAsync(universityController.approveRoutine));
-router.get('/uni/routines', catchAsync(universityController.getRoutinesForAdmin));
+// // Routine Approval Route
+// router.patch('/uni/approve-routine/:uni_id/:routine_id', catchAsync(universityController.approveRoutine));
+// router.get('/uni/routines', catchAsync(universityController.getRoutinesForAdmin));
 
 //section routes
 router.get('/uni/noSection', catchAsync(universityController.getStudentsWithoutSection));
