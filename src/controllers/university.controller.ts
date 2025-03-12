@@ -306,12 +306,16 @@ export class UniversityController {
   async addStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const program_id = req.body.program_id;
+      const program_id = req.params.program_id;
+      const section_id = req.params.id;
+      console.log("🚀 ~ UniversityController ~ addStudent ~ section_id:", section_id)
       const data = await universityService.addStudent(
         uni_id as string,
         program_id as string,
+        section_id as string,
         req.body as StudentInterface
       );
+        console.log("🚀 ~ UniversityController ~ addStudent ~ section_id:", section_id)
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -332,36 +336,21 @@ export class UniversityController {
     }
   }
 
-  async getStudentsWithoutSection(req:Request, res: Response) {
-    try{
-    const uni_id = req.user?.id;
-    const data = await universityService.getStudentWithoutSection(uni_id);
-    res.status(StatusCodes.SUCCESS).json({
-      data,
-    });
-  }
-  catch(error: any) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-  }
-  };
-
-  async updateSection(req: Request, res:Response){
-    try {
-      
-    } catch (error) {
-      
-    }
-    
-  }
-
   async editStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
       const student_id = req.params.id;
+      const program_id = req.params.program_id;
+      console.log("🚀 ~ UniversityController ~ editStudent ~ program_id:", program_id)
+      const section_id = req.params.section_id;
+      console.log("🚀 ~ UniversityController ~ editStudent ~ section_id:", section_id)
+    
 
       const data = await universityService.editStudent(
         uni_id as string,
         student_id as string,
+        program_id as string,
+        section_id as string,
         req.body as StudentInterface
       );
       res.status(StatusCodes.SUCCESS).json({

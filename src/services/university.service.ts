@@ -17,6 +17,7 @@ import { DurationType, Gender, RoutineStatus } from "../constant/enum";
 import { truncate } from "fs";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
+import { Section } from "../entities/Section/section.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -29,7 +30,9 @@ class UniversityService {
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
     private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
-    private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement)
+    private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
+    private readonly sectionRepo = AppDataSource.getRepository(Section),
+
   ) {}
 
   async createUniversity(data: UniversityInterface) {
@@ -459,13 +462,16 @@ class UniversityService {
     }
   }
 
-  async addStudent(uni_id: string, program_id: string, data: StudentInterface) {
+  async addStudent(uni_id: string, program_id: string, section_id: string, data: StudentInterface) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
       const program = await this.progRepo.findOneBy({ id: program_id });
       if (!program) throw new Error("Program Not found");
+
+      const section = await this.sectionRepo.findOneBy({ id: section_id });
+      if (!section) throw new Error("Section Not found");
 
       const hashPassword = await bcryptservice.hash(data.password);
 
@@ -474,6 +480,7 @@ class UniversityService {
         password: hashPassword,
         uni: uni,
         program: program,
+        section: section,
       });
       await this.studentRepo.save(student);
 
@@ -504,7 +511,7 @@ class UniversityService {
 
       const students = await this.studentRepo.find({
         where: { uni: { id: uni_id } },
-        relations: ["program", "details"],
+        relations: ["program", "details", "section"],
       });
 
       return students;
@@ -518,44 +525,56 @@ class UniversityService {
   async editStudent(
     uni_id: string,
     student_id: string,
+    program_id: string,
+    section_id: string,
     data: StudentInterface
   ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University Not found");
+      if (!uni) throw new Error("University not found");
+  
+      const program = await this.progRepo.findOneBy({ id: program_id });
+      if (!program) throw new Error("Program not found");
 
+      const section = await this.sectionRepo.findOneBy({ id: section_id });
+      if (!section) throw new Error("Section not found");
+  
       const student = await this.studentRepo.findOne({
         where: { id: student_id },
         relations: ["details"],
       });
-      if (!student) throw HttpException.notFound("Student not found");
+      if (!student) throw new Error("Student not found");
+  
+      await this.studentRepo.update(
+        { id: student_id },
+        {
+          program: program, 
+          section: section, 
+          email: data.email || student.email,
+        }
+      );
 
-      (student.email = data.email || student.email),
-        (student.details.first_name =
-          data.details.first_name || student.details.first_name),
-        (student.details.middle_name =
-          data.details.middle_name || student.details.middle_name);
-      (student.details.last_name =
-        data.details.last_name || student.details.last_name),
-        (student.details.phone_number =
-          data.details.phone_number || student.details.phone_number),
-        (student.details.DOB = data.details.DOB || student.details.DOB),
-        (student.details.gender =
-          Gender[data.details.gender as keyof typeof Gender] ||
-          student.details.gender);
-        (student.details.admissionYear = 
-          data.details.admissionYear || student.details.admissionYear
-        );
-
-      await this.studentRepo.save(student);
-      await this.studentDetailsRepo.save(student.details);
-      return student;
+      await this.studentDetailsRepo.update(
+        { id: student.details.id },
+        {
+          first_name: data.details.first_name || student.details.first_name,
+          middle_name: data.details.middle_name || student.details.middle_name,
+          last_name: data.details.last_name || student.details.last_name,
+          phone_number: data.details.phone_number || student.details.phone_number,
+          DOB: data.details.DOB || student.details.DOB,
+          gender: Gender[data.details.gender as keyof typeof Gender] || student.details.gender,
+          admissionYear: data.details.admissionYear || student.details.admissionYear,
+        }
+      );
+  
+      return { message: "Student updated successfully" };
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
       }
     }
   }
+  
 
   async deleteStudent(uni_id: string, student_id: string) {
     try {
@@ -708,18 +727,6 @@ class UniversityService {
   //     }
   //   }
   // }
-
-  async getStudentWithoutSection(uni_id: string) {
-    const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University not found");
-      
-    const studentsWithoutSection = await this.studentRepo.find({
-      where: { section: null },
-      relations: ["details", "program", "uni"],
-    });
-
-    return studentsWithoutSection;
-  }
 }
 
 export default new UniversityService();
