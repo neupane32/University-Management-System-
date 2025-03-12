@@ -44,18 +44,14 @@ router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById))
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 
 // Student Routes
-router.post('/uni/add-students/:id', catchAsync(universityController.addStudent));
+router.post('/uni/add-students/:program_id/:id', catchAsync(universityController.addStudent));
 router.get('/uni/find-students', catchAsync(universityController.getStudent));
-router.patch('/uni/edit-student/:id', catchAsync(universityController.editStudent)); 
+router.patch('/uni/edit-student/:program_id/:section_id/:id', catchAsync(universityController.editStudent)); 
 router.delete('/uni/delete-student/:id', catchAsync(universityController.deleteStudent));
 
 // // Routine Approval Route
 // router.patch('/uni/approve-routine/:uni_id/:routine_id', catchAsync(universityController.approveRoutine));
 // router.get('/uni/routines', catchAsync(universityController.getRoutinesForAdmin));
-
-//section routes
-router.get('/uni/noSection', catchAsync(universityController.getStudentsWithoutSection));
-router.patch('/uni/update-section', catchAsync(universityController.updateSection));
 
 
 export default router;
