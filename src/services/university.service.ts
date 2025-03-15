@@ -13,8 +13,7 @@ import { Resource } from "../entities/resources/resource.entity";
 import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
 import { StudentDetails } from "../entities/student/studentDetails.entity";
-import { DurationType, Gender, RoutineStatus } from "../constant/enum";
-import { truncate } from "fs";
+import { DurationType, Gender} from "../constant/enum";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Section } from "../entities/Section/section.entity";
@@ -470,32 +469,63 @@ class UniversityService {
       const program = await this.progRepo.findOneBy({ id: program_id });
       if (!program) throw new Error("Program Not found");
 
+
+
       const section = await this.sectionRepo.findOneBy({ id: section_id });
       if (!section) throw new Error("Section Not found");
 
       const hashPassword = await bcryptservice.hash(data.password);
 
-      const student = this.studentRepo.create({
-        email: data.email,
-        password: hashPassword,
-        uni: uni,
-        program: program,
-        section: section,
-      });
-      await this.studentRepo.save(student);
-
-      const studentDetails = this.studentDetailsRepo.create({
-        first_name: data.details.first_name,
-        middle_name: data.details.middle_name,
-        last_name: data.details.last_name,
-        phone_number: data.details.phone_number,
-        DOB: data.details.DOB,
-        gender: Gender[data.details.gender as keyof typeof Gender],
-        admissionYear: data.details.admissionYear,
-        student: student,
-      });
-
-      await this.studentDetailsRepo.save(studentDetails);
+      if(program.durationType === "semester"){
+        const student = this.studentRepo.create({
+          email: data.email,
+          password: hashPassword,
+          semester:data.currentlyStudyingIn,
+          uni: uni,
+          program: program,
+          section: section,
+        });
+        await this.studentRepo.save(student);
+  
+        const studentDetails = this.studentDetailsRepo.create({
+          first_name: data.details.first_name,
+          middle_name: data.details.middle_name,
+          last_name: data.details.last_name,
+          phone_number: data.details.phone_number,
+          DOB: data.details.DOB,
+          gender: Gender[data.details.gender as keyof typeof Gender],
+          admissionYear: data.details.admissionYear,
+          student: student,
+        });
+  
+        await this.studentDetailsRepo.save(studentDetails);
+        return student
+      }
+        const student = this.studentRepo.create({
+          email: data.email,
+          password: hashPassword,
+          year:data.currentlyStudyingIn,
+          uni: uni,
+          program: program,
+          section: section,
+        });
+        await this.studentRepo.save(student);
+  
+        const studentDetails = this.studentDetailsRepo.create({
+          first_name: data.details.first_name,
+          middle_name: data.details.middle_name,
+          last_name: data.details.last_name,
+          phone_number: data.details.phone_number,
+          DOB: data.details.DOB,
+          gender: Gender[data.details.gender as keyof typeof Gender],
+          admissionYear: data.details.admissionYear,
+          student: student,
+        });
+  
+        await this.studentDetailsRepo.save(studentDetails);
+        
+      
+   
       return student;
     } catch (error) {
       if (error instanceof Error) {
@@ -530,12 +560,13 @@ class UniversityService {
     data: StudentInterface
   ) {
     try {
+      // Fetch related entities
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
   
       const program = await this.progRepo.findOneBy({ id: program_id });
       if (!program) throw new Error("Program not found");
-
+  
       const section = await this.sectionRepo.findOneBy({ id: section_id });
       if (!section) throw new Error("Section not found");
   
@@ -544,36 +575,44 @@ class UniversityService {
         relations: ["details"],
       });
       if (!student) throw new Error("Student not found");
-  
-      await this.studentRepo.update(
-        { id: student_id },
-        {
-          program: program, 
-          section: section, 
-          email: data.email || student.email,
-        }
-      );
 
-      await this.studentDetailsRepo.update(
-        { id: student.details.id },
-        {
-          first_name: data.details.first_name || student.details.first_name,
-          middle_name: data.details.middle_name || student.details.middle_name,
-          last_name: data.details.last_name || student.details.last_name,
-          phone_number: data.details.phone_number || student.details.phone_number,
-          DOB: data.details.DOB || student.details.DOB,
-          gender: Gender[data.details.gender as keyof typeof Gender] || student.details.gender,
-          admissionYear: data.details.admissionYear || student.details.admissionYear,
-        }
-      );
+      const updateStudentData: any = {
+        program,
+        section,
+        email: data.email || student.email,
+      };
+  
+      if (program.durationType === "semester") {
+        updateStudentData.semester = data.currentlyStudyingIn || student.semester;
+      } else {
+        updateStudentData.year = data.currentlyStudyingIn || student.year;
+      }
+
+      await this.studentRepo.update({ id: student_id }, updateStudentData);
+  
+      // Update student details
+      if (student.details) {
+        await this.studentDetailsRepo.update(
+          { id: student.details.id },
+          {
+            first_name: data.details.first_name || student.details.first_name,
+            middle_name: data.details.middle_name || student.details.middle_name,
+            last_name: data.details.last_name || student.details.last_name,
+            phone_number: data.details.phone_number || student.details.phone_number,
+            DOB: data.details.DOB || student.details.DOB,
+            gender: data.details.gender
+              ? Gender[data.details.gender as keyof typeof Gender]
+              : student.details.gender,
+            admissionYear: data.details.admissionYear || student.details.admissionYear,
+          }
+        );
+      }
   
       return { message: "Student updated successfully" };
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
+      throw new Error(error instanceof Error ? error.message : "An error occurred");
     }
-  }
+  }  
   
 
   async deleteStudent(uni_id: string, student_id: string) {

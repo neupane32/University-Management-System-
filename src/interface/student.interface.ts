@@ -3,6 +3,8 @@ export interface StudentInterface {
     email: string;
     username: string;
     password: string;
+    currentlyStudyingIn:number;
+    
 }
 
 interface Details {
