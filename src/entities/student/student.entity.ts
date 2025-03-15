@@ -25,8 +25,15 @@ export class Student extends Base {
   })
   role: Role;
 
-  @Column({ name: "active", default: false })
-  active: boolean;
+  @Column({
+    nullable: true
+  })
+  year: number;
+
+  @Column({
+    nullable: true
+  })
+  semester: number;
 
 
   @ManyToOne(() => University, (uni) => uni.student, {
