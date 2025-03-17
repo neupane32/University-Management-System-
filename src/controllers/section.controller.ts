@@ -10,15 +10,16 @@ async addSection(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
-      console.log("🚀 ~ SectionController ~ addSection ~ prog_id:", prog_id)
-
-      const data = await sectionService.addSection(
+      const data = req.body;
+      console.log("🚀 ~ SectionController ~ addSection ~ data:", data)
+  
+      const addSection = await sectionService.addSection(
         uni_id as string,
         prog_id,
-        req.body as SectionInterface
+        data
       );
       res.status(StatusCodes.SUCCESS).json({
-        data,
+        addSection,
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -42,27 +43,31 @@ async addSection(req: Request, res: Response) {
     }
 }
 
-     async updateSection(req: Request, res: Response) {
-       try {
-         const uni_id = req.user?.id;
-         const section_id = req.params.id;
-         console.log("🚀 ~ SectionController ~ updateSection ~ section_id:", section_id)
-         const prog_id = req.params.prog_id;
-         console.log("🚀 ~ SectionController ~ updateSection ~ prog_id:", prog_id)
-   
-         const data = await sectionService.updateSection(
-           uni_id as string,
-           section_id,
-           req.body as SectionInterface, prog_id
-         );
-         res.status(StatusCodes.SUCCESS).json({
-           data,
-         });
-       } catch (error: any) {
-         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-       }
-     }
-   
+async updateSection(req: Request, res: Response) {
+  try {
+      const uni_id = req.user?.id; 
+      const section_id = req.params.id; 
+      const program_id = req.params.program_id;
+      const data = req.body;
+
+      console.log("🚀 ~ SectionController ~ updateSection ~ data:", data);
+
+      const updatedSection = await sectionService.updateSection(
+          uni_id as string,
+          section_id,
+          program_id,
+          data
+      );
+      console.log("🚀 ~ SectionController ~ updateSection ~ updatedSection:", updatedSection)
+      res.status(StatusCodes.SUCCESS).json({
+          message: "Section updated successfully",
+          updatedSection,
+      });
+  } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+}
+
      async deleteSection(req: Request, res: Response) {
        try {
          const uni_id = req.user?.id;

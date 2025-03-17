@@ -55,6 +55,6 @@ export class Student extends Base {
   @JoinColumn({name: "section_id"})
   section: Section;
 
-  @OneToMany(() => Routine, (routine) => routine.student, {cascade: true})
-      routine : Routine;
+  // @OneToMany(() => Routine, (routine) => routine.student, {cascade: true})
+  //   routine : Routine;
 }
