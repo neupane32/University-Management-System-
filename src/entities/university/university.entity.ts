@@ -61,8 +61,8 @@ export class University extends Base {
     @OneToMany(() => Announcement, (announcement) => announcement.university, {cascade:true})
     announcement: Announcement;
 
-    @OneToMany(() => Routine, (routine) => routine.approved_by, { cascade:true })
-    examRoutines: Routine;
+    @OneToMany(() => Routine, (routine) => routine.university, { cascade:true })
+    routine: Routine;
     
 
 }

@@ -6,6 +6,7 @@ import teacher from './teacher.route';
 import subscription from './subscription.routes';
 import student from './student.route';
 import section from './section.route';
+import routine from './routine.routes';
 
 export interface IndexRoute {
     path: string;
@@ -33,6 +34,12 @@ const routes: IndexRoute[] = [
     {
         path: '/uni',
         route: section
+    },
+
+    {
+        path: '/routine',
+        route: routine
+
     },
 
     {

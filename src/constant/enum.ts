@@ -30,9 +30,4 @@ export enum DurationType {
   SEMESTER = "semester",
   YEAR = "year"
 }
-
-export enum RoutineType {
-  CLASS = "class",
-  EXAM = "exam",
-}
   

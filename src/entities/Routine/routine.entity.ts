@@ -1,42 +1,35 @@
 import { Teacher } from "../teacher/teacher.entity";
 import Base from "../base.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import { Module } from "../module/module.entity";
 import { University } from "../university/university.entity";
 import { Student } from "../student/student.entity";
-import { RoutineType } from "../../constant/enum";
+import { Section } from "../../entities/Section/section.entity";
 
 
 @Entity("Routine")
 export class Routine extends Base {
   @Column()
-  title: string;
+  day: string;
 
   @Column()
-  description: string;
+  startTime: string;
 
-  @Column({ type: "date" })
-  start_date: Date;
-
-  @Column({type: "date"})
-  end_date: Date;
-
-  @Column({ type: "enum", enum: RoutineType })
-  type: RoutineType;
+  @Column()
+  endTime: string;
 
   @ManyToOne(() => Teacher, (teacher) => teacher.routine, { onDelete: "CASCADE" })
   @JoinColumn({ name: "teacher_id" })
   teacher: Teacher;
 
-  @ManyToOne(() => Module, (module) => module.examRoutines, { onDelete: "CASCADE" })
+  @ManyToOne(() => Module, (module) => module.routine, { onDelete: "CASCADE" })
   @JoinColumn({ name: "module_id" })
   module: Module;
 
-  @ManyToOne(() => University, (university) => university.examRoutines, { onDelete: "CASCADE", nullable: true })
-  @JoinColumn({ name: "approved_by" })
-  approved_by: University | null;
+  @ManyToOne(() => University, (university) => university.routine, { onDelete: "CASCADE", nullable: true })
+  @JoinColumn({ name: "university_id" })
+  university: University;
 
-  @ManyToOne(()=> Student, (student) => student.routine, {onDelete: "CASCADE"})
-  @JoinColumn({name: "student_id"})
-  student: Student;
+  @ManyToOne(() => Section, (section) => section.routine, {onDelete: "CASCADE"})
+  section: Section;
 }

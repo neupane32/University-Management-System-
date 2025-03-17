@@ -1,28 +1,23 @@
-import { Request, Response } from "express";
-import adminService from "../services/admin.service";
-import { AdminInterface } from "../interface/admin.interface";
+import { Request, response, Response } from "express";
+import routineService from "../services/routine.service";
 import { StatusCodes } from "../constant/StatusCode";
-import webTokenUtils from "../utils/webToken.utils";
-import { tokenToString } from "typescript";
 
 export class RoutineController {
+  async createRoutine(req: Request, res: Response) {
+    const data = req.body;
+    const uni_id = req.user.id;
 
-//      async createRoutine(req:Request, res: Response){
-//     try {
-//     //   const teacher_id = req.user?.id;
-//     //   const module_id = req.user?.id;
+    const create = await routineService.createRoutine(uni_id, data);
+    res.status(StatusCodes.SUCCESS).json({ data: create });
+  }
 
-//     //   const data = await teacherService.createRoutine(
-//     //     teacher_id as string,
-//     //     module_id as string,
-//     //     req.body as ExamRoutineInterface
-//       );
-//       res.status(StatusCodes.SUCCESS).json({
-//         data,
-//       });
-//     } catch (error: any) {
-//       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-//     }
-//   }
-
+  async getRoutine(req:Request, res: Response){
+   const section_id = req.params.id;
+   const uni_id = req.user?.id;
+   
+   const getRoutine = await routineService.getRoutine(
+      uni_id, section_id
+   )
+   res.json({data: getRoutine})
+  }
 }

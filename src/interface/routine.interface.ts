@@ -1,11 +1,7 @@
-import { RoutineStatus, RoutineType } from "../constant/enum";
-
 export interface RoutineInterface {
-    title: string;
-    description: string;
-    start_Date: Date;
-    end_date: Date;
-    type: RoutineType;
-    status: RoutineStatus;
-
+    day: string;
+    startTime: string;
+    endTime: string;
+    module_id: string;
+    section_id: string;    
 }
