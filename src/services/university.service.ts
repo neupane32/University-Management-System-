@@ -288,18 +288,42 @@ class UniversityService {
   }
   
 
-  async findModules(uni_id: string, prog_id: string) {
+  async findModules(uni_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
 
-      const program = await this.progRepo.findOneBy({ id: prog_id });
+
+      const modules = await this.modRepo.find({
+        where: { university:{id:uni_id} },
+        relations: ["program"],
+      });
+      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules)
+      if (!module) throw new Error("Module Not found");
+
+      return modules;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("An unexpected error occurred while fetching modules");
+      }
+    }
+  }
+
+  async findModulesByProgram(uni_id: string, program_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const program = await this.progRepo.findOneBy({ id: program_id });
       if (!program) throw new Error("Program not found");
 
       const modules = await this.modRepo.find({
-        where: { id: prog_id },
+        where: { program:{id:program_id} },
         relations: ["program"],
       });
+      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules)
       if (!module) throw new Error("Module Not found");
 
       return modules;
@@ -411,6 +435,28 @@ class UniversityService {
 
       const teachers = await this.TeachRepo.find({
         where: { university: { id: uni_id } },
+        relations: ["module"],
+      });
+      if (!teachers.length) {
+        throw new Error("No teachers found for this university");
+      }
+      return teachers;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch teachers"
+      );
+    }
+  }
+
+  async getTeachersByModule(uni_id: string, module_id:string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) {
+        throw new Error("University not found");
+      }
+
+      const teachers = await this.TeachRepo.find({
+        where: { module: { id: module_id } },
         relations: ["module"],
       });
       if (!teachers.length) {

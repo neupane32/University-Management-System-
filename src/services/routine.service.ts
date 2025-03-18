@@ -7,7 +7,7 @@ import { Routine } from "../entities/Routine/routine.entity";
 class RoutineService {
     constructor (
         private readonly routineRepo = AppDataSource.getRepository(Routine),
-        private readonly adminRepo = AppDataSource.getRepository(Module),
+        private readonly moduleRepo = AppDataSource.getRepository(Module),
         private readonly uniRepo = AppDataSource.getRepository(University)
     ) {
 
