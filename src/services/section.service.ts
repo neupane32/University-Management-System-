@@ -80,7 +80,7 @@ class SectionService {
       if (!university) throw new Error("University not found");
       console.log(
         "🚀 ~ SectionService ~ updateSection ~ university:",
-        university
+        program_id  
       );
       const program = await this.programRepo.findOneBy({ id: program_id });
       if (!program) {

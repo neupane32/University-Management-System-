@@ -189,8 +189,25 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
 
       const data = await universityService.findModules(
+        uni_id as string,
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+  async findModuleByProgram(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const prog_id = req.params.id;
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
+
+      const data = await universityService.findModulesByProgram(
         uni_id as string,
         prog_id
       );
@@ -261,6 +278,18 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const data = await universityService.getTeachers(uni_id as string);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+  async getTeacherByModule(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const module_id = req.params.id
+      const data = await universityService.getTeachersByModule(uni_id as string, module_id);
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
