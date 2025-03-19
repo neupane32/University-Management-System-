@@ -2,19 +2,19 @@ import { catchAsync } from '../utils/catchAsync.utils';
 import { UniversityController } from '../controllers/university.controller';
 import express from 'express';
 import { authentication } from '../middleware/authentication.middleware';
-
+import {universityProfileImagesUpload} from '../middleware/multer.middleware'
 const router = express.Router();
 const universityController = new UniversityController();
 
 // University Auth Routes
-router.post('/uni-signup', catchAsync(universityController.createUniversity));
+router.post('/uni-signup',universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.createUniversity));
 router.post('/uni-login', catchAsync(universityController.loginUniversity));
+router.patch('/update-profile/:id', universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.updateProfile));
 
 router.use(authentication());
 
 //uni profile
 router.get('/profile', catchAsync(universityController.uniProfile));
-router.patch('/update-profile/:id', catchAsync(universityController.updateProfile));
 
 
 

@@ -7,26 +7,26 @@ export const authentication = () => {
     const tokens = req.headers.authorization?.split(' ');
     try {
       if (!tokens) {
-        throw HttpException.unauthorized('You are not authorized ');
+        throw HttpException.unauthorized('You are not authenticated ');
       }
       const mode = tokens[0];
       const accessToken = tokens[1];
 
       if (mode != 'Bearer' || !accessToken)
-        throw HttpException.unauthorized('You are not authorized ');
+        throw HttpException.unauthorized('You are not authenticated ');
       const payload = tokenService.verify(accessToken, DotenvConfig.ACCESS_TOKEN_SECRET);
       if (payload) {
         req.user = payload;
         next();
       } else {
-        throw HttpException.unauthorized('You are not authorized ');
+        throw HttpException.unauthorized('You are not authenticated ');
       }
     } catch (err: any) {
       if (err.name === 'TokenExpiredError') {
         next(HttpException.unauthorized('Token expired'));
         return;
       }
-      return next(HttpException.unauthorized('You are not authorized '));
+      return next(HttpException.unauthorized('You are not authenticated '));
     }
   };
 };
