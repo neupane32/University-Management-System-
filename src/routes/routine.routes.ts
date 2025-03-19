@@ -14,6 +14,8 @@ router.use(authentication());
 
  router.post('/create-routine', catchAsync(routineController.createRoutine));
  router.get('/get-routine/:id', catchAsync(routineController.getRoutine));
+ router.patch('/update-routine/:id', catchAsync(routineController.updateRoutine));
+ router.delete('/delete-routine/:id', catchAsync(routineController.deleteRoutine));
 
-
+ 
 export default router;

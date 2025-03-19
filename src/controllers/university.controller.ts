@@ -466,26 +466,4 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-
-  // async approveRoutine(req: Request, res: Response) {
-  //   try {
-  //     const { uni_id, routine_id } = req.params;
-  //     const result = await universityService.approveRoutine(uni_id, routine_id);
-  //     res.status(200).json(result);
-  //   } catch (error: any) {
-  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-  //   }
-  // }
-
-  // async getRoutinesForAdmin(req: Request, res: Response) {
-  //   try {
-  //     const uni_id = req.user?.id;
-  //     const data = await universityService.getRoutinesForAdmin(
-  //       uni_id as string
-  //     );
-  //     res.status(StatusCodes.SUCCESS).json({ data });
-  //   } catch (error) {
-  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-  //   }
-  // }
 }
