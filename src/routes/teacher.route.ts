@@ -2,6 +2,7 @@ import { authentication } from "../middleware/authentication.middleware";
 import { TeacherController } from "../controllers/teacher.controller";
 import { Router } from "express";
 import { authorization } from "../middleware/authorization.middleware";
+import {teacherResourceFileUpload} from "../middleware/multer.middleware"
 import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 
@@ -15,8 +16,8 @@ router.use(authentication());
 router.use(authorization([Role.TEACHER]));
 
 
-router.post('/add-resource', catchAsync(teacherController.addResource));
-router.patch('/update-resource/:id', catchAsync(teacherController.updateResource));
+router.post('/add-resource', teacherResourceFileUpload.fields([{name:'teacher_resource_file'}]), catchAsync(teacherController.addResource));
+router.get('/get-resource/:id', catchAsync(teacherController.getResource));
 router.delete('/delete-resource/:id', catchAsync(teacherController.deleteResource));
 
 router.post('/create-announcement', catchAsync(teacherController.createAnnouncement));

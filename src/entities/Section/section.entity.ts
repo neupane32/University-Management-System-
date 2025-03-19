@@ -6,6 +6,7 @@ import { Student } from "../../entities/student/student.entity";
 import { Routine } from "../../entities/Routine/routine.entity";
 import { Module } from "../../entities/module/module.entity";
 import { Teacher } from "../../entities/teacher/teacher.entity";
+import { Resource } from "../../entities/resources/resource.entity";
 
 
 @Entity("section")
@@ -32,6 +33,9 @@ export class Section extends Base {
 
     @OneToMany(() => Student, (student) => student.section, { cascade: true })
     students: Student[];
+
+    @OneToMany(() => Resource, (resource) => resource.section, {cascade: true})
+    resource: Resource[];
 
     @OneToMany(() => Routine, (routine) => routine.section, {cascade: true})
     routine: Routine[];
