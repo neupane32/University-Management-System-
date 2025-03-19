@@ -1,5 +1,4 @@
 import { catchAsync } from "../utils/catchAsync.utils";
-import { AdminController } from "../controllers/admin.controller";
 import { Router } from "express";
 import { authentication } from "../middleware/authentication.middleware";
 import { authorization } from "../middleware/authorization.middleware";

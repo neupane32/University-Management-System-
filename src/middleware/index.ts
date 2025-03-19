@@ -6,6 +6,9 @@ import bodyParser from 'body-parser';
 import routes from '../routes/index.route';
 import path from 'path';
 import { errorHandler } from './errorHandler.middleware';
+import morgan from 'morgan';
+
+
 import exp from 'constants';
 const middleware = (app: Application) => {
   app.use(
@@ -19,6 +22,7 @@ const middleware = (app: Application) => {
 
     next()
   });
+  app.use(morgan('common')); // 'dev' is a predefined format string
 
   app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')))
 

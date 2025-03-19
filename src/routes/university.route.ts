@@ -3,6 +3,8 @@ import { UniversityController } from '../controllers/university.controller';
 import express from 'express';
 import { authentication } from '../middleware/authentication.middleware';
 import {universityProfileImagesUpload} from '../middleware/multer.middleware'
+import { authorization } from '../middleware/authorization.middleware';
+import { Role } from '../constant/enum';
 const router = express.Router();
 const universityController = new UniversityController();
 
@@ -12,6 +14,7 @@ router.post('/uni-login', catchAsync(universityController.loginUniversity));
 router.patch('/update-profile/:id', universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.updateProfile));
 
 router.use(authentication());
+router.use(authorization([Role.UNIVERSITY]))
 
 //uni profile
 router.get('/profile', catchAsync(universityController.uniProfile));
@@ -25,6 +28,7 @@ router.patch('/uni/update-announcement/:id', catchAsync(universityController.upd
 router.delete('/uni/delete-Announcement/:id', catchAsync(universityController.deleteAnnouncement));
 
 // Program Routes
+
 router.post('/uni/programs', catchAsync(universityController.addProgram));
 router.get('/uni/find-programs', catchAsync(universityController.findProgram));
 router.patch('/uni/update-program/:id', catchAsync(universityController.updateProgram));
@@ -41,7 +45,7 @@ router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteM
 router.post('/uni/add-teachers/:id', catchAsync(universityController.addTeacher));
 router.patch('/uni/edit-teacher/:id', catchAsync(universityController.updateTeacher));
 router.get('/uni/find-teachers', catchAsync(universityController.getTeacher));
-router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacher));
+router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
 router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById));
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 

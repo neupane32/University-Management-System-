@@ -6,7 +6,6 @@ import webTokenUtils from "../utils/webToken.utils";
 import { ProgramInterface } from "../interface/program.interface";
 import { ModuleInterface } from "../interface/module.interface";
 import { TeacherInterface } from "../interface/teacher.interface";
-import { ResourceInterface } from "../interface/resource.interface";
 import { StudentInterface } from "../interface/student.interface";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 

@@ -1,4 +1,3 @@
-import { ResourceInterface } from "../interface/resource.interface";
 import TeacherService from "../services/teacher.service";
 import { Request, Response } from "express";
 import { StatusCodes } from "../constant/StatusCode";
@@ -45,76 +44,61 @@ export class TeacherController {
 
   async addResource(req: Request, res: Response) {
     try {
-      const content = (req.files as Express.Multer.File[])?.map(
-        (file: Express.Multer.File) => {
-          return {
-            name: file?.filename,
-            mimetype: file?.mimetype,
-            type: req.body?.type,
-          };
-        }
-      );
-      const userId = req.user?.id as string;
-      const moduleId = req.body?.module_id as string;
+      const teacher_id = req.user?.id;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      const baseUrl = ` ${req.protocol}://${req.get('host')}`;
 
-      const data = await teacherService.addResource(
-        userId,
-        moduleId,
-        content as any,
-        req.body as ResourceInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
+      const TeacherResourceFile = files?.['teacher_resource_file']
+      ?`${baseUrl}/${files['teacher_resource_file'][0].path.replace(/\\/g, '/')}`
+       : null;
+
+       const data = await teacherService.addResource( req.body, TeacherResourceFile, teacher_id)
+       res.status(StatusCodes.CREATED).json
+      (
         data,
-      });
+      );
+
+      
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
 
-  async updateResource(req: Request, res: Response) {
+  async getResource(req:Request, res:Response){
     try {
-      const content = (req.files as Express.Multer.File[])?.map(
-        (file: Express.Multer.File) => {
-          return {
-            name: file?.filename,
-            mimetype: file?.mimetype,
-            type: req.body?.type,
-          };
-        }
-      );
-      const userId = req.user?.id as string;
-      const resource_id = req.params.id;
-      const moduleId = req.body?.module_id as string;
+      const teacher_id = req.user?.id;
+      const module_id = req.params.id;
 
-      const data = await teacherService.updateResource(
-        resource_id,
-        userId,
-        moduleId,
-        content as any,
-        req.body as ResourceInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
+      const data = await teacherService.getResource(
+        teacher_id as string,
+        module_id
+      )
+      res.status(StatusCodes.CREATED).json
+      (
         data,
-      });
+      );
+      
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
 
-  async deleteResource(req: Request, res: Response) {
-    try {
-      const teacherId = req.user?.id as string;
-      const resource_id = req.params.id;
-
-      const data = await teacherService.deleteResource(teacherId, resource_id);
-
-      return res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: any) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: error.message });
+    async deleteResource(req: Request, res: Response) {
+      try {
+        const teacher_id = req.user?.id;
+        const resource_id = req.params.id;
+  
+        const data = await teacherService.deleteResource(
+          teacher_id as string,
+          resource_id
+        );
+        res.status(StatusCodes.SUCCESS).json({
+          data,
+        });
+      } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      }
     }
-  }
 
   async createAnnouncement(req: Request, res: Response) {
     try {
