@@ -12,10 +12,19 @@ import { AnnouncementInterface } from "../interface/announcement.interface";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+    const baseUrl =` ${req.protocol}://${req.get('host')}`;
+    const universityProfileImage = files?.['university_profile_image']
+    ?` ${baseUrl}/${files['university_profile_image'][0].path.replace(/\\/g, '/')}` // Replace backslashes for Windows
+       : null;
+       console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
+       console.log("🚀 ~ UniversityController ~ createUniversity ~ universityProfileImage:", universityProfileImage)
+
     try {
       console.log("🚀 ~ UniversityController ~ createUniversity ~ req.body:", req.body)
 
-      await universityService.createUniversity(req.body as UniversityInterface);
+      await universityService.createUniversity(req.body as UniversityInterface,universityProfileImage);
       res.status(StatusCodes.CREATED).json
       ({ message: "University Registred Successfully" });
     } catch (error) {
@@ -72,15 +81,27 @@ export class UniversityController {
   }
 
   async updateProfile(req: Request, res: Response) {
-    try {
-      const uni_id = req.user?.id;
 
-      const data = await universityService.updateProfile(
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+    const baseUrl =` ${req.protocol}://${req.get('host')}`;
+    const universityProfileImage = files?.['university_profile_image']
+    ?` ${baseUrl}/${files['university_profile_image'][0].path.replace(/\\/g, '/')}` // Replace backslashes for Windows
+       : null;
+       console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
+       console.log("🚀 ~ UniversityController ~ createUniversity ~ universityProfileImage:", universityProfileImage)
+
+    try {
+      // const uni_id = req.user?.id;
+      const uni_id = req.params.id
+
+      const data= await universityService.updateProfile(
         uni_id as string,
-        req.body as UniversityInterface
+        req.body as UniversityInterface,
+        universityProfileImage
       );
       res.status(StatusCodes.SUCCESS).json({
-        data,
+        message:"successfully updated",
+        data
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });

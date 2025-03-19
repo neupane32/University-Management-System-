@@ -34,7 +34,7 @@ class UniversityService {
 
   ) {}
 
-  async createUniversity(data: UniversityInterface) {
+  async createUniversity(data: UniversityInterface,universityProfileImage:string) {
     try {
       const emailExist = await this.uniRepo.findOneBy({
         email: data.email,
@@ -47,6 +47,7 @@ class UniversityService {
         email: data.email,
         universityName: data.university_name,
         password: hashPassword,
+        profileImagePath: universityProfileImage
       });
       await this.uniRepo.save(auth);
       return auth;
@@ -101,10 +102,14 @@ class UniversityService {
     }
   }
 
-  async updateProfile(uni_id: string, data: UniversityInterface) {
+  async updateProfile(uni_id: string, data: UniversityInterface, universityProfileImage:string) {
+    console.log("🚀 ~ UniversityService ~ updateProfile ~ uni_id:", uni_id)
+    console.log("🚀 ~ UniversityService ~ updateProfile ~ data:", data)
+    console.log("🚀 ~ UniversityService ~ updateProfile ~ universityProfileImage:", universityProfileImage)
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
+      console.log("🚀 ~ UniversityService ~ updateProfile ~ uni:", uni)
 
       const updatePorifle = await this.uniRepo.update(
         {
@@ -113,9 +118,13 @@ class UniversityService {
         {
           email: data.email,
           universityName: data.university_name,
+          profileImagePath: universityProfileImage
         }
       );
-      return updatePorifle;
+      const updatedUni = await this.uniRepo.findOneBy({ id: uni_id });
+      console.log("🚀 ~ UniversityService ~ updateProfile ~ updatedUni:", updatedUni)
+
+      return updatedUni;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

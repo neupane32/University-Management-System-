@@ -12,6 +12,10 @@ import { Section } from "../../entities/Section/section.entity";
 
 @Entity('University')
 export class University extends Base {
+
+    @Column({nullable: true})
+    profileImagePath: string
+
     @Column({
         unique: true,
         nullable: false,
@@ -47,7 +51,7 @@ export class University extends Base {
     program: Program;
 
     @OneToMany(() => Section, (sections) => sections.university, {cascade: true})
-    sections: Section;;
+    sections: Section;
 
     @OneToMany(() => Module, (module) => module.university, {cascade: true})
     module: Module;

@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import routes from '../routes/index.route';
 import path from 'path';
 import { errorHandler } from './errorHandler.middleware';
+import exp from 'constants';
 const middleware = (app: Application) => {
   app.use(
     cors({
@@ -18,6 +19,8 @@ const middleware = (app: Application) => {
 
     next()
   });
+
+  app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'uploads')))
 
   app.use(bodyParser.json());
   app.set('public', path.join(__dirname, '../', '../', 'public', 'content'));
