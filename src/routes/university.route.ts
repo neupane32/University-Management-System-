@@ -42,10 +42,10 @@ router.get('/uni/find-modules-by-id/:id', catchAsync(universityController.findMo
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 
 // Teacher Routes
-router.post('/uni/add-teachers/:id', catchAsync(universityController.addTeacher));
+router.post('/uni/add-teachers', catchAsync(universityController.addTeacher));
 router.patch('/uni/edit-teacher/:id', catchAsync(universityController.updateTeacher));
 router.get('/uni/find-teachers', catchAsync(universityController.getTeacher));
-router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
+// router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
 router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById));
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 

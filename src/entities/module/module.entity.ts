@@ -7,6 +7,7 @@ import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Assignment } from "../../entities/Assignment/assignment.entity";
 import { Section } from "../../entities/Section/section.entity";
+import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
 
 
 @Entity('module')
@@ -32,9 +33,6 @@ export class Module extends Base {
     @OneToMany(() => Resource, (resource) => resource.module, {cascade: true})
     module: Module[];
 
-    @OneToMany(() => Teacher, (teacher) => teacher.module, { cascade: true })
-    teacher: Teacher[];
-
     @OneToMany(() => Announcement, (announce) => announce.module, {cascade: true })
     announce: Announcement[];
 
@@ -43,6 +41,9 @@ export class Module extends Base {
 
     @OneToMany(()=> Section, (section)=> section.module, {cascade: true})
     section: Section[];
+
+     @OneToMany(() => Teacher_Module, (modules) => modules.teacher, { cascade: true })
+      modules: Teacher_Module[];
 
     
 

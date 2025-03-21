@@ -9,6 +9,7 @@ import { Assignment } from "../../entities/Assignment/assignment.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import { Routine } from "../../entities/Routine/routine.entity";
 import { Section } from "../../entities/Section/section.entity";
+import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
@@ -48,9 +49,9 @@ export class Teacher extends Base {
   @JoinColumn({name: 'uni_id'})
   university: University;
 
-  @ManyToOne(() => Module, (module) => module.teacher, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'module_id' })
-  module: Module;
+
+  @OneToMany(() => Teacher_Module, (teacher_module) => teacher_module.teacher, { cascade: true })
+  teacher_module: Teacher_Module[];
 
   
   @ManyToOne(() => Program, (program) => program.teacher, { onDelete: 'CASCADE' })

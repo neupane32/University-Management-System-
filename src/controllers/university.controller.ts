@@ -258,11 +258,11 @@ export class UniversityController {
 
   async addTeacher(req: Request, res: Response) {
     try {
-      const module_id = req.params.id;
+      const {modules} = req.body;
       const uni_id = req.user?.id;
       const data = await universityService.addTeacher(
         uni_id as string,
-        module_id,
+        modules,
         req.body as TeacherInterface
       );
       res.status(StatusCodes.SUCCESS).json({
@@ -277,6 +277,7 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
+      const {modules} = req.body
       console.log(
         "🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:",
         teacher_id
@@ -284,6 +285,7 @@ export class UniversityController {
       const data = await universityService.updateTeacher(
         uni_id as string,
         teacher_id as string,
+        modules,
         req.body as TeacherInterface
       );
       res.status(StatusCodes.SUCCESS).json({
@@ -305,18 +307,18 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-  async getTeacherByModule(req: Request, res: Response) {
-    try {
-      const uni_id = req.user?.id;
-      const module_id = req.params.id
-      const data = await universityService.getTeachersByModule(uni_id as string, module_id);
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  // async getTeacherByModule(req: Request, res: Response) {
+  //   try {
+  //     const uni_id = req.user?.id;
+  //     const module_id = req.params.id
+  //     const data = await universityService.getTeachersByModule(uni_id as string, module_id);
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
   async getTeacherById(req: Request, res: Response) {
     try {
@@ -339,10 +341,12 @@ export class UniversityController {
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
+      const {modules} = req.body;
 
       const data = await universityService.deleteTeacher(
         uni_id as string,
-        teacher_id
+        teacher_id,
+        modules
       );
       res.status(StatusCodes.SUCCESS).json({
         data,
