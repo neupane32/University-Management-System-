@@ -10,6 +10,8 @@ const router: Router = Router();
 const routineController = new RoutineController;
 
 router.use(authentication());
+router.use(authorization([Role.UNIVERSITY]))
+
 
  router.post('/create-routine', catchAsync(routineController.createRoutine));
  router.get('/get-routine/:id', catchAsync(routineController.getRoutine));

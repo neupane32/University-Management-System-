@@ -100,7 +100,7 @@ export class TeacherController {
       }
     }
 
-  async createAnnouncement(req: Request, res: Response) {
+  async postAnnouncement(req: Request, res: Response) {
     try {
       const teacher_id = req.user?.id;
       const module_id = req.user?.id;

@@ -17,6 +17,7 @@ import { DurationType, Gender} from "../constant/enum";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Section } from "../entities/Section/section.entity";
+import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -31,6 +32,8 @@ class UniversityService {
     private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
     private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
     private readonly sectionRepo = AppDataSource.getRepository(Section),
+    private readonly teacher_ModuleRepo = AppDataSource.getRepository(Teacher_Module),
+
 
   ) {}
 
@@ -363,25 +366,16 @@ class UniversityService {
       }
     }
   }
-
-  async addTeacher(uni_id: string, module_id: string, data: TeacherInterface) {
+  async addTeacher(uni_id: string, module_id: any[], data: TeacherInterface) {
+    console.log("🚀 ~ UniversityService ~ addTeacher ~ module_id:", module_id);
     try {
+      const programId = "326e1367-e2f9-4bd8-b77d-f18f35b48530";
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
-
-      const module = await this.modRepo.findOne({
-        where: { id: module_id },
-        relations: ["program"],
-      });
-      if (!module) throw new Error("Module Not found");
-
-      const program = await this.progRepo.findOne({
-        where: { id: module.program.id },
-      });
-      if (!program) throw new Error("Program Not found");
-
+  
       const hashPassword = await bcryptservice.hash(data.password);
-
+  
+      // Create and save the teacher
       const teacher = this.TeachRepo.create({
         name: data.name,
         email: data.email,
@@ -389,23 +383,48 @@ class UniversityService {
         gender: data.gender,
         contact: data.contact,
         university: uni,
-        module: module,
-        program: module.program,
+        program: { id: programId },
       });
       await this.TeachRepo.save(teacher);
-      return teacher;
+  
+      // Log the created teacher for debugging
+      console.log("🚀 ~ UniversityService ~ Created Teacher:", teacher);
+  
+      // Process all modules
+      await Promise.all(
+        module_id.map(async (moduleId) => {
+          const module = await this.modRepo.findOne({
+            where: { id: moduleId },
+            relations: ["program"],
+          });
+          if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+  
+          const teacher_Module = this.teacher_ModuleRepo.create({
+            teacher,
+            module,
+          });
+  
+          console.log("🚀 ~ UniversityService ~ Created teacher_Module:", teacher_Module);
+          await this.teacher_ModuleRepo.save(teacher_Module);
+        })
+      );
+  
+      return "Teacher Created Successfully!";
     } catch (error) {
       if (error instanceof Error) {
+        console.error("🚀 ~ UniversityService ~ Error:", error.message);
         throw new Error(error.message);
       } else {
-        throw new Error("Teacher not found");
+        throw new Error("An unexpected error occurred while adding the teacher");
       }
     }
   }
+  
 
   async updateTeacher(
     uni_id: string,
     teacher_id: string,
+    modules: any[],
     data: TeacherInterface
   ) {
     try {
@@ -425,6 +444,13 @@ class UniversityService {
           contact: data.contact,
         }
       );
+modules.map(async(module) => {
+
+  await this.teacher_ModuleRepo.update({
+    id: teacher_id,
+
+  }, {module})
+})
       return "Teacher Update successfully";
     } catch (error) {
       if (error instanceof Error) {
@@ -457,27 +483,27 @@ class UniversityService {
     }
   }
 
-  async getTeachersByModule(uni_id: string, module_id:string) {
-    try {
-      const university = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!university) {
-        throw new Error("University not found");
-      }
+  // async getTeachersByModule(uni_id: string, module_id:string) {
+  //   try {
+  //     const university = await this.uniRepo.findOneBy({ id: uni_id });
+  //     if (!university) {
+  //       throw new Error("University not found");
+  //     }
 
-      const teachers = await this.TeachRepo.find({
-        where: { module: { id: module_id } },
-        relations: ["module"],
-      });
-      if (!teachers.length) {
-        throw new Error("No teachers found for this university");
-      }
-      return teachers;
-    } catch (error) {
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to fetch teachers"
-      );
-    }
-  }
+  //     const teachers = await this.TeachRepo.find({
+  //       where: { module: { id: module_id } },
+  //       relations: ["module"],
+  //     });
+  //     if (!teachers.length) {
+  //       throw new Error("No teachers found for this university");
+  //     }
+  //     return teachers;
+  //   } catch (error) {
+  //     throw new Error(
+  //       error instanceof Error ? error.message : "Failed to fetch teachers"
+  //     );
+  //   }
+  // }
 
   async getTeacherById(uni_id: string, teacherId: string) {
     try {
@@ -496,25 +522,56 @@ class UniversityService {
     }
   }
 
-  async deleteTeacher(uni_id: string, teacher_id: string) {
+  async deleteTeacher(uni_id: string, teacher_id: string, module_id: any[]) {
+    console.log("🚀 ~ UniversityService ~ deleteTeacher ~ module_id:", module_id)
     try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacher_id, university: { id: uni_id } },
+        relations: ["university"]
       });
-
       if (!teacher) {
-        throw new Error(
-          "Teacher not found or does not belong to the university"
-        );
+        throw new Error("Teacher not found or does not belong to the university");
       }
+ 
+      const moduleIds = Array.isArray(module_id) ? module_id : [module_id];
+  
+      for (const id of moduleIds) {
+        const module = await this.modRepo.findOneBy({ id });
+        if (!module) throw new Error(`Module with ID ${id} not found`);
+  
+        const association = await this.teacher_ModuleRepo.findOne({
+          where: {
+            teacher: { id: teacher_id },
+            module: { id }
+          }
+        });
+        
+        if (!association) {
+          throw new Error(`Teacher is not associated with module ${id}`);
+        }
 
-      await this.TeachRepo.delete({ id: teacher_id });
-
-      return "Teacher deleted successfully";
+        const deleteResult = await this.teacher_ModuleRepo.delete({
+          teacher: { id: teacher_id },
+          module: { id }
+        });
+  
+        if (deleteResult.affected === 0) {
+          throw new Error(`Failed to remove teacher from module ${id}`);
+        }
+      }
+      
+      return "Teacher removed from specified modules successfully";
     } catch (error: any) {
-      throw new Error(error.message);
+      console.error("Error:", error.message);
+      throw new Error(error.message || "An error occurred while removing the teacher");
     }
   }
+  
+  
+  
 
   async addStudent(uni_id: string, program_id: string, section_id: string, data: StudentInterface) {
     try {

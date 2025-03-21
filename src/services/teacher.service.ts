@@ -74,6 +74,15 @@ class TeacherService {
     }
   }
 
+  async getModuleByTeacher(teacher_id: string){
+    try {
+      const teacher = await this
+    } catch (error) {
+      
+    }
+
+  }
+
   async addResource(data: any, TeacherResourceFile: string, teacher_id: string){
     
     const addResource = await this.resourceRepo.create({

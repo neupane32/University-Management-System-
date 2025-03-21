@@ -20,7 +20,7 @@ export class RoutineController {
       uni_id, section_id
    )
    res.json({data: getRoutine})
-  }
+  }  
 
   async updateRoutine(req:Request, res:Response){
     const uni_id = req.user?.id;
