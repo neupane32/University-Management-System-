@@ -42,7 +42,7 @@ export class Module extends Base {
     @OneToMany(()=> Section, (section)=> section.module, {cascade: true})
     section: Section[];
 
-     @OneToMany(() => Teacher_Module, (modules) => modules.teacher, { cascade: true })
+     @OneToMany(() => Teacher_Module, (teacherModule) => teacherModule.teacher, { cascade: true })
       modules: Teacher_Module[];
 
     

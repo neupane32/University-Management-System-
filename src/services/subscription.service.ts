@@ -32,7 +32,6 @@ class SubscriptionService {
       );
     }
   }
-
   async getSubscription() {
     try {
       const getSubscription = await this.subscriptionRepo.find();
@@ -46,5 +45,4 @@ class SubscriptionService {
     }
   }
 }
-
 export default SubscriptionService;

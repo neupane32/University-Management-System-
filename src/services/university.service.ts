@@ -33,16 +33,12 @@ class UniversityService {
     private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
     private readonly sectionRepo = AppDataSource.getRepository(Section),
     private readonly teacher_ModuleRepo = AppDataSource.getRepository(Teacher_Module),
-
-
   ) {}
-
   async createUniversity(data: UniversityInterface,universityProfileImage:string) {
     try {
       const emailExist = await this.uniRepo.findOneBy({
         email: data.email,
       });
-   
       if (emailExist) throw new Error("The email is already exists");
 
       const hashPassword = await bcryptservice.hash(data.password);
@@ -87,15 +83,15 @@ class UniversityService {
     }
   }
 
-  async uniProfile(uni_id: string, data: UniversityInterface) {
+  async uniProfile(uni_id: string) {
+    console.log("🚀 ~ UniversityService ~ uniProfile ~ uni_id:", uni_id)
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const uniProfile = await this.uniRepo.findOne({
-        where: [{ email: data.email }],
-      });
-      return uniProfile;
+    
+      console.log("🚀 ~ UniversityService ~ uniProfile ~ uniProfile:", uni)
+      return uni;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -366,10 +362,9 @@ class UniversityService {
       }
     }
   }
-  async addTeacher(uni_id: string, module_id: any[], data: TeacherInterface) {
+  async addTeacher(uni_id: string, module_id: any[], data: any) {
     console.log("🚀 ~ UniversityService ~ addTeacher ~ module_id:", module_id);
     try {
-      const programId = "326e1367-e2f9-4bd8-b77d-f18f35b48530";
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
   
@@ -383,14 +378,11 @@ class UniversityService {
         gender: data.gender,
         contact: data.contact,
         university: uni,
-        program: { id: programId },
       });
       await this.TeachRepo.save(teacher);
   
-      // Log the created teacher for debugging
       console.log("🚀 ~ UniversityService ~ Created Teacher:", teacher);
-  
-      // Process all modules
+
       await Promise.all(
         module_id.map(async (moduleId) => {
           const module = await this.modRepo.findOne({
@@ -429,38 +421,75 @@ class UniversityService {
   ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University Not found");
-
-      const teacher = await this.TeachRepo.findOneBy({ id: teacher_id });
-      if (!teacher) throw new Error("Teacher not found Not found");
-
-      const update = this.TeachRepo.update(
-        { id: teacher_id },
-        {
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          gender: data.gender,
-          contact: data.contact,
-        }
+      if (!uni) throw new Error("University not found");
+      
+      const teacher = await this.TeachRepo.findOne({
+        where: { id: teacher_id },
+        relations: ["teacher_module"]
+      });
+      if (!teacher) throw new Error("Teacher not found");
+  
+      await this.TeachRepo.update({ id: teacher_id }, {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        gender: data.gender,
+        contact: data.contact
+      });
+  
+      const existingTeacherModules = await this.teacher_ModuleRepo.find({
+        where: { teacher: { id: teacher_id } },
+        relations: ["module"]
+      });
+  
+      const existingModuleIds = new Set(
+        existingTeacherModules
+          .map((tm) => tm.module?.id)
+          .filter((id): id is string => Boolean(id))
       );
-modules.map(async(module) => {
-
-  await this.teacher_ModuleRepo.update({
-    id: teacher_id,
-
-  }, {module})
-})
-      return "Teacher Update successfully";
+  
+      const newModuleIds = new Set(modules);
+      
+      for (const relation of existingTeacherModules) {
+        if (relation.module?.id && !newModuleIds.has(relation.module.id)) {
+          await this.teacher_ModuleRepo.delete({
+            teacher: { id: teacher_id },
+            module: { id: relation.module.id }
+          });
+        }
+      }
+  
+      for (const moduleId of modules) {
+        if (!existingModuleIds.has(moduleId)) {
+          const module = await this.modRepo.findOneBy({ id: moduleId });
+          if (!module) throw new Error("Module not found");
+          
+          const existingRelation = await this.teacher_ModuleRepo.findOne({
+            where: {
+              teacher: { id: teacher_id },
+              module: { id: moduleId }
+            }
+          });
+  
+          if (!existingRelation) {
+            const newRelation = this.teacher_ModuleRepo.create({
+              module: { id: moduleId },
+              teacher: teacher
+            });
+            await this.teacher_ModuleRepo.save(newRelation);
+          }
+        }
+      }
+  
+      return "Teacher updated successfully";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
-      } else {
-        throw new Error("Teacher not found");
       }
+      throw new Error("Teacher update failed");
     }
   }
-
+  
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
@@ -468,10 +497,12 @@ modules.map(async(module) => {
         throw new Error("University not found");
       }
 
-      const teachers = await this.TeachRepo.find({
-        where: { university: { id: uni_id } },
-        relations: ["module"],
-      });
+      const teachers = await this.TeachRepo.createQueryBuilder('teacher')
+      .leftJoinAndSelect('teacher.teacher_module', 'teacher_module')
+      .leftJoinAndSelect('teacher_module.module', 'module')
+      .where('teacher.uni_id = :uni_id', { uni_id })
+      .getMany();
+
       if (!teachers.length) {
         throw new Error("No teachers found for this university");
       }
@@ -482,29 +513,34 @@ modules.map(async(module) => {
       );
     }
   }
-
-  // async getTeachersByModule(uni_id: string, module_id:string) {
-  //   try {
-  //     const university = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!university) {
-  //       throw new Error("University not found");
-  //     }
-
-  //     const teachers = await this.TeachRepo.find({
-  //       where: { module: { id: module_id } },
-  //       relations: ["module"],
-  //     });
-  //     if (!teachers.length) {
-  //       throw new Error("No teachers found for this university");
-  //     }
-  //     return teachers;
-  //   } catch (error) {
-  //     throw new Error(
-  //       error instanceof Error ? error.message : "Failed to fetch teachers"
-  //     );
-  //   }
-  // }
-
+  async getTeachersByModule(uni_id: string, module_id: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) { throw new Error("University not found"); }
+  
+      const module = await this.modRepo.findOneBy({ id: module_id });
+      if (!module) { throw new Error("Module not found"); }
+  
+      const teachers = await this.TeachRepo.find({
+        where: {
+          teacher_module: {
+            module: { id: module_id }
+          }
+        },
+        relations: ["teacher_module", "teacher_module.module"]
+      });
+  
+      if (!teachers.length) {
+        throw new Error("No teachers found for this module");
+      }
+  
+      return teachers;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch teachers"
+      );
+    }
+  }
   async getTeacherById(uni_id: string, teacherId: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });

@@ -33,8 +33,6 @@ export class Teacher extends Base {
 
   @Column()
   gender: string;
-
-
   @Column({
     type: 'enum',
     enum: Role,

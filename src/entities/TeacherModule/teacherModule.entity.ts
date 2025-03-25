@@ -11,8 +11,8 @@ export class Teacher_Module extends Base {
   @JoinColumn({ name: 'module_id' })
   module: Module;
 
-  
   @ManyToOne(() => Teacher, (teacher) => teacher.teacher_module, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teacher_id' })
   teacher: Teacher;
+
 }
