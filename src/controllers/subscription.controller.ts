@@ -11,6 +11,7 @@ export class SubscriptionController {
   async addSunscription(req: Request, res: Response) {
     try {
       const data = await subscriptionService.addSubscription(req.body);
+      console.log("🚀 ~ SubscriptionController ~ addSunscription ~ data:", data)
      
       res.status(StatusCodes.SUCCESS).json({
               data: {
@@ -19,6 +20,7 @@ export class SubscriptionController {
               },
             });
     } catch (error) {
+        console.log("🚀 ~ SubscriptionController ~ addSunscription ~ error:", error)
         if (error instanceof Error) {
           res.status(StatusCodes.BAD_REQUEST).json({
             message: error.message,
@@ -31,6 +33,7 @@ export class SubscriptionController {
       }
   }
   async getSubscription(req: Request, res: Response) {
+    console.log('xiro??')
     try {
       const data = await subscriptionService.getSubscription()
      
@@ -41,6 +44,7 @@ export class SubscriptionController {
               },
             });
     } catch (error) {
+        console.log("🚀 ~ SubscriptionController ~ getSubscription ~ error:", error)
         if (error instanceof Error) {
           res.status(StatusCodes.BAD_REQUEST).json({
             message: error.message,
