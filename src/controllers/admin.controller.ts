@@ -10,6 +10,7 @@ export class AdminController {
 
   async loginAdmin(req: Request, res: Response) {
     try {
+      console.log('object')
       const data = await adminService.loginAdmin(req.body);
       const token = webTokenUtils.generateTokens(
         {

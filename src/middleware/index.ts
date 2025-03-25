@@ -17,7 +17,6 @@ const middleware = (app: Application) => {
       origin: "*",
     })
   );
-
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];
     next();

@@ -30,7 +30,6 @@ export class SubscriptionController {
         }
       }
   }
-
   async getSubscription(req: Request, res: Response) {
     try {
       const data = await subscriptionService.getSubscription()
