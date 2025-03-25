@@ -28,9 +28,22 @@ export class UniversityController {
     try {
       console.log("🚀 ~ UniversityController ~ createUniversity ~ req.body:", req.body)
 
-      await universityService.createUniversity(req.body as UniversityInterface,universityProfileImage);
+     const data= await universityService.createUniversity(req.body as UniversityInterface,universityProfileImage);
+      const token = webTokenUtils.generateTokens(
+        {
+          id: data.id,
+        },
+        data.role
+      );
       res.status(StatusCodes.CREATED).json
-      ({ message: "University Registred Successfully" });
+      ({ data: {
+        id: data.id,
+        email: data.email,
+        tokens: {
+          accessToken: token.accessToken,
+        },
+        message: "university registration Successfully",
+      }, });
     } catch (error) {
       if (error instanceof Error) {
         res.status(StatusCodes.BAD_REQUEST).json({
@@ -83,6 +96,10 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+
+
+
 
   async updateProfile(req: Request, res: Response) {
 console.log('ya saman aaipugo??')

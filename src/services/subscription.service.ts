@@ -5,12 +5,16 @@ import { StudentInterface } from "../interface/student.interface";
 import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
 import { Subscription } from "../entities/Subscription/subscription.entity";
+import { UniversitySubscription } from "../entities/UniSubscription/unisubscription.entity";
 
 const bcryptService = new BcryptService();
 class SubscriptionService {
   constructor(
     private readonly subscriptionRepo = AppDataSource.getRepository(
       Subscription
+    ),
+    private readonly uniSubscriptionRepo = AppDataSource.getRepository(
+      UniversitySubscription
     )
   ) {}
   async addSubscription(data: any) {
@@ -48,5 +52,51 @@ console.log(typeof(data.mostPopular),'------')
       );
     }
   }
+  async addUniSubscription(data: any, uni_id: string) {
+    const subscriptionId = data.id;
+    console.log("🚀 ~ SubscriptionService ~ addUniSubscription ~ subscriptionId:", subscriptionId);
+
+    // Fetch the subscription
+    const subscription = await this.subscriptionRepo.findOne({
+        where: { id: subscriptionId }
+    });
+
+    if (!subscription) {
+        throw new Error('Subscription not found');
+    }
+
+    // Check if university already has a subscription
+    const existingSubscription = await this.uniSubscriptionRepo.findOne({
+        where: {
+            university: { id: uni_id },
+            isActive: true  // Ensure you are checking only active subscriptions
+        }
+    });
+
+    if (existingSubscription) {
+        throw new Error('University already has an active subscription');
+    }
+
+    console.log("🚀 ~ SubscriptionService ~ addUniSubscription ~ subscription:", subscription);
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(startDate.getDate() + subscription.duration);
+
+    const newUniSubscription = this.uniSubscriptionRepo.create({
+        startDate,
+        endDate,
+        isActive: true,
+        university: { id: uni_id },
+        subscription: { id: subscriptionId }
+    });
+
+    // Save the new subscription
+    await this.uniSubscriptionRepo.save(newUniSubscription);
+
+    console.log(`Subscription added successfully for university ID: ${uni_id}`);
+}
+
+
 }
 export default SubscriptionService;

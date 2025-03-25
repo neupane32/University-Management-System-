@@ -9,6 +9,7 @@ import { Routine } from "../../entities/Routine/routine.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import { Section } from "../../entities/Section/section.entity";
+import { UniversitySubscription } from "../../entities/UniSubscription/unisubscription.entity";
 
 @Entity('University')
 export class University extends Base {
@@ -68,5 +69,8 @@ export class University extends Base {
     @OneToMany(() => Routine, (routine) => routine.university, { cascade:true })
     routine: Routine;
     
+    @OneToMany(() => UniversitySubscription, (subscription) => subscription.university, { cascade: true })
+    subscriptions: UniversitySubscription[];
+
 
 }

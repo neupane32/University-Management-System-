@@ -8,14 +8,17 @@ import { SubscriptionController } from "../controllers/subscription.controller";
 
 const router: Router = Router();
 const subscriptionController = new SubscriptionController;
-// router.use(authentication())
-// router.use(authorization([Role.UNIVERSITY]));
+
 
 
 
 
 router.post('/add-subscription', catchAsync(subscriptionController.addSunscription));
 router.get('/get-subscription', catchAsync(subscriptionController.getSubscription));
+
+router.use(authentication())
+router.use(authorization([Role.UNIVERSITY]));
+router.post('/success', catchAsync(subscriptionController.addUniSubscription));
 
 
 export default router;

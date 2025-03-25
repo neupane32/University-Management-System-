@@ -4,6 +4,7 @@ import express from 'express';
 import { authentication } from '../middleware/authentication.middleware';
 import {universityProfileImagesUpload} from '../middleware/multer.middleware'
 import { authorization } from '../middleware/authorization.middleware';
+import {subscriptionAuthorization} from '../middleware/subscriptionAuthorization.middleware'
 import { Role } from '../constant/enum';
 const router = express.Router();
 const universityController = new UniversityController();
@@ -16,6 +17,9 @@ router.patch('/update-profile/:id', universityProfileImagesUpload.fields([{name:
 router.use(authentication());
 router.use(authorization([Role.UNIVERSITY]))
 
+router.post('/payment-success', catchAsync(universityController.uniProfile));
+
+
 //uni profile
 router.get('/uni-profile', catchAsync(universityController.uniProfile));
 //Announcement Routes
@@ -27,9 +31,13 @@ router.delete('/uni/delete-Announcement/:id', catchAsync(universityController.de
 // Program Routes
 
 router.post('/uni/programs', catchAsync(universityController.addProgram));
+
 router.get('/uni/find-programs', catchAsync(universityController.findProgram));
 router.patch('/uni/update-program/:id', catchAsync(universityController.updateProgram));
 router.delete('/uni/delete-program/:id', catchAsync(universityController.deleteProgram));
+
+
+router.use(subscriptionAuthorization())
 
 // Module Routes
 router.post('/uni/add-modules/:id', catchAsync(universityController.addModule));

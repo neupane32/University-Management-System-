@@ -56,6 +56,34 @@ export class SubscriptionController {
         }
       }
   }
+  async addUniSubscription(req: Request, res: Response) {
+    console.log('xiro??')
+    try {
+      const data=req.body
+      const uni_id=req.user.id
+      console.log("🚀 ~ SubscriptionController ~ addUniSubscription ~ data:", data)
+      const saved = await subscriptionService.addUniSubscription(data,uni_id)
+     
+      res.status(StatusCodes.SUCCESS).json({
+              data: {
+               data,
+                message: "subscription fetched successfully",
+              },
+            });
+
+    } catch (error) {
+        console.log("🚀 ~ SubscriptionController ~ getSubscription ~ error:", error)
+        if (error instanceof Error) {
+          res.status(StatusCodes.BAD_REQUEST).json({
+            message: error.message,
+          });
+        } else {
+          res.status(StatusCodes.BAD_REQUEST).json({
+            message: "error while logging in",
+          });
+        }
+      }
+  }
 
 
 
