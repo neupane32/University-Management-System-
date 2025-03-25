@@ -13,14 +13,16 @@ class SubscriptionService {
       Subscription
     )
   ) {}
-
   async addSubscription(data: any) {
+    console.log("🚀 ~ SubscriptionService ~ addSubscription ~ data:", data)
     try {
+console.log(typeof(data.mostPopular),'------')
       const addSubscription = this.subscriptionRepo.create({
         title: data.title,
         duration: Number(data.duration),
         bonus: Number(data.bonus),
-        mostPoopular: data.mostPopular,
+        mostPopular: Boolean(data.mostPopular),
+        price:Number(data.price)
       });
       await this.subscriptionRepo.save(addSubscription);
       return addSubscription;
@@ -34,7 +36,9 @@ class SubscriptionService {
   }
   async getSubscription() {
     try {
+      const id = "372f3fe8-ad30-4b36-b811-22ea984055eb"
       const getSubscription = await this.subscriptionRepo.find();
+      console.log("🚀 ~ SubscriptionService ~ getSubscription ~ getSubscription:", getSubscription)
       return getSubscription;
     } catch (error) {
       throw new Error(
