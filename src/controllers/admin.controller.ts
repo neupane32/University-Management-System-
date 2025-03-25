@@ -6,22 +6,7 @@ import webTokenUtils from "../utils/webToken.utils";
 import { tokenToString } from "typescript";
 
 export class AdminController {
-  async createAdmin(req: Request, res: Response) {
-    try {
-      const body = req.body as AdminInterface;
-      console.log("🚀 ~ AdminController ~ createAdmin ~ body:", body);
-      await adminService.createAdmin(body);
-      res
-        .status(StatusCodes.CREATED)
-        .json({ message: "Admin Registred Successfully" });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error.message,
-        });
-      }
-    }
-  }
+
 
   async loginAdmin(req: Request, res: Response) {
     try {
@@ -49,32 +34,6 @@ export class AdminController {
           message: error.message,
         });
       }
-    }
-  }
-
-  async getUniversity(req: Request, res: Response) {
-    try {
-      const data = await adminService.viewUniversity(req.user?.id as string);
-      res.status(StatusCodes.CREATED).json({ data });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error.message,
-        });
-      } 
-    }
-  }
-
-  async deleteUniversity(req: Request, res: Response) {
-    try {
-     const data = await adminService.deleteUniversity(req.user?.id as string, req.params.id);
-      res.status(StatusCodes.CREATED).json({ data });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error.message,
-        });
-      } 
     }
   }
 }

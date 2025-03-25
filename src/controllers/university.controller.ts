@@ -8,12 +8,17 @@ import { ModuleInterface } from "../interface/module.interface";
 import { TeacherInterface } from "../interface/teacher.interface";
 import { StudentInterface } from "../interface/student.interface";
 import { AnnouncementInterface } from "../interface/announcement.interface";
+import HttpException from "../utils/HttpException.utils";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const baseUrl =` ${req.protocol}://${req.get('host')}`;
+    const baseUrl =`${req.protocol}://${req.get('host')}`;
+    if(!files){
+      throw  HttpException.notFound('profile not found.')
+    }
+    console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
     const universityProfileImage = files?.['university_profile_image']
     ?` ${baseUrl}/${files['university_profile_image'][0].path.replace(/\\/g, '/')}` // Replace backslashes for Windows
        : null;
@@ -67,9 +72,9 @@ export class UniversityController {
   async uniProfile(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
+      console.log("🚀 ~ UniversityController ~ uniProfile ~ uni_id:", uni_id)
       const data = await universityService.uniProfile(
         uni_id as string,
-        req.body as UniversityInterface
       );
       res.status(StatusCodes.SUCCESS).json({
         data: data,
@@ -80,6 +85,15 @@ export class UniversityController {
   }
 
   async updateProfile(req: Request, res: Response) {
+console.log('ya saman aaipugo??')
+const uni_id = req.params.id
+
+const uniID=req.user.id;
+
+
+if(!uniID && uniID===uni_id){
+  res.status(StatusCodes.UNAUTHORIZED).json({message:"you are not the Profile owner."})
+}
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
     const baseUrl =` ${req.protocol}://${req.get('host')}`;
@@ -91,7 +105,6 @@ export class UniversityController {
 
     try {
       // const uni_id = req.user?.id;
-      const uni_id = req.params.id
 
       const data= await universityService.updateProfile(
         uni_id as string,
@@ -307,18 +320,18 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-  // async getTeacherByModule(req: Request, res: Response) {
-  //   try {
-  //     const uni_id = req.user?.id;
-  //     const module_id = req.params.id
-  //     const data = await universityService.getTeachersByModule(uni_id as string, module_id);
-  //     res.status(StatusCodes.SUCCESS).json({
-  //       data,
-  //     });
-  //   } catch (error: any) {
-  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-  //   }
-  // }
+  async getTeacherByModule(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const module_id = req.params.id
+      const data = await universityService.getTeachersByModule(uni_id as string, module_id);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 
   async getTeacherById(req: Request, res: Response) {
     try {

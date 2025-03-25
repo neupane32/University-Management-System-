@@ -17,10 +17,7 @@ router.use(authentication());
 router.use(authorization([Role.UNIVERSITY]))
 
 //uni profile
-router.get('/profile', catchAsync(universityController.uniProfile));
-
-
-
+router.get('/uni-profile', catchAsync(universityController.uniProfile));
 //Announcement Routes
 router.post('/uni/post-announcement', catchAsync(universityController.postAnnouncement));
 router.get('/uni/get-announcement', catchAsync(universityController.getAnnouncement));
@@ -45,7 +42,7 @@ router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteM
 router.post('/uni/add-teachers', catchAsync(universityController.addTeacher));
 router.patch('/uni/edit-teacher/:id', catchAsync(universityController.updateTeacher));
 router.get('/uni/find-teachers', catchAsync(universityController.getTeacher));
-// router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
+router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
 router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById));
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 

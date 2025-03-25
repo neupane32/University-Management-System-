@@ -33,16 +33,12 @@ class UniversityService {
     private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
     private readonly sectionRepo = AppDataSource.getRepository(Section),
     private readonly teacher_ModuleRepo = AppDataSource.getRepository(Teacher_Module),
-
-
   ) {}
-
   async createUniversity(data: UniversityInterface,universityProfileImage:string) {
     try {
       const emailExist = await this.uniRepo.findOneBy({
         email: data.email,
       });
-   
       if (emailExist) throw new Error("The email is already exists");
 
       const hashPassword = await bcryptservice.hash(data.password);
@@ -87,15 +83,15 @@ class UniversityService {
     }
   }
 
-  async uniProfile(uni_id: string, data: UniversityInterface) {
+  async uniProfile(uni_id: string) {
+    console.log("🚀 ~ UniversityService ~ uniProfile ~ uni_id:", uni_id)
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const uniProfile = await this.uniRepo.findOne({
-        where: [{ email: data.email }],
-      });
-      return uniProfile;
+    
+      console.log("🚀 ~ UniversityService ~ uniProfile ~ uniProfile:", uni)
+      return uni;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -494,9 +490,6 @@ class UniversityService {
     }
   }
   
-  
-  
-
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
@@ -520,29 +513,34 @@ class UniversityService {
       );
     }
   }
-
-  // async getTeachersByModule(uni_id: string, module_id:string) {
-  //   try {
-  //     const university = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!university) {
-  //       throw new Error("University not found");
-  //     }
-
-  //     const teachers = await this.TeachRepo.find({
-  //       where: { module: { id: module_id } },
-  //       relations: ["module"],
-  //     });
-  //     if (!teachers.length) {
-  //       throw new Error("No teachers found for this university");
-  //     }
-  //     return teachers;
-  //   } catch (error) {
-  //     throw new Error(
-  //       error instanceof Error ? error.message : "Failed to fetch teachers"
-  //     );
-  //   }
-  // }
-
+  async getTeachersByModule(uni_id: string, module_id: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) { throw new Error("University not found"); }
+  
+      const module = await this.modRepo.findOneBy({ id: module_id });
+      if (!module) { throw new Error("Module not found"); }
+  
+      const teachers = await this.TeachRepo.find({
+        where: {
+          teacher_module: {
+            module: { id: module_id }
+          }
+        },
+        relations: ["teacher_module", "teacher_module.module"]
+      });
+  
+      if (!teachers.length) {
+        throw new Error("No teachers found for this module");
+      }
+  
+      return teachers;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch teachers"
+      );
+    }
+  }
   async getTeacherById(uni_id: string, teacherId: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
