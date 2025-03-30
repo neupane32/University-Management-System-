@@ -13,29 +13,29 @@ import HttpException from "../utils/HttpException.utils";
 import { error } from "console";
 import { AssignmentInterface } from "../interface/assignment.interface";
 import { Assignment } from "../entities/Assignment/assignment.entity";
-// import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
-// import { ExamRoutineInterface } from "../interface/routine.interface";
+import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
+
 const bcryptService = new BcryptService();
 
 class TeacherService {
   constructor(
     private readonly uniRepo = AppDataSource.getRepository(University),
+    private readonly teacher_moduleRepo = AppDataSource.getRepository(
+      Teacher_Module
+    ),
     private readonly moduleRepo = AppDataSource.getRepository(Module),
     private readonly teacherRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
-    private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
+    private readonly assignmentRepo = AppDataSource.getRepository(Assignment)
     // private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
-
   ) {}
 
   async loginTeacher(data: TeacherInterface): Promise<Teacher> {
     try {
       const teacher = await this.teacherRepo.findOne({
         where: [{ email: data.email }],
-        select: ["id", "email", "password",
-          'role'
-        ],
+        select: ["id", "email", "password", "role"],
       });
 
       if (!teacher)
@@ -48,6 +48,7 @@ class TeacherService {
 
       return await this.getTeacherById(teacher.id);
     } catch (error) {
+      console.log("🚀 ~ TeacherService ~ loginTeacher ~ error:", error);
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {
@@ -74,62 +75,92 @@ class TeacherService {
     }
   }
 
-  async getModuleByTeacher(teacher_id: string){
+  async getModulesByTeacher(teacher_id: string) {
+    console.log(
+      "🚀 ~ TeacherService ~ getModulesByTeacher ~ teacher_id:",
+      teacher_id
+    );
     try {
-      const teacher = await this
-    } catch (error) {
-      
-    }
+      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+      if (!teacher) throw HttpException.notFound("not found");
+      console.log(
+        "🚀 ~ TeacherService ~ getModulesByTeacher ~ teacher:",
+        teacher
+      );
 
+      const modules = await this.teacher_moduleRepo
+        .createQueryBuilder("teacher_module")
+        .leftJoinAndSelect("teacher_module.module", "module")
+        .where("teacher_module.teacher_id = :teacher_id", { teacher_id })
+        .getMany();
+
+      console.log(
+        "🚀 ~ TeacherService ~ getModulesByTeacher ~ modules:",
+        modules
+      );
+      if (!modules.length) {
+        throw new Error("No modules found for this teacher");
+      }
+
+      return modules;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch modules"
+      );
+    }
   }
 
-  async addResource(data: any, TeacherResourceFile: string, teacher_id: string){
-    
+  async addResource(
+    data: any,
+    TeacherResourceFile: string,
+    teacher_id: string
+  ) {
     const addResource = await this.resourceRepo.create({
       title: data.title,
-      module: {id: data.module_id},
-      section: {id: data.section_id},
-      teacher: {id: teacher_id},
-      resourcePath: TeacherResourceFile
-    })
+      module: { id: data.module_id },
+      section: { id: data.section_id },
+      teacher: { id: teacher_id },
+      resourcePath: TeacherResourceFile,
+    });
     await this.resourceRepo.save(addResource);
     return addResource;
-
   }
 
-  async getResource(teacher_id: string, module_id: string){
-    const teacher = await this.teacherRepo.findOneBy({id: teacher_id})
+  async getResource(teacher_id: string, module_id: string) {
+    const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
     if (!teacher) throw new Error("Teacher Not Found");
 
-    const module = await this.moduleRepo.findOneBy({id: module_id})
+    const module = await this.moduleRepo.findOneBy({ id: module_id });
     if (!module) throw new Error("Module Not Found");
 
     return await this.resourceRepo.find({
-      where: {teacher: {id: teacher_id}, module: {id:module_id}},
-      relations: ["teacher", "module"]
-    })
+      where: { teacher: { id: teacher_id }, module: { id: module_id } },
+      relations: ["teacher", "module"],
+    });
   }
 
-  async deleteResource(teacher_id: string, resource_id){
-    const teacher = await this.teacherRepo.findOneBy({id: teacher_id})
+  async deleteResource(teacher_id: string, resource_id) {
+    const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
     if (!teacher) throw new Error("Teacher Not Found");
 
-    const resource = await this.resourceRepo.findOneBy({id: resource_id})
+    const resource = await this.resourceRepo.findOneBy({ id: resource_id });
     if (!resource) throw new Error("Resource not found");
 
-    await this.resourceRepo.delete({id: resource_id});
+    await this.resourceRepo.delete({ id: resource_id });
     return "Resource deleted successfully";
-
   }
 
-  
-  async createAnnouncement(teacher_id: string, module_id: string, data: AnnouncementInterface) {
+  async createAnnouncement(
+    teacher_id: string,
+    module_id: string,
+    data: AnnouncementInterface
+  ) {
     try {
       const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      if(!teacher) throw new Error("Teacher Not found");
+      if (!teacher) throw new Error("Teacher Not found");
 
       const module = await this.moduleRepo.findOneBy({ id: module_id });
-      if(!module) throw new Error ("Module not found");
+      if (!module) throw new Error("Module not found");
 
       const announcement = this.announceRepo.create({
         announce_name: data.announce_name,
@@ -149,20 +180,18 @@ class TeacherService {
     try {
       const announcement = await this.announceRepo.findOne({
         where: { id: announcement_id },
-        relations: ['teacher', 'module'],
+        relations: ["teacher", "module"],
       });
-  
+
       if (!announcement) {
-        throw new Error('Announcement not found');
+        throw new Error("Announcement not found");
       }
-  
+
       return announcement;
     } catch (error) {
-      throw new Error(error.message || 'Failed to retrieve announcement');
+      throw new Error(error.message || "Failed to retrieve announcement");
     }
   }
-  
-
 
   async updateAnnouncement(
     id: string,
@@ -237,22 +266,26 @@ class TeacherService {
   ) {
     try {
       const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      if(!teacher) throw new Error("You are not authorized")
+      if (!teacher) throw new Error("You are not authorized");
 
-      const assignment = await this.assignmentRepo.findOneBy({ id:assigment_id, teacher:{id:teacher_id} });
-  if(!assignment) throw new Error("Assignment not found")
-      const assignments = this.assignmentRepo.update({id:assigment_id},{
-        title: data.title,
-        description: data.description,
-        due_date: data.due_Date,
-
+      const assignment = await this.assignmentRepo.findOneBy({
+        id: assigment_id,
+        teacher: { id: teacher_id },
       });
+      if (!assignment) throw new Error("Assignment not found");
+      const assignments = this.assignmentRepo.update(
+        { id: assigment_id },
+        {
+          title: data.title,
+          description: data.description,
+          due_date: data.due_Date,
+        }
+      );
       return assignments;
     } catch (error) {
       throw new Error(error.message || "Failed to create assignment");
     }
   }
-
 }
 
 export default TeacherService;

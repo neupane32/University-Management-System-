@@ -44,6 +44,7 @@ router.post('/uni/add-modules/:id', catchAsync(universityController.addModule));
 router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
 router.get('/uni/find-modules', catchAsync(universityController.findModule)); 
 router.get('/uni/find-modules-by-id/:id', catchAsync(universityController.findModuleByProgram)); 
+router.get('/uni/find-modules-by-duration/:id/:duration', catchAsync(universityController.findModuleByDuration)); 
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 
 // Teacher Routes

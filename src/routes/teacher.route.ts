@@ -12,8 +12,11 @@ const teacherController = new TeacherController;
 router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
 
 
-// router.use(authentication());
+router.use(authentication());
 // router.use(authorization([Role.TEACHER]));
+
+//teacher
+router.get('/get-Teacher-by-module', catchAsync(teacherController.getTeacherByModule));
 
 //Resource Operation by teacher
 router.post('/add-resource', teacherResourceFileUpload.fields([{name:'teacher_resource_file'}]), catchAsync(teacherController.addResource));

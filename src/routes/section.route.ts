@@ -17,5 +17,9 @@ router.get('/get-section', catchAsync(sectionController.getSections));
 router.patch('/update-section/:id/:program_id', catchAsync(sectionController.updateSection));
 router.delete('/delete-section/:id', catchAsync(sectionController.deleteSection));
 
+//get university all section
+router.get('/get-All-section', catchAsync(sectionController.getuniversitySection));
+
+
 
 export default router;

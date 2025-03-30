@@ -7,36 +7,51 @@ import { Routine } from "../../entities/Routine/routine.entity";
 import { Module } from "../../entities/module/module.entity";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Resource } from "../../entities/resources/resource.entity";
-
+import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
+import { Module_Section } from "../../entities/ModuleSection/ModuleSection.entity";
 
 @Entity("section")
 export class Section extends Base {
+  @Column()
+  name: string;
 
-    @Column()
-    name:string;
+  @Column("int", {nullable: true})
+  durationReference: number;
 
-    @ManyToOne(() => University, (university) => university.sections, {onDelete: "CASCADE"})
-    @JoinColumn({name: "university_id"})
-    university: University;
+  @ManyToOne(() => University, (university) => university.sections, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "university_id" })
+  university: University;
 
-    @ManyToOne(() => Program, (program) => program.sections, {onDelete: "CASCADE"})
-    @JoinColumn({name: "program_id"})
-    program: Program;
+  @ManyToOne(() => Program, (program) => program.sections, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "program_id" })
+  program: Program;
 
-    @ManyToOne(() => Module, (module) => module.section, {onDelete: "CASCADE"})
-    @JoinColumn({name: "module_id"})
-    module: Module;
+  @ManyToOne(() => Module, (module) => module.section, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "module_id" })
+  module: Module;
 
-    @ManyToOne(() => Teacher, (teacher) => teacher.section, {onDelete: "CASCADE"})
-    @JoinColumn({name: "teacher_id"})
-    teacher: Teacher;
+  @ManyToOne(() => Teacher, (teacher) => teacher.section, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "teacher_id" })
+  teacher: Teacher;
 
-    @OneToMany(() => Student, (student) => student.section, { cascade: true })
-    students: Student[];
+  @OneToMany(() => Student, (student) => student.section, { cascade: true })
+  students: Student[];
 
-    @OneToMany(() => Resource, (resource) => resource.section, {cascade: true})
-    resource: Resource[];
+  @OneToMany(() => Resource, (resource) => resource.section, { cascade: true })
+  resource: Resource[];
 
-    @OneToMany(() => Routine, (routine) => routine.section, {cascade: true})
-    routine: Routine[];
+  @OneToMany(() => Routine, (routine) => routine.section, { cascade: true })
+  routine: Routine[];
+
+  @OneToMany(() => Teacher_Section, (teacherModule) => teacherModule.teacher, {cascade: true})
+  modules: Teacher_Section[];
+
+  @OneToMany(() => Module_Section, (moduleSection) => moduleSection.section, {cascade: true})
+  section: Module_Section[];
 }

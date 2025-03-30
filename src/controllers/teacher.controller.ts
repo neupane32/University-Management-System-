@@ -42,6 +42,20 @@ export class TeacherController {
     }
   }
 
+  async getTeacherByModule(req: Request, res: Response) {
+      try {
+        const teacher_id = req.user?.id;
+        console.log("🚀 ~ TeacherController ~ getTeacherByModule ~ teacher_id:", teacher_id)
+
+        const data = await teacherService.getModulesByTeacher(teacher_id as string);
+        res.status(StatusCodes.SUCCESS).json({
+          data,
+        });
+      } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      }
+    }
+
   async addResource(req: Request, res: Response) {
     try {
       const teacher_id = req.user?.id;

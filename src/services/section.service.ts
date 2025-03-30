@@ -28,10 +28,10 @@ class SectionService {
 
       const addSection = this.sectionRepo.create({
         name: data.name,
+        durationReference: data.durationReference,
         university: uni,
         program: program,
         module: data.module_id,
-        teacher: data.teacher_id,
       });
 
       await this.sectionRepo.save(addSection);
@@ -56,6 +56,26 @@ class SectionService {
       const sections = await this.sectionRepo.find({
         where: { university: { id: uni_id }, program: { id: prog_id } },
         relations: ["program", "module", "teacher"],
+      });
+      if (!module) throw new Error("Module Not found");
+
+      return sections;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("An unexpected error occurred while fetching modules");
+      }
+    }
+  }
+
+  async getUniversitySections(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const sections = await this.sectionRepo.find({
+        where: { university: { id: uni_id } }
       });
       if (!module) throw new Error("Module Not found");
 

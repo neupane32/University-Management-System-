@@ -18,6 +18,7 @@ import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Section } from "../entities/Section/section.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
+import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
 
 const bcryptservice = new BcryptService();
 
@@ -27,12 +28,12 @@ class UniversityService {
     private readonly progRepo = AppDataSource.getRepository(Program),
     private readonly modRepo = AppDataSource.getRepository(Module),
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
-    private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly studentRepo = AppDataSource.getRepository(Student),
     private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
     private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
     private readonly sectionRepo = AppDataSource.getRepository(Section),
     private readonly teacher_ModuleRepo = AppDataSource.getRepository(Teacher_Module),
+    private readonly teacher_SectionRepo = AppDataSource.getRepository(Teacher_Section),
   ) {}
   async createUniversity(data: UniversityInterface,universityProfileImage:string) {
     try {
@@ -362,8 +363,7 @@ class UniversityService {
       }
     }
   }
-  async addTeacher(uni_id: string, module_id: any[], data: any) {
-    console.log("🚀 ~ UniversityService ~ addTeacher ~ module_id:", module_id);
+  async addTeacher(uni_id: string, module_id: any[], sections_id: any[], data: any) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -381,8 +381,7 @@ class UniversityService {
       });
       await this.TeachRepo.save(teacher);
   
-      console.log("🚀 ~ UniversityService ~ Created Teacher:", teacher);
-
+      // Handle module assignments
       await Promise.all(
         module_id.map(async (moduleId) => {
           const module = await this.modRepo.findOne({
@@ -395,24 +394,34 @@ class UniversityService {
             teacher,
             module,
           });
-  
-          console.log("🚀 ~ UniversityService ~ Created teacher_Module:", teacher_Module);
           await this.teacher_ModuleRepo.save(teacher_Module);
         })
       );
   
-      return "Teacher Created Successfully!";
+      // Handle section assignments
+      await Promise.all(
+        sections_id.map(async (sectionId) => {
+          const section = await this.sectionRepo.findOne({
+            where: { id: sectionId }
+          });
+          if (!section) throw new Error(`Section with ID ${sectionId} not found`);
+  
+          const teacher_Section = this.teacher_SectionRepo.create({
+            teacher,
+            section
+          });
+          await this.teacher_SectionRepo.save(teacher_Section);
+        })
+      );
+      return "Teacher Created Successfully with modules and sections!";
     } catch (error) {
       if (error instanceof Error) {
-        console.error("🚀 ~ UniversityService ~ Error:", error.message);
         throw new Error(error.message);
       } else {
-        throw new Error("An unexpected error occurred while adding the teacher");
+        throw new Error("Teacher not found");
       }
     }
   }
-  
-
   async updateTeacher(
     uni_id: string,
     teacher_id: string,
@@ -490,6 +499,27 @@ class UniversityService {
     }
   }
   
+  async getModuleByDuration(uni_id: string,prog_id:string, duration:number) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+      const program = await this.progRepo.findOneBy({ id: prog_id });
+      if (!program) throw new Error("Program Not found");
+
+      const modules = await this.modRepo.find({
+        where: {program:{id:prog_id}, durationReference:duration },
+        relations: ["program"],
+      });
+      console.log("🚀 ~ UniversityService ~ getModuleByDuration ~ modules:", modules)
+
+      return modules;
+    } catch (error) {
+      console.log("🚀 ~ UniversityService ~ getModuleByDuration ~ error:", error)
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });

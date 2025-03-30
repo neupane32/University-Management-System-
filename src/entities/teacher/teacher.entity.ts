@@ -10,6 +10,7 @@ import { Program } from "../../entities/Programs/program.entity";
 import { Routine } from "../../entities/Routine/routine.entity";
 import { Section } from "../../entities/Section/section.entity";
 import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
+import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
@@ -68,7 +69,7 @@ export class Teacher extends Base {
     @OneToMany(() => Routine, (routine) => routine.teacher, {cascade: true})
     routine: Routine;
 
-    @OneToMany(() => Section, (section) => section.teacher, {cascade: true})
+    @OneToMany(() => Teacher_Section, (section) => section.teacher, {cascade: true})
     section: Section;
 
 

@@ -268,6 +268,26 @@ if(!uniID && uniID===uni_id){
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+  async findModuleByDuration(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const prog_id = req.params.id;
+      const duration = req.params.duration
+
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
+
+      const data = await universityService.getModuleByDuration(
+        uni_id as string,
+        prog_id,
+        parseInt(duration)
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 
   async deleteModule(req: Request, res: Response) {
     try {
@@ -288,11 +308,12 @@ if(!uniID && uniID===uni_id){
 
   async addTeacher(req: Request, res: Response) {
     try {
-      const {modules} = req.body;
+      const {modules,sections} = req.body;
       const uni_id = req.user?.id;
       const data = await universityService.addTeacher(
         uni_id as string,
         modules,
+        sections,
         req.body as TeacherInterface
       );
       res.status(StatusCodes.SUCCESS).json({
