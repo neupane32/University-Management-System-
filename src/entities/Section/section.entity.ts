@@ -34,7 +34,7 @@ export class Section extends Base {
   @JoinColumn({ name: "module_id" })
   module: Module;
 
-  @ManyToOne(() => Teacher, (teacher) => teacher.section, {
+  @ManyToOne(() => Teacher, (teacher) => teacher.teacher_section, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "teacher_id" })
@@ -49,9 +49,9 @@ export class Section extends Base {
   @OneToMany(() => Routine, (routine) => routine.section, { cascade: true })
   routine: Routine[];
 
-  @OneToMany(() => Teacher_Section, (teacherModule) => teacherModule.teacher, {cascade: true})
-  modules: Teacher_Section[];
+  @OneToMany(() => Teacher_Section, (teacher_section) => teacher_section.teacher, {cascade: true})
+  teacher_Section: Teacher_Section[];
 
   @OneToMany(() => Module_Section, (moduleSection) => moduleSection.section, {cascade: true})
-  section: Module_Section[];
+  moduleSection: Module_Section[];
 }

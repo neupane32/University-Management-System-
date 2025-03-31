@@ -5,13 +5,12 @@ import { Module } from "../../entities/module/module.entity";
 
 @Entity('module_setion')
 export class Module_Section extends Base {
-  
 
-  @ManyToOne(() => Section, (section) => section.modules, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Section, (section) => section.moduleSection, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'section_id' })
   section: Section;
 
-  @ManyToOne(() => Module, (module) => module.teacher_module, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Module, (module) => module.moduleSection, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'module_id' })
   module: Module;
 

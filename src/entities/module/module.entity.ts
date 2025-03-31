@@ -31,7 +31,7 @@ export class Module extends Base {
   @JoinColumn({ name: "uni_id" })
   university: University;
 
-  @Column("int")
+  @Column("int", {nullable: true})
   durationReference: number;
 
   @OneToMany(() => Resource, (resource) => resource.module, { cascade: true })
@@ -59,4 +59,5 @@ export class Module extends Base {
     cascade: true,
   })
   moduleSection: Module_Section[];
+
 }

@@ -328,7 +328,8 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
-      const {modules} = req.body
+      const {modules} = req.body;
+      const {sections} = req.body;
       console.log(
         "🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:",
         teacher_id
@@ -337,6 +338,7 @@ if(!uniID && uniID===uni_id){
         uni_id as string,
         teacher_id as string,
         modules,
+        sections,
         req.body as TeacherInterface
       );
       res.status(StatusCodes.SUCCESS).json({
@@ -393,11 +395,13 @@ if(!uniID && uniID===uni_id){
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
       const {modules} = req.body;
+      const {section} = req.body
 
       const data = await universityService.deleteTeacher(
         uni_id as string,
         teacher_id,
-        modules
+        modules,
+        section
       );
       res.status(StatusCodes.SUCCESS).json({
         data,

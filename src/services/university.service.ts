@@ -380,8 +380,7 @@ class UniversityService {
         university: uni,
       });
       await this.TeachRepo.save(teacher);
-  
-      // Handle module assignments
+
       await Promise.all(
         module_id.map(async (moduleId) => {
           const module = await this.modRepo.findOne({
@@ -397,8 +396,7 @@ class UniversityService {
           await this.teacher_ModuleRepo.save(teacher_Module);
         })
       );
-  
-      // Handle section assignments
+
       await Promise.all(
         sections_id.map(async (sectionId) => {
           const section = await this.sectionRepo.findOne({
@@ -426,26 +424,34 @@ class UniversityService {
     uni_id: string,
     teacher_id: string,
     modules: any[],
+    sections: any[],
     data: TeacherInterface
   ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-      
+  
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacher_id },
-        relations: ["teacher_module"]
+        relations: ["university", "teacher_module"]
       });
       if (!teacher) throw new Error("Teacher not found");
+      if (teacher.university.id !== uni_id) throw new Error("Teacher does not belong to specified university");
   
-      await this.TeachRepo.update({ id: teacher_id }, {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        gender: data.gender,
-        contact: data.contact
-      });
+      const updateFields: Partial<Teacher> = {};
+      if (data.name !== undefined) updateFields.name = data.name;
+      if (data.email !== undefined) updateFields.email = data.email;
+      if (data.gender !== undefined) updateFields.gender = data.gender;
+      if (data.contact !== undefined) updateFields.contact = data.contact;
+      if (data.password !== undefined) {
+        updateFields.password = await bcryptservice.hash(data.password);
+      }
   
+      if (Object.keys(updateFields).length > 0) {
+        await this.TeachRepo.update({ id: teacher_id }, updateFields);
+      }
+  
+      // Handle module updates
       const existingTeacherModules = await this.teacher_ModuleRepo.find({
         where: { teacher: { id: teacher_id } },
         relations: ["module"]
@@ -458,7 +464,8 @@ class UniversityService {
       );
   
       const newModuleIds = new Set(modules);
-      
+  
+      // Remove outdated modules
       for (const relation of existingTeacherModules) {
         if (relation.module?.id && !newModuleIds.has(relation.module.id)) {
           await this.teacher_ModuleRepo.delete({
@@ -468,29 +475,70 @@ class UniversityService {
         }
       }
   
+      // Add new modules
       for (const moduleId of modules) {
         if (!existingModuleIds.has(moduleId)) {
           const module = await this.modRepo.findOneBy({ id: moduleId });
-          if (!module) throw new Error("Module not found");
-          
+          if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+  
           const existingRelation = await this.teacher_ModuleRepo.findOne({
-            where: {
-              teacher: { id: teacher_id },
-              module: { id: moduleId }
-            }
+            where: { teacher: { id: teacher_id }, module: { id: moduleId } }
           });
   
           if (!existingRelation) {
             const newRelation = this.teacher_ModuleRepo.create({
-              module: { id: moduleId },
-              teacher: teacher
+              teacher,
+              module: { id: moduleId }
             });
             await this.teacher_ModuleRepo.save(newRelation);
           }
         }
       }
+      // Handle section updates
+      const existingTeacherSections = await this.teacher_SectionRepo.find({
+        where: { teacher: { id: teacher_id } },
+        relations: ["section"]
+      });
   
-      return "Teacher updated successfully";
+      const existingSectionIds = new Set(
+        existingTeacherSections
+          .map((ts) => ts.section?.id)
+          .filter((id): id is string => Boolean(id))
+      );
+  
+      const newSectionIds = new Set(sections);
+  
+      // Remove outdated sections
+      for (const relation of existingTeacherSections) {
+        if (relation.section?.id && !newSectionIds.has(relation.section.id)) {
+          await this.teacher_SectionRepo.delete({
+            teacher: { id: teacher_id },
+            section: { id: relation.section.id }
+          });
+        }
+      }
+  
+      // Add new sections
+      for (const sectionId of sections) {
+        if (!existingSectionIds.has(sectionId)) {
+          const section = await this.sectionRepo.findOneBy({ id: sectionId });
+          if (!section) throw new Error(`Section with ID ${sectionId} not found`);
+  
+          const existingRelation = await this.teacher_SectionRepo.findOne({
+            where: { teacher: { id: teacher_id }, section: { id: sectionId } }
+          });
+  
+          if (!existingRelation) {
+            const newRelation = this.teacher_SectionRepo.create({
+              teacher,
+              section: { id: sectionId }
+            });
+            await this.teacher_SectionRepo.save(newRelation);
+          }
+        }
+      }
+  
+      return "Teacher updated successfully with modules and sections!";
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -498,7 +546,7 @@ class UniversityService {
       throw new Error("Teacher update failed");
     }
   }
-  
+
   async getModuleByDuration(uni_id: string,prog_id:string, duration:number) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
@@ -520,22 +568,22 @@ class UniversityService {
       }
     }
   }
+ 
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!university) {
-        throw new Error("University not found");
-      }
-
+      if (!university) throw new Error("University not found");
+  
       const teachers = await this.TeachRepo.createQueryBuilder('teacher')
-      .leftJoinAndSelect('teacher.teacher_module', 'teacher_module')
-      .leftJoinAndSelect('teacher_module.module', 'module')
-      .where('teacher.uni_id = :uni_id', { uni_id })
-      .getMany();
-
-      if (!teachers.length) {
-        throw new Error("No teachers found for this university");
-      }
+        .leftJoinAndSelect('teacher.teacher_module', 'teacher_module')
+        .leftJoinAndSelect('teacher_module.module', 'module')
+        .leftJoinAndSelect('module.program', 'program')
+        .leftJoinAndSelect('teacher.teacher_section', 'teacher_section')
+        .leftJoinAndSelect('teacher_section.section', 'section')
+        .where('teacher.uni_id = :uni_id', { uni_id })
+        .getMany();
+  
+      if (!teachers.length) throw new Error("No teachers found");
       return teachers;
     } catch (error) {
       throw new Error(
@@ -588,48 +636,74 @@ class UniversityService {
     }
   }
 
-  async deleteTeacher(uni_id: string, teacher_id: string, module_id: any[]) {
-    console.log("🚀 ~ UniversityService ~ deleteTeacher ~ module_id:", module_id)
+  async deleteTeacher(uni_id: string, teacher_id: string, module_id: any[], sections_id: any[]) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
+
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacher_id, university: { id: uni_id } },
-        relations: ["university"]
+        relations: ["university", "teacher_module", "teacher_section"]
       });
       if (!teacher) {
         throw new Error("Teacher not found or does not belong to the university");
       }
- 
-      const moduleIds = Array.isArray(module_id) ? module_id : [module_id];
-  
-      for (const id of moduleIds) {
-        const module = await this.modRepo.findOneBy({ id });
-        if (!module) throw new Error(`Module with ID ${id} not found`);
-  
-        const association = await this.teacher_ModuleRepo.findOne({
-          where: {
-            teacher: { id: teacher_id },
-            module: { id }
-          }
-        });
-        
-        if (!association) {
-          throw new Error(`Teacher is not associated with module ${id}`);
-        }
 
-        const deleteResult = await this.teacher_ModuleRepo.delete({
-          teacher: { id: teacher_id },
-          module: { id }
-        });
-  
-        if (deleteResult.affected === 0) {
-          throw new Error(`Failed to remove teacher from module ${id}`);
-        }
+      // Handle module removals
+      if (module_id && module_id.length > 0) {
+        await Promise.all(
+          module_id.map(async (moduleId) => {
+            const module = await this.modRepo.findOneBy({ id: moduleId });
+            if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+
+            const association = await this.teacher_ModuleRepo.findOne({
+              where: {
+                teacher: { id: teacher_id },
+                module: { id: moduleId }
+              }
+            });
+            
+            if (!association) {
+              throw new Error(`Teacher is not associated with module ${moduleId}`);
+            }
+
+            await this.teacher_ModuleRepo.remove(association);
+          })
+        );
+      }
+
+      // Handle section removals
+      if (sections_id && sections_id.length > 0) {
+        await Promise.all(
+          sections_id.map(async (sectionId) => {
+            const section = await this.sectionRepo.findOneBy({ id: sectionId });
+            if (!section) throw new Error(`Section with ID ${sectionId} not found`);
+
+            const association = await this.teacher_SectionRepo.findOne({
+              where: {
+                teacher: { id: teacher_id },
+                section: { id: sectionId }
+              }
+            });
+            
+            if (!association) {
+              throw new Error(`Teacher is not associated with section ${sectionId}`);
+            }
+
+            await this.teacher_SectionRepo.remove(association);
+          })
+        );
+      }
+      const remainingModules = await this.teacher_ModuleRepo.count({ where: { teacher: { id: teacher_id } } });
+      const remainingSections = await this.teacher_SectionRepo.count({ where: { teacher: { id: teacher_id } } });
+    
+      if (remainingModules === 0 && remainingSections === 0) {
+        await this.TeachRepo.delete(teacher_id);
+        return { success: true, message: "Teacher deleted successfully" };
       }
       
-      return "Teacher removed from specified modules successfully";
+      return { success: true, message: "Teacher associations removed but record kept" };
+    
     } catch (error: any) {
       console.error("Error:", error.message);
       throw new Error(error.message || "An error occurred while removing the teacher");
