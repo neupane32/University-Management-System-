@@ -1,25 +1,65 @@
-// import { Router } from 'express';
-// import university from '../routes/university.routes';
-// import admin from '../routes/admin.routes';
-// export interface Route {
-//   path: string;
-//   route: Router;
-// }
+import { Router } from "express";
+import path from "path";
+import admin from '../routes/admin.routes';
+import university from './university.route';
+import teacher from './teacher.route';
+import subscription from './subscription.routes';
+import student from './student.route';
+import section from './section.route';
+import routine from './routine.routes';
 
-// const router = Router();
-// const routes: Route[] = [
-//   {
-//     path: '/university',
-//     route: university,
-//   },
-//   {
-//     path: '/admin',
-//     route: admin,
-//   },
-// ];
+export interface IndexRoute {
+    path: string;
+    route: Router;
+}
 
-// routes.forEach((route) => {
-//   router.use(route.path, route.route);
-// });
+const router = Router();
 
-// export default router;
+const routes: IndexRoute[] = [
+    {
+        path: '/admin',
+        route: admin
+    },
+    {
+        path: '/student',
+        route: student
+    },
+
+    {
+        path: '/uni',
+        route: university
+
+    },
+
+    {
+        path: '/uni',
+        route: section
+    },
+
+    {
+        path: '/routine',
+        route: routine
+
+    },
+
+    {
+        path: '/teacher',
+        route: teacher
+
+    },
+
+    {
+        path: '/subscription',
+        route: subscription
+
+    },
+];
+
+
+
+routes.forEach((route) => {
+    router.use(route.path, route.route);
+  });
+
+  export default router;
+

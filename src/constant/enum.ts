@@ -26,3 +26,8 @@ export enum Environment {
     NULL = 'NULL',
   }
   
+export enum DurationType {
+  SEMESTER = "semester",
+  YEAR = "year"
+}
+  
