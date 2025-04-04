@@ -1,13 +1,4 @@
 export interface StudentInterface {
- details:Details
-    email: string;
-    username: string;
-    password: string;
-    currentlyStudyingIn:number;
-    
-}
-
-interface Details {
     first_name: string;
     middle_name: string;
     last_name: string;
@@ -15,5 +6,8 @@ interface Details {
     DOB: string;
     gender: string;
     admissionYear: number;
+    email: string;
+    password: string;
+    
 }
 

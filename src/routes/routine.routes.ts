@@ -13,7 +13,7 @@ router.use(authentication());
 router.use(authorization([Role.UNIVERSITY]))
 
 
- router.post('/create-routine', catchAsync(routineController.createRoutine));
+ router.post('/create-routine/', catchAsync(routineController.createRoutine));
  router.get('/get-routine/:id', catchAsync(routineController.getRoutine));
  router.patch('/update-routine/:id', catchAsync(routineController.updateRoutine));
  router.delete('/delete-routine/:id', catchAsync(routineController.deleteRoutine));

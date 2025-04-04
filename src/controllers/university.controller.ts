@@ -268,6 +268,24 @@ if(!uniID && uniID===uni_id){
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+  async findModuleBySection(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const section_id = req.params.id;
+      console.log("🚀 ~ UniversityController ~ findModule ~ section_id:", section_id)
+
+      const data = await universityService.findModulesBySection(
+        uni_id as string,
+        section_id
+      );
+      console.log("🚀 ~ UniversityController ~ findModuleBySection ~ data:", data)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
   async findModuleByDuration(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -318,6 +336,22 @@ if(!uniID && uniID===uni_id){
       );
       res.status(StatusCodes.SUCCESS).json({
         data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async addTeacherBySection(req: Request, res:Response){
+    try {
+      const data = req.body;
+      console.log("🚀 ~ UniversityController ~ addTeacherBySection ~ data:", data)
+
+      const save = await universityService.addTeacherBySection(
+        data
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        save,
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -414,16 +448,13 @@ if(!uniID && uniID===uni_id){
   async addStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const program_id = req.params.program_id;
-      const section_id = req.params.id;
-      console.log("🚀 ~ UniversityController ~ addStudent ~ section_id:", section_id)
+      const body=req.body;
+      console.log("🚀 ~ UniversityController ~ addStudent ~ body:", body)
+
       const data = await universityService.addStudent(
         uni_id as string,
-        program_id as string,
-        section_id as string,
-        req.body as StudentInterface
+        body
       );
-        console.log("🚀 ~ UniversityController ~ addStudent ~ section_id:", section_id)
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -448,17 +479,10 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const student_id = req.params.id;
-      const program_id = req.params.program_id;
-      console.log("🚀 ~ UniversityController ~ editStudent ~ program_id:", program_id)
-      const section_id = req.params.section_id;
-      console.log("🚀 ~ UniversityController ~ editStudent ~ section_id:", section_id)
-    
 
       const data = await universityService.editStudent(
         uni_id as string,
         student_id as string,
-        program_id as string,
-        section_id as string,
         req.body as StudentInterface
       );
       res.status(StatusCodes.SUCCESS).json({

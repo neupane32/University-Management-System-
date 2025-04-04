@@ -23,14 +23,15 @@ router.post('/add-resource', teacherResourceFileUpload.fields([{name:'teacher_re
 router.get('/get-resource/:id', catchAsync(teacherController.getResource));
 router.delete('/delete-resource/:id', catchAsync(teacherController.deleteResource));
 
+router.get('/get-sections-by-module/:moduleId', catchAsync(teacherController.getSectionsByModule));
 //Announcement Operation by teacher
-router.post('/post-announcement', catchAsync(teacherController.postAnnouncement));
-router.get('/get-announcement', catchAsync(teacherController.getAnnouncement));
-router.patch('/update-announce/:id', catchAsync(teacherController.updateAnnouncement));
-router.delete('/delete-announce/:id', catchAsync(teacherController.deleteAnnouncement));
+// router.post('/post-announcement', catchAsync(teacherController.postAnnouncement));
+// router.get('/get-announcement', catchAsync(teacherController.getAnnouncement));
+// router.patch('/update-announce/:id', catchAsync(teacherController.updateAnnouncement));
+// router.delete('/delete-announce/:id', catchAsync(teacherController.deleteAnnouncement));
 
-router.post('/create-assignment', catchAsync(teacherController.createAssignment));
-
+// router.post('/create-assignment', catchAsync(teacherController.createAssignment));
+router.get('/get-teacher-sections',catchAsync(teacherController.getTeacherSection));
 
 
 

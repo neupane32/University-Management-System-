@@ -12,8 +12,7 @@ import { Teacher } from "../entities/teacher/teacher.entity";
 import { Resource } from "../entities/resources/resource.entity";
 import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
-import { StudentDetails } from "../entities/student/studentDetails.entity";
-import { DurationType, Gender} from "../constant/enum";
+import { DurationType, Gender } from "../constant/enum";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Section } from "../entities/Section/section.entity";
@@ -29,13 +28,21 @@ class UniversityService {
     private readonly modRepo = AppDataSource.getRepository(Module),
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly studentDetailsRepo = AppDataSource.getRepository(StudentDetails),
-    private readonly AnnouncementRepo = AppDataSource.getRepository(Announcement),
+    private readonly AnnouncementRepo = AppDataSource.getRepository(
+      Announcement
+    ),
     private readonly sectionRepo = AppDataSource.getRepository(Section),
-    private readonly teacher_ModuleRepo = AppDataSource.getRepository(Teacher_Module),
-    private readonly teacher_SectionRepo = AppDataSource.getRepository(Teacher_Section),
+    private readonly teacher_ModuleRepo = AppDataSource.getRepository(
+      Teacher_Module
+    ),
+    private readonly teacher_SectionRepo = AppDataSource.getRepository(
+      Teacher_Section
+    )
   ) {}
-  async createUniversity(data: UniversityInterface,universityProfileImage:string) {
+  async createUniversity(
+    data: UniversityInterface,
+    universityProfileImage: string
+  ) {
     try {
       const emailExist = await this.uniRepo.findOneBy({
         email: data.email,
@@ -47,7 +54,7 @@ class UniversityService {
         email: data.email,
         universityName: data.university_name,
         password: hashPassword,
-        profileImagePath: universityProfileImage
+        profileImagePath: universityProfileImage,
       });
       await this.uniRepo.save(auth);
       return auth;
@@ -85,13 +92,12 @@ class UniversityService {
   }
 
   async uniProfile(uni_id: string) {
-    console.log("🚀 ~ UniversityService ~ uniProfile ~ uni_id:", uni_id)
+    console.log("🚀 ~ UniversityService ~ uniProfile ~ uni_id:", uni_id);
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-    
-      console.log("🚀 ~ UniversityService ~ uniProfile ~ uniProfile:", uni)
+      console.log("🚀 ~ UniversityService ~ uniProfile ~ uniProfile:", uni);
       return uni;
     } catch (error) {
       if (error instanceof Error) {
@@ -102,14 +108,21 @@ class UniversityService {
     }
   }
 
-  async updateProfile(uni_id: string, data: UniversityInterface, universityProfileImage:string) {
-    console.log("🚀 ~ UniversityService ~ updateProfile ~ uni_id:", uni_id)
-    console.log("🚀 ~ UniversityService ~ updateProfile ~ data:", data)
-    console.log("🚀 ~ UniversityService ~ updateProfile ~ universityProfileImage:", universityProfileImage)
+  async updateProfile(
+    uni_id: string,
+    data: UniversityInterface,
+    universityProfileImage: string
+  ) {
+    console.log("🚀 ~ UniversityService ~ updateProfile ~ uni_id:", uni_id);
+    console.log("🚀 ~ UniversityService ~ updateProfile ~ data:", data);
+    console.log(
+      "🚀 ~ UniversityService ~ updateProfile ~ universityProfileImage:",
+      universityProfileImage
+    );
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
-      console.log("🚀 ~ UniversityService ~ updateProfile ~ uni:", uni)
+      console.log("🚀 ~ UniversityService ~ updateProfile ~ uni:", uni);
 
       const updatePorifle = await this.uniRepo.update(
         {
@@ -118,11 +131,14 @@ class UniversityService {
         {
           email: data.email,
           universityName: data.university_name,
-          profileImagePath: universityProfileImage
+          profileImagePath: universityProfileImage,
         }
       );
       const updatedUni = await this.uniRepo.findOneBy({ id: uni_id });
-      console.log("🚀 ~ UniversityService ~ updateProfile ~ updatedUni:", updatedUni)
+      console.log(
+        "🚀 ~ UniversityService ~ updateProfile ~ updatedUni:",
+        updatedUni
+      );
 
       return updatedUni;
     } catch (error) {
@@ -165,7 +181,11 @@ class UniversityService {
     }
   }
 
-  async updateProgam(uni_id: string, program_id: string, data: ProgramInterface ) {
+  async updateProgam(
+    uni_id: string,
+    program_id: string,
+    data: ProgramInterface
+  ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -203,9 +223,8 @@ class UniversityService {
 
       return await this.progRepo.find({
         where: { university: { id: uni_id } },
-        relations: ["university"]
-      })
-
+        relations: ["university"],
+      });
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -262,21 +281,17 @@ class UniversityService {
     }
   }
 
-  async updateModule(
-    uni_id: string,
-    module_id: string,
-    data: any
-  ) {
+  async updateModule(uni_id: string, module_id: string, data: any) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
+
       const module = await this.modRepo.findOneBy({
         id: module_id,
         university: { id: uni_id },
       });
       if (!module) throw new Error("Module not found");
-  
+
       const updatedModule = await this.modRepo.update(
         { id: module_id },
         {
@@ -285,7 +300,7 @@ class UniversityService {
           durationReference: data.durationReference,
         }
       );
-  
+
       return updatedModule;
     } catch (error) {
       if (error instanceof Error) {
@@ -295,19 +310,17 @@ class UniversityService {
       }
     }
   }
-  
 
   async findModules(uni_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
 
-
       const modules = await this.modRepo.find({
-        where: { university:{id:uni_id} },
+        where: { university: { id: uni_id } },
         relations: ["program"],
       });
-      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules)
+      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules);
       if (!module) throw new Error("Module Not found");
 
       return modules;
@@ -329,10 +342,39 @@ class UniversityService {
       if (!program) throw new Error("Program not found");
 
       const modules = await this.modRepo.find({
-        where: { program:{id:program_id} },
+        where: { program: { id: program_id } },
         relations: ["program"],
       });
-      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules)
+      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules);
+      if (!module) throw new Error("Module Not found");
+
+      return modules;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("An unexpected error occurred while fetching modules");
+      }
+    }
+  }
+  async findModulesBySection(uni_id: string, section_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const program = await this.sectionRepo.findOneBy({ id: section_id });
+      if (!program) throw new Error("Section not found");
+
+      // const modules = await this.modRepo.find({
+      //   where: { se: { id: section_id } },
+      //   relations: ["program"],
+      // });
+      const modules = await this.sectionRepo.createQueryBuilder("section")
+      .leftJoinAndSelect("section.moduleSection","moduleSection")
+      .leftJoinAndSelect("moduleSection.module","module")
+      .where("section.id =:section_id",{section_id})
+      .getMany()
+      console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules);
       if (!module) throw new Error("Module Not found");
 
       return modules;
@@ -363,13 +405,18 @@ class UniversityService {
       }
     }
   }
-  async addTeacher(uni_id: string, module_id: any[], sections_id: any[], data: any) {
+  async addTeacher(
+    uni_id: string,
+    module_id: any[],
+    sections_id: any[],
+    data: any
+  ) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
-  
+
       const hashPassword = await bcryptservice.hash(data.password);
-  
+
       // Create and save the teacher
       const teacher = this.TeachRepo.create({
         name: data.name,
@@ -381,32 +428,33 @@ class UniversityService {
       });
       await this.TeachRepo.save(teacher);
 
-      await Promise.all(
-        module_id.map(async (moduleId) => {
-          const module = await this.modRepo.findOne({
-            where: { id: moduleId },
-            relations: ["program"],
-          });
-          if (!module) throw new Error(`Module with ID ${moduleId} not found`);
-  
-          const teacher_Module = this.teacher_ModuleRepo.create({
-            teacher,
-            module,
-          });
-          await this.teacher_ModuleRepo.save(teacher_Module);
-        })
-      );
+     // In addTeacher method
+await Promise.all(
+  module_id.map(async (moduleId) => {
+    const module = await this.modRepo.findOneBy({ id: moduleId });
+    if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+
+    const teacherModule = this.teacher_ModuleRepo.create({
+      teacher,
+      module,
+    });
+    await this.teacher_ModuleRepo.save(teacherModule);
+  })
+);
+
+// Similar correction for sections
 
       await Promise.all(
         sections_id.map(async (sectionId) => {
           const section = await this.sectionRepo.findOne({
-            where: { id: sectionId }
+            where: { id: sectionId },
           });
-          if (!section) throw new Error(`Section with ID ${sectionId} not found`);
-  
+          if (!section)
+            throw new Error(`Section with ID ${sectionId} not found`);
+
           const teacher_Section = this.teacher_SectionRepo.create({
             teacher,
-            section
+            section,
           });
           await this.teacher_SectionRepo.save(teacher_Section);
         })
@@ -430,14 +478,15 @@ class UniversityService {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-  
+
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacher_id },
-        relations: ["university", "teacher_module"]
+        relations: ["university", "teacher_module"],
       });
       if (!teacher) throw new Error("Teacher not found");
-      if (teacher.university.id !== uni_id) throw new Error("Teacher does not belong to specified university");
-  
+      if (teacher.university.id !== uni_id)
+        throw new Error("Teacher does not belong to specified university");
+
       const updateFields: Partial<Teacher> = {};
       if (data.name !== undefined) updateFields.name = data.name;
       if (data.email !== undefined) updateFields.email = data.email;
@@ -446,49 +495,50 @@ class UniversityService {
       if (data.password !== undefined) {
         updateFields.password = await bcryptservice.hash(data.password);
       }
-  
+
       if (Object.keys(updateFields).length > 0) {
         await this.TeachRepo.update({ id: teacher_id }, updateFields);
       }
-  
+
       // Handle module updates
       const existingTeacherModules = await this.teacher_ModuleRepo.find({
         where: { teacher: { id: teacher_id } },
-        relations: ["module"]
+        relations: ["module"],
       });
-  
+
       const existingModuleIds = new Set(
         existingTeacherModules
           .map((tm) => tm.module?.id)
           .filter((id): id is string => Boolean(id))
       );
-  
+
       const newModuleIds = new Set(modules);
-  
+
       // Remove outdated modules
       for (const relation of existingTeacherModules) {
         if (relation.module?.id && !newModuleIds.has(relation.module.id)) {
           await this.teacher_ModuleRepo.delete({
             teacher: { id: teacher_id },
-            module: { id: relation.module.id }
+            module: { id: relation.module.id },
           });
         }
       }
-  
+
       // Add new modules
       for (const moduleId of modules) {
         if (!existingModuleIds.has(moduleId)) {
+          console.log("🚀 ~ UniversityService ~ moduleId:", moduleId);
           const module = await this.modRepo.findOneBy({ id: moduleId });
           if (!module) throw new Error(`Module with ID ${moduleId} not found`);
-  
+
           const existingRelation = await this.teacher_ModuleRepo.findOne({
-            where: { teacher: { id: teacher_id }, module: { id: moduleId } }
+            where: { teacher: { id: teacher_id }, module: { id: moduleId } },
           });
-  
+
           if (!existingRelation) {
             const newRelation = this.teacher_ModuleRepo.create({
               teacher,
-              module: { id: moduleId }
+              module: { id: moduleId },
             });
             await this.teacher_ModuleRepo.save(newRelation);
           }
@@ -497,47 +547,48 @@ class UniversityService {
       // Handle section updates
       const existingTeacherSections = await this.teacher_SectionRepo.find({
         where: { teacher: { id: teacher_id } },
-        relations: ["section"]
+        relations: ["section"],
       });
-  
+
       const existingSectionIds = new Set(
         existingTeacherSections
           .map((ts) => ts.section?.id)
           .filter((id): id is string => Boolean(id))
       );
-  
+
       const newSectionIds = new Set(sections);
-  
+
       // Remove outdated sections
       for (const relation of existingTeacherSections) {
         if (relation.section?.id && !newSectionIds.has(relation.section.id)) {
           await this.teacher_SectionRepo.delete({
             teacher: { id: teacher_id },
-            section: { id: relation.section.id }
+            section: { id: relation.section.id },
           });
         }
       }
-  
+
       // Add new sections
       for (const sectionId of sections) {
         if (!existingSectionIds.has(sectionId)) {
           const section = await this.sectionRepo.findOneBy({ id: sectionId });
-          if (!section) throw new Error(`Section with ID ${sectionId} not found`);
-  
+          if (!section)
+            throw new Error(`Section with ID ${sectionId} not found`);
+
           const existingRelation = await this.teacher_SectionRepo.findOne({
-            where: { teacher: { id: teacher_id }, section: { id: sectionId } }
+            where: { teacher: { id: teacher_id }, section: { id: sectionId } },
           });
-  
+
           if (!existingRelation) {
             const newRelation = this.teacher_SectionRepo.create({
               teacher,
-              section: { id: sectionId }
+              section: { id: sectionId },
             });
             await this.teacher_SectionRepo.save(newRelation);
           }
         }
       }
-  
+
       return "Teacher updated successfully with modules and sections!";
     } catch (error) {
       if (error instanceof Error) {
@@ -547,7 +598,7 @@ class UniversityService {
     }
   }
 
-  async getModuleByDuration(uni_id: string,prog_id:string, duration:number) {
+  async getModuleByDuration(uni_id: string, prog_id: string, duration: number) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -555,34 +606,40 @@ class UniversityService {
       if (!program) throw new Error("Program Not found");
 
       const modules = await this.modRepo.find({
-        where: {program:{id:prog_id}, durationReference:duration },
+        where: { program: { id: prog_id }, durationReference: duration },
         relations: ["program"],
       });
-      console.log("🚀 ~ UniversityService ~ getModuleByDuration ~ modules:", modules)
+      console.log(
+        "🚀 ~ UniversityService ~ getModuleByDuration ~ modules:",
+        modules
+      );
 
       return modules;
     } catch (error) {
-      console.log("🚀 ~ UniversityService ~ getModuleByDuration ~ error:", error)
+      console.log(
+        "🚀 ~ UniversityService ~ getModuleByDuration ~ error:",
+        error
+      );
       if (error instanceof Error) {
         throw new Error(error.message);
       }
     }
   }
- 
+
   async getTeachers(uni_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
-      const teachers = await this.TeachRepo.createQueryBuilder('teacher')
-        .leftJoinAndSelect('teacher.teacher_module', 'teacher_module')
-        .leftJoinAndSelect('teacher_module.module', 'module')
-        .leftJoinAndSelect('module.program', 'program')
-        .leftJoinAndSelect('teacher.teacher_section', 'teacher_section')
-        .leftJoinAndSelect('teacher_section.section', 'section')
-        .where('teacher.uni_id = :uni_id', { uni_id })
+
+      const teachers = await this.TeachRepo.createQueryBuilder("teacher")
+        .leftJoinAndSelect("teacher.teacher_module", "teacher_module")
+        .leftJoinAndSelect("teacher_module.module", "module")
+        .leftJoinAndSelect("module.program", "program")
+        .leftJoinAndSelect("teacher.teacher_section", "teacher_section")
+        .leftJoinAndSelect("teacher_section.section", "section")
+        .where("teacher.uni_id = :uni_id", { uni_id })
         .getMany();
-  
+
       if (!teachers.length) throw new Error("No teachers found");
       return teachers;
     } catch (error) {
@@ -594,28 +651,55 @@ class UniversityService {
   async getTeachersByModule(uni_id: string, module_id: string) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!university) { throw new Error("University not found"); }
-  
+      if (!university) {
+        throw new Error("University not found");
+      }
+
       const module = await this.modRepo.findOneBy({ id: module_id });
-      if (!module) { throw new Error("Module not found"); }
-  
+      if (!module) {
+        throw new Error("Module not found");
+      }
+
       const teachers = await this.TeachRepo.find({
         where: {
           teacher_module: {
-            module: { id: module_id }
-          }
+            module: { id: module_id },
+          },
         },
-        relations: ["teacher_module", "teacher_module.module"]
+        relations: ["teacher_module", "teacher_module.module"],
       });
-  
+
       if (!teachers.length) {
         throw new Error("No teachers found for this module");
       }
-  
+
       return teachers;
     } catch (error) {
       throw new Error(
         error instanceof Error ? error.message : "Failed to fetch teachers"
+      );
+    }
+  }
+
+  async addTeacherBySection(data: any) {
+    try {
+      const section = this.teacher_SectionRepo.create({
+        section: { id: data.sectionId },
+        teacher: { id: data.teacherId },
+      });
+      const saved = await this.teacher_SectionRepo.save(section);
+const  module = this.teacher_ModuleRepo.create(
+  {
+    teacher:{id:data.teacherId},
+    module:{id:data.moduleId}
+  }
+)
+await this.teacher_ModuleRepo.save(module)
+      return saved;
+    } catch (error) {
+      console.log(
+        "🚀 ~ UniversityService ~ addTeacherBySection ~ error:",
+        error
       );
     }
   }
@@ -636,17 +720,24 @@ class UniversityService {
     }
   }
 
-  async deleteTeacher(uni_id: string, teacher_id: string, module_id: any[], sections_id: any[]) {
+  async deleteTeacher(
+    uni_id: string,
+    teacher_id: string,
+    module_id: any[],
+    sections_id: any[]
+  ) {
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
 
       const teacher = await this.TeachRepo.findOne({
         where: { id: teacher_id, university: { id: uni_id } },
-        relations: ["university", "teacher_module", "teacher_section"]
+        relations: ["university", "teacher_module", "teacher_section"],
       });
       if (!teacher) {
-        throw new Error("Teacher not found or does not belong to the university");
+        throw new Error(
+          "Teacher not found or does not belong to the university"
+        );
       }
 
       // Handle module removals
@@ -654,17 +745,20 @@ class UniversityService {
         await Promise.all(
           module_id.map(async (moduleId) => {
             const module = await this.modRepo.findOneBy({ id: moduleId });
-            if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+            if (!module)
+              throw new Error(`Module with ID ${moduleId} not found`);
 
             const association = await this.teacher_ModuleRepo.findOne({
               where: {
                 teacher: { id: teacher_id },
-                module: { id: moduleId }
-              }
+                module: { id: moduleId },
+              },
             });
-            
+
             if (!association) {
-              throw new Error(`Teacher is not associated with module ${moduleId}`);
+              throw new Error(
+                `Teacher is not associated with module ${moduleId}`
+              );
             }
 
             await this.teacher_ModuleRepo.remove(association);
@@ -677,107 +771,81 @@ class UniversityService {
         await Promise.all(
           sections_id.map(async (sectionId) => {
             const section = await this.sectionRepo.findOneBy({ id: sectionId });
-            if (!section) throw new Error(`Section with ID ${sectionId} not found`);
+            if (!section)
+              throw new Error(`Section with ID ${sectionId} not found`);
 
             const association = await this.teacher_SectionRepo.findOne({
               where: {
                 teacher: { id: teacher_id },
-                section: { id: sectionId }
-              }
+                section: { id: sectionId },
+              },
             });
-            
+
             if (!association) {
-              throw new Error(`Teacher is not associated with section ${sectionId}`);
+              throw new Error(
+                `Teacher is not associated with section ${sectionId}`
+              );
             }
 
             await this.teacher_SectionRepo.remove(association);
           })
         );
       }
-      const remainingModules = await this.teacher_ModuleRepo.count({ where: { teacher: { id: teacher_id } } });
-      const remainingSections = await this.teacher_SectionRepo.count({ where: { teacher: { id: teacher_id } } });
-    
+      const remainingModules = await this.teacher_ModuleRepo.count({
+        where: { teacher: { id: teacher_id } },
+      });
+      const remainingSections = await this.teacher_SectionRepo.count({
+        where: { teacher: { id: teacher_id } },
+      });
+
       if (remainingModules === 0 && remainingSections === 0) {
         await this.TeachRepo.delete(teacher_id);
         return { success: true, message: "Teacher deleted successfully" };
       }
-      
-      return { success: true, message: "Teacher associations removed but record kept" };
-    
+
+      return {
+        success: true,
+        message: "Teacher associations removed but record kept",
+      };
     } catch (error: any) {
       console.error("Error:", error.message);
-      throw new Error(error.message || "An error occurred while removing the teacher");
+      throw new Error(
+        error.message || "An error occurred while removing the teacher"
+      );
     }
   }
-  
-  
-  
 
-  async addStudent(uni_id: string, program_id: string, section_id: string, data: StudentInterface) {
+  async addStudent(uni_id: string, data: any) {
+    console.log("🚀 ~ UniversityService ~ addStudent ~ data:", data);
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
 
-      const program = await this.progRepo.findOneBy({ id: program_id });
-      if (!program) throw new Error("Program Not found");
-
-
-
-      const section = await this.sectionRepo.findOneBy({ id: section_id });
+      const section = await this.sectionRepo.findOneBy({ id: data.section_id });
       if (!section) throw new Error("Section Not found");
 
       const hashPassword = await bcryptservice.hash(data.password);
 
-      if(program.durationType === "semester"){
-        const student = this.studentRepo.create({
-          email: data.email,
-          password: hashPassword,
-          semester:data.currentlyStudyingIn,
-          uni: uni,
-          program: program,
-          section: section,
-        });
-        await this.studentRepo.save(student);
-  
-        const studentDetails = this.studentDetailsRepo.create({
-          first_name: data.details.first_name,
-          middle_name: data.details.middle_name,
-          last_name: data.details.last_name,
-          phone_number: data.details.phone_number,
-          DOB: data.details.DOB,
-          gender: Gender[data.details.gender as keyof typeof Gender],
-          admissionYear: data.details.admissionYear,
-          student: student,
-        });
-  
-        await this.studentDetailsRepo.save(studentDetails);
-        return student
-      }
-        const student = this.studentRepo.create({
-          email: data.email,
-          password: hashPassword,
-          year:data.currentlyStudyingIn,
-          uni: uni,
-          program: program,
-          section: section,
-        });
-        await this.studentRepo.save(student);
-  
-        const studentDetails = this.studentDetailsRepo.create({
-          first_name: data.details.first_name,
-          middle_name: data.details.middle_name,
-          last_name: data.details.last_name,
-          phone_number: data.details.phone_number,
-          DOB: data.details.DOB,
-          gender: Gender[data.details.gender as keyof typeof Gender],
-          admissionYear: data.details.admissionYear,
-          student: student,
-        });
-  
-        await this.studentDetailsRepo.save(studentDetails);
-        
-      
-   
+      // Create and save the teacher
+      const student = this.studentRepo.create({
+        first_name: data.first_name,
+        middle_name: data.middle_name,
+        last_name: data.last_name,
+        phone_number: data.phone_number,
+        DOB: data.DOB,
+        gender: data.gender,
+        admissionYear: data.admissionYear,
+        email: data.email,
+        password: hashPassword,
+        uni: uni,
+        section: {
+          id:data.section_id
+        }
+      });
+      console.log("🚀 ~ UniversityService ~ addStudent ~ student:", student)
+
+      await this.studentRepo.save(student);
+
       return student;
     } catch (error) {
       if (error instanceof Error) {
@@ -792,8 +860,7 @@ class UniversityService {
       if (!uni) throw new Error("University Not found");
 
       const students = await this.studentRepo.find({
-        where: { uni: { id: uni_id } },
-        relations: ["program", "details", "section"],
+        where: { uni: { id: uni_id } }, relations:["section"]
       });
 
       return students;
@@ -804,68 +871,34 @@ class UniversityService {
     }
   }
 
-  async editStudent(
-    uni_id: string,
-    student_id: string,
-    program_id: string,
-    section_id: string,
-    data: StudentInterface
-  ) {
-    try {
-      // Fetch related entities
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!uni) throw new Error("University not found");
-  
-      const program = await this.progRepo.findOneBy({ id: program_id });
-      if (!program) throw new Error("Program not found");
-  
-      const section = await this.sectionRepo.findOneBy({ id: section_id });
-      if (!section) throw new Error("Section not found");
-  
-      const student = await this.studentRepo.findOne({
-        where: { id: student_id },
-        relations: ["details"],
-      });
-      if (!student) throw new Error("Student not found");
+  async editStudent(uni_id: string, student_id: string, data: any) {
+    const uni = await this.uniRepo.findOneBy({ id: uni_id });
+    if (!uni) throw new Error("University Not found");
 
-      const updateStudentData: any = {
-        program,
-        section,
-        email: data.email || student.email,
-      };
-  
-      if (program.durationType === "semester") {
-        updateStudentData.semester = data.currentlyStudyingIn || student.semester;
-      } else {
-        updateStudentData.year = data.currentlyStudyingIn || student.year;
-      }
+    const student = await this.studentRepo.findOneBy({ id: student_id });
+    if (!student) throw new Error("Student Not found");
 
-      await this.studentRepo.update({ id: student_id }, updateStudentData);
-  
-      // Update student details
-      if (student.details) {
-        await this.studentDetailsRepo.update(
-          { id: student.details.id },
-          {
-            first_name: data.details.first_name || student.details.first_name,
-            middle_name: data.details.middle_name || student.details.middle_name,
-            last_name: data.details.last_name || student.details.last_name,
-            phone_number: data.details.phone_number || student.details.phone_number,
-            DOB: data.details.DOB || student.details.DOB,
-            gender: data.details.gender
-              ? Gender[data.details.gender as keyof typeof Gender]
-              : student.details.gender,
-            admissionYear: data.details.admissionYear || student.details.admissionYear,
-          }
-        );
+    const hashPassword = await bcryptservice.hash(data.password);
+
+    const updateStudent = await this.studentRepo.update(
+      { id: student_id },
+      {
+        first_name: data.first_name,
+        middle_name: data.middle_name,
+        last_name: data.last_name,
+        phone_number: data.phone_number,
+        DOB: data.DOB,
+        gender: data.gender,
+        admissionYear: data.admissionYear,
+        email: data.email,
+        password: hashPassword,
+        uni: uni,
+        section: data.section_id,
       }
-  
-      return { message: "Student updated successfully" };
-    } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "An error occurred");
-    }
-  }  
-  
+    );
+
+    return updateStudent;
+  }
 
   async deleteStudent(uni_id: string, student_id: string) {
     try {
@@ -874,7 +907,6 @@ class UniversityService {
 
       const student = await this.studentRepo.findOne({
         where: { id: student_id, uni: { id: uni_id } },
-        relations: ["details"],
       });
       if (!student) throw HttpException.notFound("Student not found");
       await this.studentRepo.delete({ id: student.id });

@@ -55,6 +55,18 @@ export class TeacherController {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
       }
     }
+    async getTeacherSection(req:Request,res:Response){
+      try{
+        const teacher_id=req.user.id;
+        const data=await teacherService.getTeacherSections(teacher_id as string)
+        console.log("🚀 ~ TeacherController ~ getTeacherSection ~ data:", data)
+        res.status(StatusCodes.SUCCESS).json({data})
+      }catch(error){
+        
+      console.log("🚀 ~ TeacherController ~ getTeacherSection ~ error:", error)
+
+      }
+    }
 
   async addResource(req: Request, res: Response) {
     try {
@@ -114,85 +126,99 @@ export class TeacherController {
       }
     }
 
-  async postAnnouncement(req: Request, res: Response) {
-    try {
-      const teacher_id = req.user?.id;
-      const module_id = req.user?.id;
-
-      const data = await teacherService.createAnnouncement(
-        teacher_id as string,
-        module_id as string,
-        req.body as AnnouncementInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    async getSectionsByModule(req: Request, res: Response) {
+      try {
+        const teacher_id = req.user?.id;
+        const module_id = req.params.moduleId;
+        const data = await teacherService.getSectionsByModule(
+          teacher_id as string,
+          module_id
+        );
+        res.status(StatusCodes.SUCCESS).json({ data });
+      } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      }
     }
-  }
 
-  async getAnnouncement(req: Request, res: Response) {
-    try {
-      const teacher_id = req.user?.id;
+  // async postAnnouncement(req: Request, res: Response) {
+  //   try {
+  //     const teacher_id = req.user?.id;
+  //     const module_id = req.user?.id;
 
-      const getAnnouncement = await teacherService.getAnnouncement(teacher_id);
-      res.status(StatusCodes.SUCCESS).json({ data: getAnnouncement });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  //     const data = await teacherService.createAnnouncement(
+  //       teacher_id as string,
+  //       module_id as string,
+  //       req.body as AnnouncementInterface
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
-  async updateAnnouncement(req: Request, res: Response) {
-    try {
-      const teacher_id = req.user?.id;
-      const module_id = req.user?.id;
-      const id = req.params.id;
+  // async getAnnouncement(req: Request, res: Response) {
+  //   try {
+  //     const teacher_id = req.user?.id;
 
-      const data = await teacherService.updateAnnouncement(
-        teacher_id as string,
-        module_id as string,
-        id,
-        req.body as AnnouncementInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  //     const getAnnouncement = await teacherService.getAnnouncement(teacher_id);
+  //     res.status(StatusCodes.SUCCESS).json({ data: getAnnouncement });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
-  async deleteAnnouncement(req: Request, res: Response) {
-    try {
-      const id = req.params.id;
+  // async updateAnnouncement(req: Request, res: Response) {
+  //   try {
+  //     const teacher_id = req.user?.id;
+  //     const module_id = req.user?.id;
+  //     const id = req.params.id;
 
-      const data = await teacherService.deleteAnnouncement(id as string);
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  //     const data = await teacherService.updateAnnouncement(
+  //       teacher_id as string,
+  //       module_id as string,
+  //       id,
+  //       req.body as AnnouncementInterface
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
-  async createAssignment(req:Request, res: Response){
-    try {
-      const teacher_id = req.user?.id;
-      const module_id = req.user?.id;
+  // async deleteAnnouncement(req: Request, res: Response) {
+  //   try {
+  //     const id = req.params.id;
 
-      const data = await teacherService.createAssignment(
-        teacher_id as string,
-        module_id as string,
-        req.body as AssignmentInterface
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
+  //     const data = await teacherService.deleteAnnouncement(id as string);
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
+
+  // async createAssignment(req:Request, res: Response){
+  //   try {
+  //     const teacher_id = req.user?.id;
+  //     const module_id = req.user?.id;
+
+  //     const data = await teacherService.createAssignment(
+  //       teacher_id as string,
+  //       module_id as string,
+  //       req.body as AssignmentInterface
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({
+  //       data,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  //   }
+  // }
 
   // async createRoutine(req:Request, res: Response){
   //   try {

@@ -6,6 +6,7 @@ import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Student } from "../../entities/student/student.entity";
 import { DurationType } from "../../constant/enum";
 import { Section } from "../../entities/Section/section.entity";
+import { Routine } from "../../entities/Routine/routine.entity";
 
 
 @Entity('Program')
@@ -31,12 +32,10 @@ export class Program extends Base {
     @OneToMany(() => Section, (sections) => sections.program, { cascade: true })
     sections: Section[];
 
+    // @OneToMany(() => Routine, (routine) => routine.program, { cascade: true })
+    // routine: Routine[];
+
     @OneToMany(() => Module, (module) => module.program, { cascade: true })
     module: Module;
 
-    @OneToMany(() => Student, (student) => student.program, { cascade: true })
-    student: Student;
-
-    @OneToMany(() => Teacher, (teacher) => teacher.program, { cascade: true })
-    teacher: Teacher;
 }

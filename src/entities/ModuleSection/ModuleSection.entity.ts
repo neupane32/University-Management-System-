@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "type
 import { Section } from "../../entities/Section/section.entity";
 import { Module } from "../../entities/module/module.entity";
 
-@Entity('module_setion')
+@Entity('module_section')
 export class Module_Section extends Base {
 
   @ManyToOne(() => Section, (section) => section.moduleSection, { onDelete: 'CASCADE' })

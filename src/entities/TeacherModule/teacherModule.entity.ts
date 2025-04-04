@@ -15,4 +15,7 @@ export class Teacher_Module extends Base {
   @JoinColumn({ name: 'teacher_id' })
   teacher: Teacher;
 
+  
+
+
 }

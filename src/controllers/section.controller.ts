@@ -11,10 +11,12 @@ async addSection(req: Request, res: Response) {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
       const data = req.body;
+      const module_id = req.body.module_ids
       console.log("🚀 ~ SectionController ~ addSection ~ data:", data)
   
       const addSection = await sectionService.addSection(
         uni_id as string,
+        module_id,
         prog_id,
         data
       );
@@ -29,7 +31,7 @@ async addSection(req: Request, res: Response) {
   async getSections(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id; 
-      const program_id = req.body.prog_id;
+      const program_id = req.params.id;
   
       const data = await sectionService.getSections(
         uni_id as string,
@@ -42,6 +44,21 @@ async addSection(req: Request, res: Response) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
 }
+
+// async getAllSection(req: Request, res: Response) {
+//   try {
+//     const uni_id = req.user?.id; 
+
+//     const data = await sectionService.getSections(
+//       uni_id as string
+//     );
+//     res.status(StatusCodes.SUCCESS).json({
+//       data,
+//     });
+//   } catch (error: any) {
+//     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+//   }
+// }
 
 async getuniversitySection(req: Request, res: Response) {
   try {
@@ -64,12 +81,13 @@ async updateSection(req: Request, res: Response) {
       const section_id = req.params.id; 
       const program_id = req.params.program_id;
       const data = req.body;
-
+      const module_id = req.body.module_ids
       console.log("🚀 ~ SectionController ~ updateSection ~ data:", data);
 
       const updatedSection = await sectionService.updateSection(
           uni_id as string,
           section_id,
+          module_id,
           program_id,
           data
       );

@@ -13,12 +13,12 @@ router.use(authorization([Role.UNIVERSITY]));
 
 //Section Operation
 router.post('/create-section/:id', catchAsync(sectionController.addSection));
-router.get('/get-section', catchAsync(sectionController.getSections));
+router.get('/get-section/:id', catchAsync(sectionController.getSections));
 router.patch('/update-section/:id/:program_id', catchAsync(sectionController.updateSection));
 router.delete('/delete-section/:id', catchAsync(sectionController.deleteSection));
 
 //get university all section
-router.get('/get-All-section', catchAsync(sectionController.getuniversitySection));
+router.get('/find-All-section', catchAsync(sectionController.getuniversitySection));
 
 
 

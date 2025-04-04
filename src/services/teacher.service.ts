@@ -14,6 +14,7 @@ import { error } from "console";
 import { AssignmentInterface } from "../interface/assignment.interface";
 import { Assignment } from "../entities/Assignment/assignment.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
+import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
 
 const bcryptService = new BcryptService();
 
@@ -27,8 +28,8 @@ class TeacherService {
     private readonly teacherRepo = AppDataSource.getRepository(Teacher),
     private readonly resourceRepo = AppDataSource.getRepository(Resource),
     private readonly announceRepo = AppDataSource.getRepository(Announcement),
-    private readonly assignmentRepo = AppDataSource.getRepository(Assignment)
-    // private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
+    private readonly assignmentRepo = AppDataSource.getRepository(Assignment),
+    private readonly teacher_sectionRepo = AppDataSource.getRepository(Teacher_Section),
   ) {}
 
   async loginTeacher(data: TeacherInterface): Promise<Teacher> {
@@ -56,7 +57,21 @@ class TeacherService {
       }
     }
   }
-
+  async getTeacherSections(teacher_id: string) {
+    if (!teacher_id) {
+      throw HttpException.notFound("Teacher is not registered yet");
+    }
+  
+    const getTeacherSection = await this.teacherRepo.createQueryBuilder("teacher")
+      .leftJoinAndSelect("teacher.teacher_section", "teacherSection")
+      .leftJoinAndSelect("teacherSection.section", "section")
+      .leftJoinAndSelect("teacher.teacher_module", "teacherModule")
+      .leftJoinAndSelect("teacherModule.module", "module")
+      .where("teacher.id = :teacher_id", { teacher_id })
+      .getMany();
+  
+    return getTeacherSection;
+  }
   async getTeacherById(id: string): Promise<Teacher> {
     try {
       const query = this.teacherRepo
@@ -115,7 +130,19 @@ class TeacherService {
     TeacherResourceFile: string,
     teacher_id: string
   ) {
-    const addResource = await this.resourceRepo.create({
+    // Validate teacher is assigned to the section
+    const teacherSection = await this.teacher_sectionRepo.findOne({
+      where: {
+        teacher: { id: teacher_id },
+        section: { id: data.section_id },
+      },
+    });
+    if (!teacherSection) {
+      throw new Error("Teacher is not assigned to this section");
+    }
+
+    // Proceed to create resource
+    const addResource = this.resourceRepo.create({
       title: data.title,
       module: { id: data.module_id },
       section: { id: data.section_id },
@@ -150,142 +177,159 @@ class TeacherService {
     return "Resource deleted successfully";
   }
 
-  async createAnnouncement(
-    teacher_id: string,
-    module_id: string,
-    data: AnnouncementInterface
-  ) {
+  async getSectionsByModule(teacherId: string, moduleId: string) {
     try {
-      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      if (!teacher) throw new Error("Teacher Not found");
-
-      const module = await this.moduleRepo.findOneBy({ id: module_id });
-      if (!module) throw new Error("Module not found");
-
-      const announcement = this.announceRepo.create({
-        announce_name: data.announce_name,
-        announce_title: data.announce_title,
-        announce_date: data.announce_date,
-        teacher: teacher,
-        module: module,
-      });
-
-      await this.announceRepo.save(announcement);
-      return announcement;
+      const sections = await this.teacher_sectionRepo
+        .createQueryBuilder("ts")
+        .leftJoinAndSelect("ts.section", "section")
+        .leftJoinAndSelect("section.moduleSection", "moduleSection")
+        .leftJoinAndSelect("moduleSection.module", "module")
+        .where("ts.teacher_id = :teacherId", { teacherId })
+        .andWhere("module.id = :moduleId", { moduleId })
+        .getMany();
+  
+      return sections.map(ts => ts.section);
     } catch (error) {
-      throw new Error(error.message || "Failed to create announcement");
-    }
-  }
-  async getAnnouncement(announcement_id: string) {
-    try {
-      const announcement = await this.announceRepo.findOne({
-        where: { id: announcement_id },
-        relations: ["teacher", "module"],
-      });
-
-      if (!announcement) {
-        throw new Error("Announcement not found");
-      }
-
-      return announcement;
-    } catch (error) {
-      throw new Error(error.message || "Failed to retrieve announcement");
+      throw new Error('Failed to fetch sections');
     }
   }
 
-  async updateAnnouncement(
-    id: string,
-    teacher_id: string,
-    module_id: string,
-    data: AnnouncementInterface
-  ) {
-    try {
-      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      const module = await this.moduleRepo.findOneBy({ id: module_id });
-      const announcement = await this.announceRepo.findOneBy({ id });
+  // async createAnnouncement(
+  //   teacher_id: string,
+  //   module_id: string,
+  //   data: AnnouncementInterface
+  // ) {
+  //   try {
+  //     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+  //     if (!teacher) throw new Error("Teacher Not found");
 
-      if (!announcement) {
-        throw new Error("Announcement not found");
-      }
+  //     const module = await this.moduleRepo.findOneBy({ id: module_id });
+  //     if (!module) throw new Error("Module not found");
 
-      announcement.announce_name = data.announce_name;
-      announcement.announce_title = data.announce_title;
-      announcement.announce_date = data.announce_date;
-      announcement.teacher = teacher;
-      announcement.module = module;
+  //     const announcement = this.announceRepo.create({
+  //       announce_name: data.announce_name,
+  //       announce_title: data.announce_title,
+  //       announce_date: data.announce_date,
+  //       teacher: teacher,
+  //       module: module,
+  //     });
 
-      await this.announceRepo.save(announcement);
-      return announcement;
-    } catch (error) {
-      throw new Error(error.message || "Failed to update announcement");
-    }
-  }
+  //     await this.announceRepo.save(announcement);
+  //     return announcement;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to create announcement");
+  //   }
+  // }
+  // async getAnnouncement(announcement_id: string) {
+  //   try {
+  //     const announcement = await this.announceRepo.findOne({
+  //       where: { id: announcement_id },
+  //       relations: ["teacher", "module"],
+  //     });
 
-  async deleteAnnouncement(id: string) {
-    try {
-      const announcement = await this.announceRepo.findOneBy({ id });
+  //     if (!announcement) {
+  //       throw new Error("Announcement not found");
+  //     }
 
-      if (!announcement) {
-        throw new Error("Announcement not found");
-      }
+  //     return announcement;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to retrieve announcement");
+  //   }
+  // }
 
-      await this.announceRepo.remove(announcement);
-      return { message: "Announcement deleted successfully" };
-    } catch (error) {
-      throw new Error(error.message || "Failed to delete announcement");
-    }
-  }
+  // async updateAnnouncement(
+  //   id: string,
+  //   teacher_id: string,
+  //   module_id: string,
+  //   data: AnnouncementInterface
+  // ) {
+  //   try {
+  //     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+  //     const module = await this.moduleRepo.findOneBy({ id: module_id });
+  //     const announcement = await this.announceRepo.findOneBy({ id });
 
-  async createAssignment(
-    teacher_id: string,
-    module_id: string,
-    data: AssignmentInterface
-  ) {
-    try {
-      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      const module = await this.moduleRepo.findOneBy({ id: module_id });
+  //     if (!announcement) {
+  //       throw new Error("Announcement not found");
+  //     }
 
-      const assignment = this.assignmentRepo.create({
-        title: data.title,
-        description: data.description,
-        due_date: data.due_Date,
-        teacher: teacher,
-        module: module,
-      });
+  //     announcement.announce_name = data.announce_name;
+  //     announcement.announce_title = data.announce_title;
+  //     announcement.announce_date = data.announce_date;
+  //     announcement.teacher = teacher;
+  //     announcement.module = module;
 
-      await this.assignmentRepo.save(assignment);
-      return assignment;
-    } catch (error) {
-      throw new Error(error.message || "Failed to create assignment");
-    }
-  }
-  async updateAssignment(
-    teacher_id: string,
-    assigment_id: string,
-    data: AssignmentInterface
-  ) {
-    try {
-      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-      if (!teacher) throw new Error("You are not authorized");
+  //     await this.announceRepo.save(announcement);
+  //     return announcement;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to update announcement");
+  //   }
+  // }
 
-      const assignment = await this.assignmentRepo.findOneBy({
-        id: assigment_id,
-        teacher: { id: teacher_id },
-      });
-      if (!assignment) throw new Error("Assignment not found");
-      const assignments = this.assignmentRepo.update(
-        { id: assigment_id },
-        {
-          title: data.title,
-          description: data.description,
-          due_date: data.due_Date,
-        }
-      );
-      return assignments;
-    } catch (error) {
-      throw new Error(error.message || "Failed to create assignment");
-    }
-  }
+  // async deleteAnnouncement(id: string) {
+  //   try {
+  //     const announcement = await this.announceRepo.findOneBy({ id });
+
+  //     if (!announcement) {
+  //       throw new Error("Announcement not found");
+  //     }
+
+  //     await this.announceRepo.remove(announcement);
+  //     return { message: "Announcement deleted successfully" };
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to delete announcement");
+  //   }
+  // }
+
+  // async createAssignment(
+  //   teacher_id: string,
+  //   module_id: string,
+  //   data: AssignmentInterface
+  // ) {
+  //   try {
+  //     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+  //     const module = await this.moduleRepo.findOneBy({ id: module_id });
+
+  //     const assignment = this.assignmentRepo.create({
+  //       title: data.title,
+  //       description: data.description,
+  //       due_date: data.due_Date,
+  //       teacher: teacher,
+  //       module: module,
+  //     });
+
+  //     await this.assignmentRepo.save(assignment);
+  //     return assignment;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to create assignment");
+  //   }
+  // }
+  // async updateAssignment(
+  //   teacher_id: string,
+  //   assigment_id: string,
+  //   data: AssignmentInterface
+  // ) {
+  //   try {
+  //     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+  //     if (!teacher) throw new Error("You are not authorized");
+
+  //     const assignment = await this.assignmentRepo.findOneBy({
+  //       id: assigment_id,
+  //       teacher: { id: teacher_id },
+  //     });
+  //     if (!assignment) throw new Error("Assignment not found");
+  //     const assignments = this.assignmentRepo.update(
+  //       { id: assigment_id },
+  //       {
+  //         title: data.title,
+  //         description: data.description,
+  //         due_date: data.due_Date,
+  //       }
+  //     );
+  //     return assignments;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to create assignment");
+  //   }
+  // }
 }
 
 export default TeacherService;

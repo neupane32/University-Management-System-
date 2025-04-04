@@ -1,13 +1,18 @@
 import { University } from "../../entities/university/university.entity";
-import { Role } from "../../constant/enum";
+import { Gender, Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity, OneToOne,OneToMany, ManyToOne, JoinColumn } from "typeorm";
-import { StudentDetails } from "./studentDetails.entity";
-import { Routine } from "../../entities/Routine/routine.entity";
-import { Program } from "../../entities/Programs/program.entity";
+import {
+  Column,
+  Entity,
+  OneToOne,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+
 import { Section } from "../../entities/Section/section.entity";
 
-@Entity("studnet")
+@Entity("student")
 export class Student extends Base {
   @Column({
     unique: true,
@@ -25,34 +30,37 @@ export class Student extends Base {
   })
   role: Role;
 
-  @Column({
-    nullable: true
-  })
-  year: number;
+  @Column()
+  first_name: string;
 
-  @Column({
-    nullable: true
-  })
-  semester: number;
+  @Column({ nullable: true })
+  middle_name: string;
 
+  @Column()
+  last_name: string;
+
+  @Column({ nullable: true })
+  phone_number: string;
+
+  @Column()
+  DOB: string;
+
+  @Column({ type: "enum", enum: Gender })
+  gender: Gender;
+
+  @Column()
+  admissionYear: number;
 
   @ManyToOne(() => University, (uni) => uni.student, {
-    onDelete: "CASCADE" })
-    
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "uni_id" })
   uni: University;
 
-  @OneToOne(() => StudentDetails, (details) => details.student, {
-    cascade: true,
+  @ManyToOne(() => Section, (section) => section.students, {
+    onDelete: "CASCADE",
   })
-  details: StudentDetails;
-
-  @ManyToOne(() => Program, (program) => program.student , { onDelete: "CASCADE"})
-  @JoinColumn({name: "prog_id"})
-  program: Program;
-
-  @ManyToOne(() => Section, (section) => section.students , { onDelete: "CASCADE"})
-  @JoinColumn({name: "section_id"})
+  @JoinColumn({ name: "section_id" })
   section: Section;
 
   // @OneToMany(() => Routine, (routine) => routine.student, {cascade: true})

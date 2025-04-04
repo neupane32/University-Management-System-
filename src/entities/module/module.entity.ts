@@ -1,7 +1,7 @@
 import { University } from "../../entities/university/university.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
@@ -9,6 +9,7 @@ import { Assignment } from "../../entities/Assignment/assignment.entity";
 import { Section } from "../../entities/Section/section.entity";
 import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
 import { Module_Section } from "../../entities/ModuleSection/ModuleSection.entity";
+import { Routine } from "../../entities/Routine/routine.entity";
 
 @Entity("module")
 export class Module extends Base {
@@ -47,8 +48,8 @@ export class Module extends Base {
   })
   assignments: Assignment[];
 
-  @OneToMany(() => Section, (section) => section.module, { cascade: true })
-  section: Section[];
+  // @OneToMany(() => Section, (section) => section.module, { cascade: true })
+  // section: Section[];
 
   @OneToMany(() => Teacher_Module, (teacherModule) => teacherModule.teacher, {
     cascade: true,
@@ -59,5 +60,9 @@ export class Module extends Base {
     cascade: true,
   })
   moduleSection: Module_Section[];
+
+    @OneToOne(() => Module, (routine) => routine.module, {onDelete: "CASCADE"})
+    routine: Module;
+
 
 }
