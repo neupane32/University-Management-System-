@@ -63,7 +63,8 @@ export class Teacher extends Base {
     @OneToMany(() => Teacher_Module, (teacher_module) => teacher_module.teacher, { cascade: true })
     teacher_module: Teacher_Module[];
 
-   
+    @OneToMany(() => Routine, (routines) => routines.teacher, {onDelete: "CASCADE"})
+    routines: Routine[];
   
 
 

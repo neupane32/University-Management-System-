@@ -61,8 +61,10 @@ export class Module extends Base {
   })
   moduleSection: Module_Section[];
 
-    @OneToOne(() => Module, (routine) => routine.module, {onDelete: "CASCADE"})
+    @OneToMany(() => Module, (routine) => routine.module, {onDelete: "CASCADE"})
     routine: Module;
+
+  
 
 
 }
