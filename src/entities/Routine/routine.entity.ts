@@ -30,9 +30,13 @@ export class Routine extends Base {
   @ManyToOne(() => Section, (section) => section.routine, {onDelete: "CASCADE"})
   @JoinColumn({name: "section_id"})
   section: Section;
-  @OneToOne(() => Module, (module) => module.routine, {onDelete: "CASCADE"})
+  @ManyToOne(() => Module, (module) => module.routine, {onDelete: "CASCADE"})
   @JoinColumn({name: "module_id"})
   module: Module;
+
+  @ManyToOne(() => Teacher, (teacher) => teacher.routines, { onDelete: "CASCADE" })
+@JoinColumn({ name: "teacher_id" })
+teacher: Teacher;
  
 
 
