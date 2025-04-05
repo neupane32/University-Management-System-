@@ -19,6 +19,10 @@ export enum Environment {
     PENDING = 'PENDING',
     BLOCKED = 'BLOCKED',
   }
+  export enum AssignmentStatus {
+    OPEN = 'OPEN',
+    CLOSED = 'CLOSED',
+  }
   
   export enum Gender {
     MALE = 'MALE',

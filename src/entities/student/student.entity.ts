@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 
 import { Section } from "../../entities/Section/section.entity";
+import { Student_Assignment } from "../../entities/Assignment/student_assignment.entity";
 
 @Entity("student")
 export class Student extends Base {
@@ -63,6 +64,6 @@ export class Student extends Base {
   @JoinColumn({ name: "section_id" })
   section: Section;
 
-  // @OneToMany(() => Routine, (routine) => routine.student, {cascade: true})
-  //   routine : Routine;
+    @OneToMany(() => Student_Assignment, (submission) => submission.student, {onDelete: 'CASCADE'})
+     submission: Student_Assignment;
 }

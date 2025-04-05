@@ -52,7 +52,8 @@ class ResourceService {
 
     return await this.resourceRepo.find({
       where: { teacher: { id: teacher_id }, module: { id: module_id } },
-      relations: ["teacher", "module"],
+      relations: ["teacher", "module", "section"],
+      order: {createdAt: "DESC"}
     });
   }
 
