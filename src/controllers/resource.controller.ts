@@ -38,9 +38,11 @@ export class ResourceController {
         teacher_id as string,
         module_id
       )
-      res.status(StatusCodes.CREATED).json
-      (
-        data,
+      res.status(StatusCodes.SUCCESS).json
+      ({
+        success: true,
+        data
+      }
       );
       
     } catch (error: any) {

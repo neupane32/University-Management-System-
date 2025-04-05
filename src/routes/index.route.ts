@@ -8,6 +8,7 @@ import student from './student.route';
 import section from './section.route';
 import routine from './routine.routes';
 import resource from './resource.routes';
+import assignment from './assignment.routes';
 
 export interface IndexRoute {
     path: string;
@@ -57,6 +58,11 @@ const routes: IndexRoute[] = [
     {
         path: '/resource',
         route: resource
+
+    },
+    {
+        path: '/assignment',
+        route: assignment
 
     },
 ];

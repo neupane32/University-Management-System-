@@ -8,14 +8,14 @@ const ensureDirectoryExistence = (directory: fs.PathLike) => {
 }
 const universityProfileImagesPath = "uploads/universityProfileImages";
 const teacherResoureFilePath = "uploads/teacherResourceFiles";
-// const tournamentCoverImagesPath = "uploads/tournamentCoverImages";
+const teacherAssignmentFilePath = "uploads/teacherAssignmentFiles";
 // const gearImagesPath="uploads/gearImages";
 // const bucksPath="uploads/buckImages"
 // const scoreSubmissionPath="uploads/scoreSubmissionImages";
 // const teamImagePath="uploads/teamImages";
 ensureDirectoryExistence(universityProfileImagesPath);
- ensureDirectoryExistence(teacherResoureFilePath);
-// ensureDirectoryExistence(tournamentCoverImagesPath);
+ensureDirectoryExistence(teacherResoureFilePath);
+ensureDirectoryExistence(teacherAssignmentFilePath);
 // ensureDirectoryExistence(gearImagesPath);
 // ensureDirectoryExistence(teamImagePath);
 // ensureDirectoryExistence(bucksPath)
@@ -35,8 +35,10 @@ const universityProfileStorage= multer.diskStorage({
 
 //teacher resource
 const teacherResourceStorage= multer.diskStorage({
+  
   destination: (req, file, cb) => {
     if(file.fieldname==='teacher_resource_file'){
+      console.log("hello", file)
       cb(null,teacherResoureFilePath );
     }
   },
@@ -44,6 +46,20 @@ const teacherResourceStorage= multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   }
 })
+
+//teacher Assignemnt
+const teacherAssignmentStorage= multer.diskStorage({
+  destination: (req, file, cb) => {
+    if(file.fieldname==='teacher_assignment_file'){
+      cb(null,teacherAssignmentFilePath);
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+})
+
+
 const fileFilter = (req: any, file: any, cb: any) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -58,6 +74,10 @@ export const universityProfileImagesUpload = multer({
 
 export const teacherResourceFileUpload = multer({
   storage: teacherResourceStorage
+});
+
+export const teacherAssignmentFileUpload = multer({
+  storage: teacherAssignmentStorage
 });
 
 
