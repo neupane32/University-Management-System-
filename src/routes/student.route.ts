@@ -4,19 +4,26 @@ import { Router } from "express";
 import { authorization } from "../middleware/authorization.middleware";
 import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
+import { AssignmentController } from "../controllers/assignment.controller";
+import { studentAssignmentFileUpload } from "../middleware/multer.middleware";
 
 const router: Router = Router();
 const studentController = new StudentController;
+const assignmentController = new AssignmentController;
 
 router.post('/login', catchAsync(studentController.loginStudent));
 router.use(authentication())
-router.use(authorization([Role.STUDNET]));
+router.use(authorization([Role.STUDENT]));
 router.get('/get-announcements/:module_id', catchAsync(studentController.getAnnouncements));
 
 router.get('/get-assignments/:module_id', catchAsync(studentController.getAssignments));
 
+router.post('/submit-assignments/:id',studentAssignmentFileUpload.fields([{name: 'student_assignment_file'}]) ,catchAsync(assignmentController.submitAssignment));
+router.get('/get-assignmentsByStudent/:module_id', catchAsync(assignmentController.getAssignmentByStudent));
+router.patch('/update-assignment/:id', studentAssignmentFileUpload.fields([{name:'student_assignment_file'}]), catchAsync(assignmentController.updateAssignmentByStudent));
+router.delete('/delete-assignment-file/:id/:fileId', catchAsync(assignmentController.deleteAssignmentFileByStudent));
 
-router.post('/submit-assignment', catchAsync(studentController.submitAssignment));
-// router.get('/routines', catchAsync(studentController.getRoutine));
+
+
 
 export default router;

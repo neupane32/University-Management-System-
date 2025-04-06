@@ -20,6 +20,9 @@ export class Submission_File extends Base{
 title: string;
 
 @Column()
+fileName: string
+
+@Column()
 filePath: string
 
 @ManyToOne(() => Student_Assignment, (submisson) => submisson.files, { onDelete: 'CASCADE' })
