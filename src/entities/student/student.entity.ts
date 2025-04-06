@@ -27,7 +27,7 @@ export class Student extends Base {
   @Column({
     type: "enum",
     enum: Role,
-    default: Role.STUDNET,
+    default: Role.STUDENT,
   })
   role: Role;
 

@@ -114,4 +114,101 @@ export class AssignmentController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async submitAssignment(req: Request, res: Response) {
+    try {
+      const studentId = req.user?.id;
+      const assignmentId = req.params.id
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+      const uploadedFiles = files["student_assignment_file"];
+
+      const file = uploadedFiles?.map((file, index) => {
+        return {
+          filename: file.filename,
+          path: file.path,
+        };
+      });
+
+      console.log("🚀 ~ AssignmentController ~ addAssignment ~ files:", files);
+
+      const data = await assignmentService.submitAssignment(
+        studentId,
+        assignmentId,
+        file,
+        req.body,
+      );
+      res.status(StatusCodes.CREATED).json(data);
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getAssignmentByStudent(req: Request, res: Response) {
+    try {
+      const student_id = req.user?.id;
+      const module_id = req.params.id;
+
+      const data = await assignmentService.getAssignmentByStudent(
+        student_id,
+        module_id
+    );
+      res.status(StatusCodes.SUCCESS).json({ data });
+    } catch (error) {
+      res.status(StatusCodes.BAD_REQUEST).json({ error });
+    }
+  }
+
+  
+  async updateAssignmentByStudent(req: Request, res: Response) {
+    try {
+      const student_id = req.user?.id;
+      const assignmentId = req.params.id;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+      const uploadedFiles = files["student_assignment_file"];
+
+      const file = uploadedFiles?.map((file, index) => {
+        return {
+          filename: file.filename,
+          path: file.path,
+        };
+      });
+
+      const data= req.body;
+
+      const updateAssignment = await assignmentService.updateAssignmentByStudent(
+        student_id,
+        assignmentId,
+        file,
+        data
+      );
+
+      res.status(StatusCodes.SUCCESS).json({
+        message: "Assignment updated by student successfully",
+        data: updateAssignment,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async deleteAssignmentFileByStudent(req: Request, res: Response) {
+    try {
+      const student_id = req.user?.id;
+      const submissionAssignment_id = req.params.id;
+      const fileId = req.params.fileId;
+
+      const data = await assignmentService.deleteAssignmentFileByStudent(
+        student_id as string,
+        submissionAssignment_id,
+        fileId
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
 }

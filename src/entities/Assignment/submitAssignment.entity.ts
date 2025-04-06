@@ -10,12 +10,10 @@ export class submitAssignmnet extends Base{
     @Column()
     submission_desc: string;
 
-    @Column({ default: () => "CURRENT_TIMESTAMP" })
-    submission_date: Date;
-
     @ManyToOne(() => Assignment, (assignment) => assignment.submissions, {onDelete: 'CASCADE'})
     @JoinColumn({name: "assignmnet_id"})
     assignment: Assignment;
+    
     @OneToMany(() => Student_Assignment, (student) => student.assignment, {onDelete: 'CASCADE'})
     submissions: Student_Assignment;
 

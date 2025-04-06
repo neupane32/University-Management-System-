@@ -11,7 +11,7 @@ export enum Environment {
     ADMIN = 'ADMIN',
     UNIVERSITY = 'UNIVERSITY',
     TEACHER = 'TEACHER',
-    STUDNET = 'STUDENT'
+    STUDENT = 'STUDENT'
   
   }
   export enum Status {
