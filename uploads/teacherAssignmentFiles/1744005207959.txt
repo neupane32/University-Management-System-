@@ -1,0 +1,612 @@
+
+CREATE TABLE Program (
+        program_ID INT PRIMARY KEY,
+        program_Name VARCHAR(100) NOT NULL,
+        program_desc VARCHAR(255),
+        program_duration VARCHAR(100)
+    );
+
+-- Module Table
+CREATE TABLE Module (
+    module_ID INT PRIMARY KEY,
+    module_Name VARCHAR(100) NOT NULL,
+    module_Desc VARCHAR(255),
+    module_code VARCHAR(50) NOT NULL
+);
+
+
+-- Program_Module Table (Many-to-Many)
+
+CREATE TABLE Program_Module (
+    program_ID INT,
+    module_ID INT,
+    PRIMARY KEY (program_ID, module_ID),
+    FOREIGN KEY (program_ID) REFERENCES Program(program_ID),
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID)
+);
+
+
+-- Student Table
+CREATE TABLE Student (
+    student_ID INT PRIMARY KEY,
+    first_Name VARCHAR(50) NOT NULL,
+    last_Name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    contact VARCHAR(15),
+    program_ID INT,
+    FOREIGN KEY (program_ID) REFERENCES Program(program_ID)
+);
+
+-- Student_Module Table (Many-to-Many)
+CREATE TABLE Student_Module (
+    student_ID INT,
+    module_ID INT,
+    PRIMARY KEY (student_ID, module_ID),
+    FOREIGN KEY (student_ID) REFERENCES Student(student_ID),
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID)
+);
+
+-- Resource Table
+CREATE TABLE Resources(
+    resource_ID INT PRIMARY KEY,
+    resource_Title VARCHAR(100) NOT NULL,
+    resource_Type VARCHAR(50),
+    resource_duration VARCHAR(50),
+    module_ID INT NOT NULL,
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID)
+);
+
+-- Student_Resource Table
+CREATE TABLE Student_Resource (
+    resource_ID INT,
+    module_ID INT,
+    student_ID INT,
+    PRIMARY KEY (resource_ID, module_ID, student_ID),
+    FOREIGN KEY (resource_ID) REFERENCES Resources(resource_ID),
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID),
+    FOREIGN KEY (student_ID) REFERENCES Student(student_ID)
+);
+
+
+-- Teacher Table
+CREATE TABLE Teacher (
+    teacher_ID INT PRIMARY KEY,
+    teacher_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(15)
+);
+
+
+-- Teacher_Module Table (Many-to-Many)
+CREATE TABLE Teacher_Module (
+    teacher_ID INT,
+    module_ID INT,
+    PRIMARY KEY (teacher_ID, module_ID),
+    FOREIGN KEY (teacher_ID) REFERENCES Teacher(teacher_ID),
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID)
+);
+
+
+-- Announcement Table
+CREATE TABLE Announcement (
+    announcement_ID INT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    date_posted DATE NOT NULL,
+    teacher_ID INT,
+    module_ID INT,
+    FOREIGN KEY (teacher_ID) REFERENCES Teacher(teacher_ID),
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID)
+);
+
+-- Assessment Table
+CREATE TABLE Assessment (
+    assessment_ID INT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    deadline DATE NOT NULL,
+    weightage VARCHAR(50) NOT NULL,
+    module_ID INT NOT NULL,
+    student_ID INT NOT NULL,
+    FOREIGN KEY (module_ID) REFERENCES Module(module_ID),
+    FOREIGN KEY (student_ID) REFERENCES Student(student_ID)
+);
+
+-- Result Table
+CREATE TABLE Result (
+    result_ID INT PRIMARY KEY,
+    assessment_ID INT,
+    student_ID INT,
+    total_marks VARCHAR(50) NOT NULL,
+    FOREIGN KEY (assessment_ID) REFERENCES Assessment(assessment_ID),
+    FOREIGN KEY (student_ID) REFERENCES Student(student_ID)
+);
+
+
+Program Table:
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (101, 'BSc in Computing', 'Information Technology', '2.5 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (102, 'BSc in Data Management', 'Database Management', '3 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (103, 'BSc in Multimedia', 'Art of multimedia and graphic design', '3 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (104, 'Mechanical Engineering', 'Bachelor of Mechanical Engineering', '4 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (105, 'Computer Science', 'Bachelor of Computer Science', '3 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (106, 'Business Administration', 'Bachelor of Business Administration', '2.5 Years');
+
+INSERT INTO Program ( program_ID, program_Name, program_desc, program_duration ) VALUES
+    (107, 'Electrical Engineering', 'Bachelor of Electrical Engineering', '4 Years');
+
+
+Module Table: 
+
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(101, 'Introduction to Programming', 'Basics of programming languages', 'CS101');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(102, 'Database', 'Relational database management systems', 'CS102');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(103, 'Engineering Mathematics', 'Mathematical principles for engineers', 'EN103');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(104, 'Software Engineering', 'Principles of software design', 'CS104');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(105, 'Networking Fundamentals', 'Basics of computer networking', 'CS105');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(106, 'Data and VideoGraphy', 'study about Image and Video shooting', 'MM106');
+INSERT INTO Module (module_ID, module_Name, module_Desc, module_code) VALUES
+(107, 'Deep Learning & Machine Learning', 'Foundations of machine learning', 'DS107');
+
+
+COLUMN PROGRAM_NAME FORMAT A30;
+SQL> COLUMN PROGRAM_DESC FORMAT A40;
+SQL> COLUMN PROGRAM_DURATION FORMAT A15
+
+
+Program_Module Table:
+
+INSERT INTO Program_Module (program_ID, module_ID) VALUES             
+(101,101);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(101,105);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(101,102);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(102,102);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(102,107);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(103,106);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(103,101);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(104,104);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(104,103);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(104,107);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(105,101);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(105,104);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(105,105);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(106,103);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(106,101);
+INSERT INTO Program_Module (program_ID, module_ID) VALUES
+(107,103);
+
+
+Student Table:
+
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(101, 'Suman', 'Shrestha', 'suman@gmail.com', '9812378976', 101);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(102, 'Aarati', 'Bhandari', 'aarati@gmail.com', '984326789', 102);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(103, 'Prakash', 'Thapa', 'prakash111@gmail.com', '981367893', 103);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(104, 'Ramesh', 'Khadka', 'khadkaramesh@gmail.com', '9734678909', 104);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(105, 'Sandhya', 'Maharjan', 'sandhya98@gmail.com', '9812370655', 105);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(106, 'Krishna', 'Gurung', 'gurungvai@gmail.com', '9709786433', 106);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(107, 'Mina', 'Lama', 'mina232@gmail.com', '9842678025', 107);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(108, 'Kunal', 'Dahal', 'dahalkunal11@gmail.com', '9845634689', 101);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(109, 'Abishek', 'Raut', 'raut99@gmail.com', '9767258025', 105);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(110, 'Misan', 'Dahal', 'misan17@gmail.com', '9876528970', 103);
+INSERT INTO Student (student_ID, first_Name, last_Name, email, contact, program_ID) VALUES
+(111, 'kushal', 'Gautam', 'gautam32@gmail.com', '9812356093', 107);
+
+
+Student_Module Table:
+
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(101, 101);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(102, 101);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(103, 107);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(102, 106);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(103, 101);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(105, 107);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(111, 102);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(110, 106);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(111, 101);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(109, 105);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(106, 104);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(108, 103);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(111, 103);
+INSERT INTO Student_Module (student_ID, module_ID) VALUES
+(107, 104);
+
+
+Resources Table: 
+
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(101, 'C Programming Notes', 'PDF', '2 Hours', 101);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(102, 'SQL Tutorial', 'Video', '3 Hours', 102);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(103, 'Math Guide', 'PDF', '1.5 Hours', 103);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(104, 'Finance Case Studies', 'Video', '5 Hours', 104);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(105, 'Software Design Patterns', 'Book', '10 Hours', 105);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(106, 'Networking Basics', 'Online Course', '2.5 Hours', 106);
+INSERT INTO Resources (resource_ID, resource_Title, resource_Type, resource_duration, module_ID) VALUES
+(107, 'Machine Learning Algorithms', 'PDF', '3 Hours', 107);
+
+
+Student_Resource Table;
+
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(101, 101, 102);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(102, 102, 101);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(103, 103, 102);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(104, 104, 103);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(105, 105, 106);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(106, 106, 105);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(102, 102, 107);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(101, 101, 104);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(105, 105, 102);
+INSERT INTO Student_Resource (resource_ID, module_ID, student_ID) VALUES
+(101, 101, 106);
+
+Teacher Table:
+
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(101, 'Dr. Rajendra Shrestha', 'rajendra@gmail.com', '9800001001');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(102, 'Prof. Sunita Sharma', 'sunita@gmail.com', '9800001002');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(103, 'Dr. Arjun KC', 'arjun@gmail.com', '985345501003');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(104, 'Prof. Anita Rai', 'raianita@gmail.com', '9812567857');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(105, 'Dr. Aashish Neupane', 'neupane123@gmail.com', '9823456765');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(106, 'Dr. Bikash Limbu', 'bikash22@gmail.com', '9843563453');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(107, 'Prof.Saugat Adhikari ', 'saugat112@gmail.com', '9843269064');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(108, 'Bhavin Khatri', 'bhavin111@gmail.com', '9824234644');
+INSERT INTO Teacher (teacher_ID, teacher_name, email, phone) VALUES
+(109, 'Sila Rai', 'silarai@gmail.com', '98234353422');
+
+Teacher_Module Table:
+
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(101, 101);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(101, 106);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(102, 105);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(102, 106);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(103, 101);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(103, 105);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(104, 104);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(104, 106);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(105, 102);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(105, 107);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(106, 106);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(106, 102);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(107, 101);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(107, 106);
+INSERT INTO Teacher_Module (teacher_ID, module_ID) VALUES
+(104, 107);
+
+
+Announcement Table:
+
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(201, 'Assignment on Programming Basics', '15-jan-2025', 101, 101);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(202, 'Database Design Workshop', '20-may-2024', 102, 102);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(203, 'Engineering Mathematics Quiz', '10-may-2025', 103, 103);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(204, 'Software Engineering Project Guidelines', '30-june-2025', 104, 104);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(205, 'Networking Fundamentals Exam', '22-may-2024', 105, 105);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(206, 'Video Editing Techniques', '18-dec-2024', 106, 106);
+INSERT INTO Announcement (announcement_ID, title, date_posted, teacher_ID, module_ID) VALUES
+(207, 'Machine Learning Competition', '17-may-2024', 107, 107);
+
+
+Assessment Table: 
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(201, 'Programming Basics Assignment 1', '23-jan-2025', '20%', 101, 101);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(202, 'Database Project', '10-dec-2024', '50%', 102, 102);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(203, 'Engineering Mathematics Midterm', '10-feb-2025', '75%', 103, 101);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(204, 'Software Engineering Design Report', '25-may-2024', '15%', 101, 105);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(205, 'Networking Fundamentals Practical', '30-mar-2025', '100%', 105, 109);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(206, 'Video Editing Project', '01-april-2025', '20%', 106, 107);
+INSERT INTO Assessment (assessment_ID, title, deadline, weightage, module_ID, student_ID) VALUES
+(207, 'Machine Learning Final Exam', '14-may-2025', '40%', 107, 102);
+
+
+Result Table:
+
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(301, 101, 201, 85);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(302, 102, 202, 90);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(303, 103, 203, 15);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(304, 104, 204, 65);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(305, 105, 205, 25);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(306, 106, 206, 88);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(307, 107, 207, 92);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(308, 108, 201, 38);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(309, 109, 202, 84);
+INSERT INTO Result (result_ID, student_ID, assessment_ID, total_marks) VALUES
+(310, 110, 203, 80);
+
+
+
+Informational Queries: 
+
+1) List the programs that are available in the college and the total number of students enrolled
+in each.
+
+SELECT p.program_Name, COUNT(s.student_ID) AS total_students
+    FROM Program p
+    LEFT JOIN Student s ON p.program_ID = s.program_ID
+    GROUP BY p.program_Name;
+
+
+2) List all the announcements made for a particular module starting from 1st May 2024 to
+28th May 2024.
+
+SELECT A.title, A.date_posted, M.module_name
+FROM Announcement A
+JOIN Teacher_Module TM ON A.teacher_ID = TM.teacher_ID
+JOIN Module M ON TM.module_ID = M.module_ID
+WHERE A.date_posted BETWEEN '01-may-2024' AND '28-may-2024'
+ORDER BY A.date_posted;
+
+
+
+3. List the names of all modules that begin with the letter 'D', along with the total number of
+resources uploaded for those modules.
+
+SELECT m.module_Name, COUNT(r.resource_ID) AS total_resources_uploaded
+FROM Module m
+LEFT JOIN Resources r ON m.module_ID = r.module_ID
+WHERE m.module_Name LIKE 'D%'
+GROUP BY m.module_Name;
+
+
+4. List the names of all students along with their enrolled program who have not submitted
+any assessments for a particular module.
+
+
+SELECT S.first_Name, S.last_Name, P.program_Name
+FROM Student S
+JOIN Program P ON S.program_ID = P.program_ID
+WHERE S.student_ID NOT IN (
+    SELECT A.student_ID
+    FROM Assessment A
+)
+ORDER BY S.first_Name, S.last_Name;
+
+
+
+
+
+5. List all the teachers who teach more than one module. 
+
+
+SELECT 
+    t.teacher_name, 
+    COUNT(tm.module_id) AS Padaune_Module
+FROM 
+    Teacher t
+JOIN 
+    Teacher_Module tm ON t.teacher_id = tm.teacher_id
+GROUP BY 
+    t.teacher_name
+HAVING 
+    COUNT(tm.module_id) > 1;
+
+
+Transaction Query: 
+
+q.no:1) 
+
+SELECT module_Name, latest_deadline
+FROM (
+  SELECT M.module_Name, MAX(A.deadline) AS latest_deadline
+  FROM Module M
+  JOIN Assessment A ON M.module_ID = A.module_ID
+  GROUP BY M.module_Name
+  ORDER BY latest_deadline DESC
+)
+WHERE ROWNUM = 1;
+
+q.no:2)
+
+SELECT *
+    FROM (
+        SELECT
+            s.student_ID,
+            s.first_Name, s.last_Name,
+            SUM(r.total_marks) AS total_score
+        FROM
+            Student s
+        JOIN
+           Result r ON s.student_ID = r.student_ID
+       GROUP BY
+           s.student_ID, s.first_Name, s.last_Name
+       ORDER BY
+           total_score DESC
+   )
+   WHERE ROWNUM <= 3;
+
+q.no:3)
+
+SELECT 
+    p.program_ID,
+    p.program_Name,
+    COUNT(a.assessment_ID) AS total_assessments,
+    AVG(r.total_marks) AS average_score
+FROM 
+    Program p
+JOIN 
+    Student s ON p.program_ID = s.program_ID
+JOIN 
+    Assessment a ON s.student_ID = a.student_ID
+JOIN 
+    Result r ON a.assessment_ID = r.assessment_ID
+GROUP BY 
+    p.program_ID, p.program_Name;
+
+
+q.no) 4:
+SELECT 
+    s.student_ID,
+    s.first_Name, s.last_Name,
+    r.total_marks
+FROM 
+    Student s
+JOIN 
+    Result r ON s.student_ID = r.student_ID
+JOIN 
+    Assessment a ON r.assessment_ID = a.assessment_ID
+JOIN 
+    Module m ON a.module_ID = m.module_ID
+WHERE 
+    m.module_Name = 'Database'
+    AND (r.total_marks) > (
+        SELECT 
+            AVG(r2.total_marks)
+        FROM 
+            Result r2
+        JOIN 
+            Assessment a2 ON r2.assessment_ID = a2.assessment_ID
+        JOIN 
+            Module m2 ON a2.module_ID = m2.module_ID
+        WHERE 
+            m2.module_Name = 'Database'
+    );
+
+
+q.no: 5) 
+
+SELECT 
+    s.student_ID,
+    s.first_Name, s.last_Name,
+    m.module_Name,
+    SUM(r.total_marks) AS total_aggregate_marks,
+    CASE
+        WHEN SUM(r.total_marks) >= 40 THEN 'Pass'
+        ELSE 'Fail'
+    END AS remarks
+FROM 
+    Student s
+JOIN 
+    Result r ON s.student_ID = r.student_ID
+JOIN 
+    Assessment a ON r.assessment_ID = a.assessment_ID
+JOIN 
+    Module m ON a.module_ID = m.module_ID
+GROUP BY 
+    s.student_ID, s.first_Name, s.last_Name, m.module_Name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

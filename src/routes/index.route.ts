@@ -9,6 +9,7 @@ import section from './section.route';
 import routine from './routine.routes';
 import resource from './resource.routes';
 import assignment from './assignment.routes';
+import attendance from './attendance.routes';
 
 export interface IndexRoute {
     path: string;
@@ -63,6 +64,11 @@ const routes: IndexRoute[] = [
     {
         path: '/assignment',
         route: assignment
+
+    },
+    {
+        path: '/attendance',
+        route: attendance
 
     },
 ];

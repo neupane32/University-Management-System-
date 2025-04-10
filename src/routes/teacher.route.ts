@@ -16,11 +16,6 @@ router.use(authentication());
 
 //teacher
 router.get('/get-Teacher-by-module', catchAsync(teacherController.getTeacherByModule));
-
 router.get('/get-sections-by-module/:moduleId', catchAsync(teacherController.getSectionsByModule));
-
 router.get('/get-teacher-sections',catchAsync(teacherController.getTeacherSection));
-
-
-
 export default router;

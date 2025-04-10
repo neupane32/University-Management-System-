@@ -34,4 +34,9 @@ export enum DurationType {
   SEMESTER = "semester",
   YEAR = "year"
 }
+
+export enum AttendanceStatus {
+  PRESENT = 'PRESENT',
+  ABSENT = 'ABSENT'
+}
   

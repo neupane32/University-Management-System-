@@ -36,7 +36,8 @@ class AssignmentService {
     TeacherAssignmentFile: any[],
     teacher_id: string
   ) {
-    console.log("🚀 ~ AssignmentService ~ data:", data);
+    console.log("🚀 ~ AssignmentService ~ data:", data)
+  
 
     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
     if (!teacher) throw new Error("Teacher Not found");
@@ -64,6 +65,7 @@ class AssignmentService {
           assignment: addAssignment,
           fileName: file.filename,
         });
+        console.log("🚀 ~ AssignmentService ~ assignmentFile:", assignmentFile)
         await this.assignmentFileRepo.save(assignmentFile);
       }
     }
@@ -204,7 +206,9 @@ class AssignmentService {
       });
       if (!assignment) throw new Error("Assignment not found");
       const submissionDate = new Date(data.dateTime);
+      console.log("🚀 ~ AssignmentService ~ submissionDate:", submissionDate)
       const dueDate = new Date(assignment.due_date);
+      console.log("🚀 ~ AssignmentService ~ dueDate:", dueDate)
       
       if (submissionDate > dueDate) {
           await this.assignmentRepo.update({id:assignment_id},{status:AssignmentStatus.CLOSED})
@@ -246,15 +250,44 @@ class AssignmentService {
   async getAssignmentByStudent(student_id: string, module_id: string) {
     const student = await this.studentRepo.findOneBy({ id: student_id });
     if (!student) throw new Error("student not found");
-    const getAssignment = this.assignmentRepo.find({
+    
+    const assignments = await this.assignmentRepo.find({
       where: {
-        module: { id: module_id },status:AssignmentStatus.OPEN
+        module: { id: module_id },
+        status: AssignmentStatus.OPEN,
       },
-      relations: ["teacher", "module", "files"],
+      relations: [
+        "teacher",
+        "module",
+        "files",
+        "submissions",
+        "submissions.submissions",
+        "submissions.submissions.student",
+      ],
     });
-    if (!getAssignment) throw new Error("Assignment not found");
-    return getAssignment;
+    if (!assignments) throw new Error("Assignment not found");
+  
+    const processedAssignments = assignments.map(assignment => {
+      let submitted = false;
+      if (assignment.submissions) {
+        // Loop over each submitAssignmnet.
+        assignment.submissions.forEach((submission) => {
+          if (submission.submissions) {
+           // @ts-ignore
+            submission.submissions.forEach(studentSubmission => {
+              if (studentSubmission.student && studentSubmission.student.id === student_id) {
+                submitted = true;
+              }
+            });
+          }
+        });
+      }
+      return { ...assignment, isSubmitted: submitted };
+    });
+  
+    return processedAssignments;
   }
+  
 
   async updateAssignmentByStudent(
     student_id: string,
@@ -262,15 +295,20 @@ class AssignmentService {
     studentAssignmentFiles: any[],
     data: any
   ) {
+    console.log("🚀 ~ AssignmentService ~ student_id:", student_id)
+    console.log("🚀 ~ AssignmentService ~ SubmitAssignment_id:", SubmitAssignment_id)
     try {
       const student = await this.studentRepo.findOneBy({ id: student_id });
       if (!student) throw new Error("Student Not Found");
 
-      const assignment = await this.submitAssignmentRepo.findOneBy({ id: SubmitAssignment_id});
+      const assignment = await this.submitAssignmentRepo.findOne({where:{ id: SubmitAssignment_id}, relations:["assignment"]});
       if (!assignment) throw new Error("Assignment for submit not found");
-
+      console.log("🚀 ~ AssignmentService ~ assignment:", assignment)
+const assignment_id = assignment.assignment
+      console.log("🚀 ~ AssignmentService ~ assignment_id:", assignment_id)
       const findAssignment = await this.assignmentRepo.findOneBy({id:assignment.assignment.id})
       if(!findAssignment) throw new Error("Assignment not found")
+      console.log("🚀 ~ AssignmentService ~ findAssignment:", findAssignment)
       const submissionDate = new Date(data.dateTime);
       const dueDate = new Date(findAssignment.due_date);
       
