@@ -57,6 +57,18 @@ class ResourceService {
     });
   }
 
+  async getResourceByStudent( module_id: string) {
+
+    const module = await this.moduleRepo.findOneBy({ id: module_id });
+    if (!module) throw new Error("Module Not Found");
+
+    return await this.resourceRepo.find({
+      where: {module: { id: module_id } },
+      relations: ["module", "section"],
+      order: {createdAt: "DESC"}
+    });
+  }
+
   async deleteResource(teacher_id: string, resource_id) {
     const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
     if (!teacher) throw new Error("Teacher Not Found");

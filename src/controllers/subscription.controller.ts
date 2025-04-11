@@ -1,90 +1,108 @@
+import { Request, Response } from "express";
+import axios from "axios";
+
 import webTokenUtils from "../utils/webToken.utils";
 import StudentService from "../services/student.service";
-import { StatusCodes } from "../constant/StatusCode";
-import { Request, Response } from "express";
 import SubscriptionService from "../services/subscription.service";
-
+import { StatusCodes } from "../constant/StatusCode";
 
 const subscriptionService = new SubscriptionService();
 
 export class SubscriptionController {
-  async addSunscription(req: Request, res: Response) {
+  // Add general subscription
+  async addSubscription(req: Request, res: Response) {
     try {
       const data = await subscriptionService.addSubscription(req.body);
-      console.log("🚀 ~ SubscriptionController ~ addSunscription ~ data:", data)
-     
+      console.log("🚀 ~ SubscriptionController ~ addSubscription ~ data:", data);
+
       res.status(StatusCodes.SUCCESS).json({
-              data: {
-               data,
-                message: "subscription added successfully",
-              },
-            });
+        data,
+        message: "Subscription added successfully",
+      });
     } catch (error) {
-        console.log("🚀 ~ SubscriptionController ~ addSunscription ~ error:", error)
-        if (error instanceof Error) {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: error.message,
-          });
-        } else {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: "error while logging in",
-          });
-        }
-      }
+      console.error("🚀 ~ SubscriptionController ~ addSubscription ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while adding subscription",
+      });
+    }
   }
+
+  // Get all subscriptions
   async getSubscription(req: Request, res: Response) {
-    console.log('xiro??')
     try {
-      const data = await subscriptionService.getSubscription()
-     
+      const data = await subscriptionService.getSubscription();
       res.status(StatusCodes.SUCCESS).json({
-              data: {
-               data,
-                message: "subscription fetched successfully",
-              },
-            });
+        data,
+        message: "Subscriptions fetched successfully",
+      });
     } catch (error) {
-        console.log("🚀 ~ SubscriptionController ~ getSubscription ~ error:", error)
-        if (error instanceof Error) {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: error.message,
-          });
-        } else {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: "error while logging in",
-          });
-        }
-      }
+      console.error("🚀 ~ SubscriptionController ~ getSubscription ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while fetching subscriptions",
+      });
+    }
   }
+
+  // Add university-specific subscription
   async addUniSubscription(req: Request, res: Response) {
-    console.log('xiro??')
     try {
-      const data=req.body
-      const uni_id=req.user.id
-      console.log("🚀 ~ SubscriptionController ~ addUniSubscription ~ data:", data)
-      const saved = await subscriptionService.addUniSubscription(data,uni_id)
-     
-      res.status(StatusCodes.SUCCESS).json({
-              data: {
-               data,
-                message: "subscription fetched successfully",
-              },
-            });
+      const data = req.body;
+      const uni_id = req.user.id; // Ensure `req.user` is populated via auth middleware
+      console.log("🚀 ~ SubscriptionController ~ addUniSubscription ~ data:", data);
 
+      const saved = await subscriptionService.addUniSubscription(data, uni_id);
+
+      res.status(StatusCodes.SUCCESS).json({
+        data: saved,
+        message: "University subscription added successfully",
+      });
     } catch (error) {
-        console.log("🚀 ~ SubscriptionController ~ getSubscription ~ error:", error)
-        if (error instanceof Error) {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: error.message,
-          });
-        } else {
-          res.status(StatusCodes.BAD_REQUEST).json({
-            message: "error while logging in",
-          });
-        }
-      }
+      console.error("🚀 ~ SubscriptionController ~ addUniSubscription ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while adding university subscription",
+      });
+    }
   }
 
 
+  async initiatePayment(req: Request, res: Response) {
+    try {
+      const { orderId, amount } = req.body;
 
+      if (!orderId || !amount) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: "Please provide both orderId and amount",
+        });
+      }
+
+      const paymentPayload = {
+        return_url: "http://localhost:5173/university/paymentsuccess",
+        purchase_order_id: orderId,
+        purchase_order_name: "Take subscription",
+        amount: amount * 100, 
+        website_url: "http://localhost:5173/",
+      };
+
+      const response = await axios.post(
+        "https://a.khalti.com/api/v2/epayment/initiate/",
+        paymentPayload,
+        {
+          headers: {
+            Authorization: "key 3fb3d001f89c4fd7965e13ed9f96c6eb",
+          },
+        }
+      );
+
+      console.log("🚀 ~ initiatePayment ~ Khalti Response:", response.data);
+      return res.status(StatusCodes.SUCCESS).json(response.data);
+
+    } catch (error: any) {
+      console.error("🚀 ~ initiatePayment ~ error:", error);
+
+      return res.status(error?.response?.status || StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Failed to initiate payment",
+        error: error?.response?.data || error.message,
+      });
+    }
+  }
 }

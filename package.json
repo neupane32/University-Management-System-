@@ -15,6 +15,7 @@
     "@types/node": "^22.5.2",
     "@types/pg": "^8.11.8",
     "@types/reflect-metadata": "^0.1.0",
+    "axios": "^1.8.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "class-validator": "^0.14.1",

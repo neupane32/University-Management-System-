@@ -116,6 +116,25 @@ await Promise.all(
       }
     }
   }
+  async getSectionByProgramId(uni_id: string, progId:string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University not found");
+
+      const sections = await this.sectionRepo.find({
+        where: { university: { id: uni_id }, program:{id:progId} },
+      });
+      console.log("🚀 ~ SectionService ~ getSectionByProgramId ~ sections:", sections)
+
+      return sections;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("An unexpected error occurred while fetching modules");
+      }
+    }
+  }
 
   async updateSection(
     uni_id: string,

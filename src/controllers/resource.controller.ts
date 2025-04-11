@@ -50,6 +50,25 @@ export class ResourceController {
     }
   }
 
+  async getResourceByStudent(req:Request, res:Response){
+    try {
+      const module_id = req.params.id;
+
+      const data = await resourceService.getResourceByStudent(
+        module_id
+      )
+      res.status(StatusCodes.SUCCESS).json
+      ({
+        success: true,
+        data
+      }
+      );
+      
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
     async deleteResource(req: Request, res: Response) {
       try {
         const teacher_id = req.user?.id;

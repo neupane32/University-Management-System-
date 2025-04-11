@@ -27,6 +27,22 @@ export class RoutineController {
     res.json({ data: getRoutine });
   }
 
+  async getRoutineByTeacher(req: Request, res: Response) {
+    const teacher_id = req.user?.id;
+    console.log("🚀 ~ RoutineController ~ getRoutineByTeacher ~ teacher_id:", teacher_id)
+
+    const getRoutine = await routineService.getRoutineByTeacher(teacher_id);
+    res.json({ data: getRoutine });
+  }
+
+  async getRoutineByStudent(req: Request, res: Response) {
+    const student_id = req.user?.id;
+    console.log("🚀 ~ RoutineController ~ getRoutineByStudnet ~ student_id:", student_id)
+
+    const getRoutine = await routineService.getRoutineByStudent(student_id);
+    res.json({ data: getRoutine });
+  }
+
   async updateRoutine(req: Request, res: Response) {
     const uni_id = req.user?.id;
     const routine_id = req.params.id;

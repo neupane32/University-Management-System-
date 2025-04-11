@@ -6,7 +6,8 @@ export const authorization = (roles: Role[]) => {
     if (!req.user) throw new Error('You are not authorized');
     try {
       const userRole = req.user.role;
-      if (userRole && roles.includes(userRole as Role)) next();
+      if (userRole && roles.includes(userRole as Role))
+         next();
       else throw new Error('You are not authorized');
     } catch (error) {
       throw new Error('You are not authorized');

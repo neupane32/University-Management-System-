@@ -9,6 +9,7 @@ import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
 import { Module_Section } from "../../entities/ModuleSection/ModuleSection.entity";
+import { Attendance } from "../../entities/Attendance/attendance.entity";
 
 @Entity("section")
 export class Section extends Base {
@@ -55,4 +56,7 @@ teacher_Section: Teacher_Section[];
 
   @OneToMany(() => Module_Section, (moduleSection) => moduleSection.section, {cascade: true})
   moduleSection: Module_Section[];
+
+  @OneToMany(() => Attendance, (attendance) => attendance.section)
+attendances: Attendance[];
 }

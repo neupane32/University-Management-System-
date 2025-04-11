@@ -12,6 +12,7 @@ import {
 
 import { Section } from "../../entities/Section/section.entity";
 import { Student_Assignment } from "../../entities/Assignment/student_assignment.entity";
+import { Attendance } from "../../entities/Attendance/attendance.entity";
 
 @Entity("student")
 export class Student extends Base {
@@ -66,4 +67,7 @@ export class Student extends Base {
 
     @OneToMany(() => Student_Assignment, (submission) => submission.student, {onDelete: 'CASCADE'})
      submission: Student_Assignment;
+
+ @OneToMany(() => Attendance, (attendance) => attendance.student)
+attendances: Attendance[];
 }

@@ -45,27 +45,28 @@ async addSection(req: Request, res: Response) {
     }
 }
 
-// async getAllSection(req: Request, res: Response) {
-//   try {
-//     const uni_id = req.user?.id; 
-
-//     const data = await sectionService.getSections(
-//       uni_id as string
-//     );
-//     res.status(StatusCodes.SUCCESS).json({
-//       data,
-//     });
-//   } catch (error: any) {
-//     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-//   }
-// }
-
 async getuniversitySection(req: Request, res: Response) {
   try {
     const uni_id = req.user?.id; 
 
     const data = await sectionService.getUniversitySections(
       uni_id as string
+    );
+    res.status(StatusCodes.SUCCESS).json({
+      data,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+}
+async getSectionByProgramId(req: Request, res: Response) {
+  try {
+    const uni_id = req.user?.id; 
+const progId = req.params.id
+    console.log("🚀 ~ SectionController ~ getSectionByProgramId ~ progId:", progId)
+    const data = await sectionService.getSectionByProgramId(
+      uni_id as string,
+      progId
     );
     res.status(StatusCodes.SUCCESS).json({
       data,

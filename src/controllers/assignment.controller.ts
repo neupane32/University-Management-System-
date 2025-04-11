@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "../constant/StatusCode";
-import AssignmentService from "../services/Assignment.Service";
+import AssignmentService from "../services/assignment.Service"
 
 const assignmentService = new AssignmentService();
 
@@ -11,6 +11,7 @@ export class AssignmentController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       const uploadedFiles = files["teacher_assignment_file"];
+      console.log("🚀 ~ AssignmentController ~ addAssignment ~ uploadedFiles:", uploadedFiles)
 
       const file = uploadedFiles?.map((file, index) => {
         return {
@@ -147,12 +148,14 @@ export class AssignmentController {
   async getAssignmentByStudent(req: Request, res: Response) {
     try {
       const student_id = req.user?.id;
-      const module_id = req.params.id;
+      const moduleId = req.params.moduleId;
+      console.log("🚀 ~ AssignmentController ~ getAssignmentByStudent ~ module_id:", moduleId)
 
       const data = await assignmentService.getAssignmentByStudent(
         student_id,
-        module_id
+        moduleId
     );
+      console.log("🚀 ~ AssignmentController ~ getAssignmentByStudent ~ data:", data)
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error) {
       res.status(StatusCodes.BAD_REQUEST).json({ error });
@@ -164,6 +167,7 @@ export class AssignmentController {
     try {
       const student_id = req.user?.id;
       const assignmentId = req.params.id;
+      console.log("🚀 ~ AssignmentController ~ updateAssignmentByStudent ~ assignmentId:", assignmentId)
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       const uploadedFiles = files["student_assignment_file"];

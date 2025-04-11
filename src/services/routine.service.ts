@@ -6,12 +6,14 @@ import { Routine } from "../entities/Routine/routine.entity";
 import { Program } from "../entities/Programs/program.entity";
 import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
+import { Student } from "../entities/student/student.entity";
+import { Teacher } from "../entities/teacher/teacher.entity";
 
 class RoutineService {
     constructor (
         private readonly routineRepo = AppDataSource.getRepository(Routine),
-        private readonly programRepo = AppDataSource.getRepository(Program),
-        private readonly moduleRepo = AppDataSource.getRepository(Module),
+        private readonly teacherRepo = AppDataSource.getRepository(Teacher),
+        private readonly studentRepo = AppDataSource.getRepository(Student),
         private readonly uniRepo = AppDataSource.getRepository(University),
         private readonly teacherSection = AppDataSource.getRepository(Teacher_Section),
         private readonly teacherModule = AppDataSource.getRepository(Teacher_Module),
@@ -74,16 +76,71 @@ class RoutineService {
 
         const getRoutines = await this.routineRepo.createQueryBuilder("routine")
         .leftJoinAndSelect("routine.section", "section")
-        .leftJoinAndSelect("section.program", "program") // Add this line
+        .leftJoinAndSelect("section.program", "program")
         .leftJoinAndSelect("routine.teacher", "teacher")
         .leftJoinAndSelect("routine.module", "module")
         .where("section.id = :section_id", { section_id })
         .getMany();
 
         
-                return getRoutines;
+        return getRoutines;
     }
 
+    async getRoutineByStudent(student_id: string) {
+    
+      const student = await this.studentRepo.findOne({
+        where: { id: student_id },
+        relations: ['section'],
+      });
+      
+      if (!student) {
+        throw new Error("Student not found");
+      }
+
+      if (!student.section) {
+        throw new Error("Student section not found");
+      }
+      
+      const section_id = student.section.id;
+  
+      const routines = await this.routineRepo.createQueryBuilder("routine")
+        .leftJoinAndSelect("routine.section", "section")
+        .leftJoinAndSelect("section.program", "program")
+        .leftJoinAndSelect("routine.teacher", "teacher")
+        .leftJoinAndSelect("routine.module", "module")
+        .where("section.id = :section_id", { section_id })
+        .getMany();
+    
+      return routines;
+    }
+    
+
+  async getRoutineByTeacher(teacher_id: string){
+
+    const teacher = await this.teacherRepo.findOne({
+      where: { id: teacher_id},
+      relations: ['section'],
+    });
+    if (!teacher) {
+      throw new Error("Teacher not found");
+    }
+
+    if (!teacher.teacher_section) {
+      throw new Error("Student section not found");
+    }
+    
+    const section_id = teacher.teacher_section.id;
+
+    const getRoutines = await this.routineRepo.createQueryBuilder("routine")
+    .leftJoinAndSelect("routine.section", "section")
+    .leftJoinAndSelect("section.program", "program")
+    .leftJoinAndSelect("routine.teacher", "teacher")
+    .leftJoinAndSelect("routine.module", "module")
+    .where("section.id = :section_id", { section_id })
+    .getMany();
+    
+    return getRoutines;
+}
     async updateRoutine(uni_id: string, routine_id: string, data: any){
         const uni = await this.uniRepo.findOneBy({ id: uni_id });
         if (!uni) throw new Error("University Not found");

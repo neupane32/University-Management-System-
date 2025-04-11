@@ -45,6 +45,7 @@ router.patch('/uni/update-modules/:id', catchAsync(universityController.updateMo
 router.get('/uni/find-modules', catchAsync(universityController.findModule)); 
 router.get('/uni/find-modules-by-id/:id', catchAsync(universityController.findModuleByProgram)); 
 router.get('/uni/find-modules-by-section/:id', catchAsync(universityController.findModuleBySection)); 
+// router.get('uni/find-moudules-by-teacher',catchAsync(universityController.findModuleByTeacher));
 router.get('/uni/find-modules-by-duration/:id/:duration', catchAsync(universityController.findModuleByDuration)); 
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 

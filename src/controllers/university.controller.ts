@@ -286,6 +286,7 @@ if(!uniID && uniID===uni_id){
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
   async findModuleByDuration(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;

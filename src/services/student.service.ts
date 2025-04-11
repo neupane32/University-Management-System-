@@ -129,6 +129,45 @@ class StudentService {
       throw new Error(error.message || "Failed to submit assignment");
     }
   }
+  async studentProfile(student_id: string) {
+    console.log("🚀 ~ UniversityService ~ uniProfile ~ uni_id:", student_id);
+    try {
+      const student = await this.studentRepo.findOneBy({ id: student_id });
+      if (!student) throw new Error("student Not found");
+
+      console.log("🚀 ~ UniversityService ~ uniProfile ~ uniProfile:", student);
+      return student;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid credentials");
+      }
+    }
+  }
+  async getStudentModules(student_id:string){
+  
+  
+    const student = await this.studentRepo.findOne({
+      where: { id: student_id },
+      relations: [
+        'section',
+        'section.moduleSection',
+        'section.moduleSection.module',
+      ],
+    });
+  
+    if (!student || !student.section) {
+      return []; 
+    }
+  
+  
+    const modules = student.section.moduleSection.map(
+      (moduleSection) => moduleSection.module
+    );
+  
+    return modules;
+  }
 
   // async getApproveRoutine(student_id: string){
   //   try {

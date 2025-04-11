@@ -2,6 +2,7 @@ import webTokenUtils from "../utils/webToken.utils";
 import StudentService from "../services/student.service";
 import { StatusCodes } from "../constant/StatusCode";
 import { Request, Response } from "express";
+import TeacherService from "../services/teacher.service";
 
 
 const studentService = new StudentService();
@@ -66,6 +67,33 @@ export class StudentController {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+    async studentProfile(req: Request, res: Response) {
+      try {
+        const student_id = req.user?.id;
+        console.log("🚀 ~ UniversityController ~ uniProfile ~ uni_id:", student_id)
+        const data = await studentService.studentProfile(
+          student_id as string,
+        );
+        res.status(StatusCodes.SUCCESS).json({
+          data: data,
+        });
+      } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      }
+    }
+async getStudentModules(req:Request,res:Response){
+  try{
+    const student_id = req.user?.id
+const data = await studentService.getStudentModules(student_id);
+console.log("🚀 ~ StudentController ~ getStudentModules ~ data:", data)
+res.status(StatusCodes.SUCCESS).json({
+  data: data,
+});
+  }catch(error){
+  console.log("🚀 ~ StudentController ~ getStudentModules ~ error:", error)
+
+  }
+}
 
   
 
