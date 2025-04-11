@@ -6,10 +6,14 @@ import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { AssignmentController } from "../controllers/assignment.controller";
 import { studentAssignmentFileUpload } from "../middleware/multer.middleware";
+import { ResourceController } from "../controllers/resource.controller";
+import { RoutineController } from "../controllers/routine.controller";
 
 const router: Router = Router();
 const studentController = new StudentController;
 const assignmentController = new AssignmentController;
+const resourceController = new ResourceController();
+const routineController = new RoutineController();
 
 router.post('/login', catchAsync(studentController.loginStudent));
 router.use(authentication())
@@ -20,6 +24,10 @@ router.post('/submit-assignments/:id',studentAssignmentFileUpload.fields([{name:
 router.get('/get-assignmentsByStudent/:moduleId', catchAsync(assignmentController.getAssignmentByStudent));
 router.patch('/update-assignment/:id', studentAssignmentFileUpload.fields([{name:'student_assignment_file'}]), catchAsync(assignmentController.updateAssignmentByStudent));
 router.delete('/delete-assignment-file/:id/:fileId', catchAsync(assignmentController.deleteAssignmentFileByStudent));
+
+router.get('/get-module-by-student/:id', catchAsync(resourceController.getResourceByStudent));
+ router.get('/get-routine-by-student', catchAsync(routineController.getRoutineByStudent));
+
 
 // router.get('/find-sutdents', catchAsync(studentController.getStudent));
 router.get('/student-profile',catchAsync(studentController.studentProfile));

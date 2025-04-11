@@ -13,12 +13,13 @@ const subscriptionController = new SubscriptionController;
 
 
 
-router.post('/add-subscription', catchAsync(subscriptionController.addSunscription));
+router.post('/add-subscription', catchAsync(subscriptionController.addSubscription));
 router.get('/get-subscription', catchAsync(subscriptionController.getSubscription));
 
 router.use(authentication())
 router.use(authorization([Role.UNIVERSITY]));
 router.post('/success', catchAsync(subscriptionController.addUniSubscription));
+router.post('/Khalti-subscription', catchAsync(subscriptionController.initiatePayment));
 
 
 export default router;
