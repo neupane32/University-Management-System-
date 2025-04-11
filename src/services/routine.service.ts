@@ -30,8 +30,7 @@ class RoutineService {
         relations: ["teacher"]
       });
       console.log("🚀 ~ RoutineService ~ createRoutine ~ sectionTeachers:", sectionTeachers)
-    
-      // Get teachers assigned to the module
+  
       const moduleTeachers = await this.teacherModule.find({
         where: { module: { id: data.module_id } },
         relations: ["teacher"]
@@ -45,8 +44,6 @@ class RoutineService {
     console.log("🚀 ~ RoutineService ~ createRoutine ~ commonTeachers:", commonTeachers)
     const primaryTeacher = commonTeachers[0].teacher;
       console.log("🚀 ~ RoutineService ~ createRoutine ~ primaryTeacher:", primaryTeacher)
-      // Verify selected teacher is in both groups
-   
     
         const routine =  this.routineRepo.create({
             startTime: data.startTime,
@@ -113,34 +110,20 @@ class RoutineService {
     
       return routines;
     }
+
+    async getRoutineByTeacher(teacher_id: string) {
     
-
-  async getRoutineByTeacher(teacher_id: string){
-
-    const teacher = await this.teacherRepo.findOne({
-      where: { id: teacher_id},
-      relations: ['section'],
-    });
-    if (!teacher) {
-      throw new Error("Teacher not found");
-    }
-
-    if (!teacher.teacher_section) {
-      throw new Error("Student section not found");
-    }
-    
-    const section_id = teacher.teacher_section.id;
-
-    const getRoutines = await this.routineRepo.createQueryBuilder("routine")
-    .leftJoinAndSelect("routine.section", "section")
-    .leftJoinAndSelect("section.program", "program")
-    .leftJoinAndSelect("routine.teacher", "teacher")
-    .leftJoinAndSelect("routine.module", "module")
-    .where("section.id = :section_id", { section_id })
-    .getMany();
-    
+      const getRoutines = await this.routineRepo
+      .createQueryBuilder("routine")
+      .leftJoinAndSelect("routine.section", "section")
+      .leftJoinAndSelect("section.program", "program")
+      .leftJoinAndSelect("routine.teacher", "teacher")
+      .leftJoinAndSelect("routine.module", "module")
+      .where("routine.teacher_id = :teacherId", { teacherId: teacher_id })
+      .getMany();
     return getRoutines;
-}
+    }
+    
     async updateRoutine(uni_id: string, routine_id: string, data: any){
         const uni = await this.uniRepo.findOneBy({ id: uni_id });
         if (!uni) throw new Error("University Not found");

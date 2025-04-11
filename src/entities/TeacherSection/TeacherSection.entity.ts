@@ -5,6 +5,9 @@ import { Section } from "../../entities/Section/section.entity";
 
 @Entity('teacher_section')
 export class Teacher_Section extends Base {
+  map(arg0: (ts: any) => any) {
+    throw new Error("Method not implemented.");
+  }
  
 
   @ManyToOne(() => Section, (section) => section.teacher_Section, { onDelete: 'CASCADE' })
