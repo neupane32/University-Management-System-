@@ -1,13 +1,15 @@
 import { University } from "../entities/university/university.entity";
 import { AppDataSource } from "../config/database.config";
-import { Module } from "../entities/module/module.entity";
-import { RoutineInterface } from "../interface/routine.interface";
 import { Routine } from "../entities/Routine/routine.entity";
-import { Program } from "../entities/Programs/program.entity";
 import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
 import { Student } from "../entities/student/student.entity";
 import { Teacher } from "../entities/teacher/teacher.entity";
+import { Notification } from "../entities/notification/notification.entity";
+import { NotificationType } from "../constant/enum";
+import { getSocketIdByUserId} from "../socket/socket";
+import { io } from "../socket/socket";
+import HttpException from "../utils/HttpException.utils";
 
 class RoutineService {
     constructor (
@@ -17,52 +19,116 @@ class RoutineService {
         private readonly uniRepo = AppDataSource.getRepository(University),
         private readonly teacherSection = AppDataSource.getRepository(Teacher_Section),
         private readonly teacherModule = AppDataSource.getRepository(Teacher_Module),
+        private readonly notificationRepo = AppDataSource.getRepository(Notification),
+
     ) {
 
     }
-    async createRoutine ( uni_id: string, data: any){
-    console.log("🚀 ~ RoutineService ~ createRoutine ~ data:", data)
-
-      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+    async createRoutine(uni_id: string, data: any) {
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ data:", data);
+    
+     try{ const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
+  
       const sectionTeachers = await this.teacherSection.find({
         where: { section: { id: data.section_id } },
-        relations: ["teacher"]
+        relations: ["teacher"],
       });
-      console.log("🚀 ~ RoutineService ~ createRoutine ~ sectionTeachers:", sectionTeachers)
-  
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ sectionTeachers:", sectionTeachers);
+    
       const moduleTeachers = await this.teacherModule.find({
         where: { module: { id: data.module_id } },
-        relations: ["teacher"]
+        relations: ["teacher"],
       });
-      console.log("🚀 ~ RoutineService ~ createRoutine ~ moduleTeachers:", moduleTeachers)
-    const commonTeachers = sectionTeachers.filter(sectionTeacher => 
-        moduleTeachers.some(moduleTeacher => 
-          moduleTeacher.teacher.id === sectionTeacher.teacher.id
-        )
-      );
-    console.log("🚀 ~ RoutineService ~ createRoutine ~ commonTeachers:", commonTeachers)
-    const primaryTeacher = commonTeachers[0].teacher;
-      console.log("🚀 ~ RoutineService ~ createRoutine ~ primaryTeacher:", primaryTeacher)
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ moduleTeachers:", moduleTeachers);
     
-        const routine =  this.routineRepo.create({
-            startTime: data.startTime,
-            endTime: data.endTime,
-            day: data.day,
-            university: uni,
-            section:{
-                id:data.section_id
-            },
-            module:{id:data.module_id},
-            teacher:primaryTeacher
-            
+      const commonTeachers = sectionTeachers.filter((sectionTeacher) =>
+        moduleTeachers.some((moduleTeacher) => moduleTeacher.teacher.id === sectionTeacher.teacher.id)
+      );
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ commonTeachers:", commonTeachers);
+    
+      const primaryTeacher = commonTeachers[0].teacher;
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ primaryTeacher:", primaryTeacher);
+    
+      const routine = this.routineRepo.create({
+        startTime: data.startTime,
+        endTime: data.endTime,
+        day: data.day,
+        university: uni,
+        section: { id: data.section_id },
+        module: { id: data.module_id },
+        teacher: primaryTeacher,
+      });
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ routine:", routine);
+      const savedRoutine = await this.routineRepo.save(routine);
+      console.log("🚀 ~ RoutineService ~ createRoutine ~ saved:", savedRoutine);
+    
+      const teacherNotifications = sectionTeachers.map((st) =>
+        this.notificationRepo.create({
+          message: `New routine scheduled on ${data.day} from ${data.startTime} to ${data.endTime} for module ${data.module_id}.`,
+          type: NotificationType.ROUTINE,
+          university: uni,
+          teacher: st.teacher,
+          routine: savedRoutine,
         })
-        console.log("🚀 ~ RoutineService ~ createRoutine ~ routine:", routine)
-       const saved= await this.routineRepo.save(routine);
-       console.log("🚀 ~ RoutineService ~ createRoutine ~ saved:", saved)
+      );
+  
+      const students = await this.studentRepo.find({
+        where: {
+          section: { id: data.section_id },
+        },
+      });
+      
+      const studentNotifications = students.map((student) =>
+        this.notificationRepo.create({
+          message: `New routine scheduled on ${data.day} from ${data.startTime} to ${data.endTime} for module ${data.module_id}.`,
+          type: NotificationType.ROUTINE,
+          university: uni,
+          student: student,
+          routine: savedRoutine,
+        })
+      );
 
-        return saved;
+      const notificationToSave = [...teacherNotifications, ...studentNotifications];
+      const savedNotifications = await this.notificationRepo.save(notificationToSave);
+  
+      //After saying, iterate over saved notifications and emit thorugh the socket
+      savedNotifications.forEach(async (notification) => {
+        const detailedNotification = await this.notificationRepo.findOne({
+          where: { id: notification.id },
+          relations: ["teacher", "student", "routine","university"],
+        });
+        console.log("🚀 ~ RoutineService ~ savedNotifications.forEach ~ detailedNotification:", detailedNotification)
+
+        //determine whether this is teacher or student
+        if(notification.teacher) {
+          const socket_id = await getSocketIdByUserId(notification.teacher.id);
+          console.log("🚀 ~ RoutineService ~ savedNotifications.forEach ~ socket_id:", socket_id)
+          if(socket_id && detailedNotification) {
+            io.to(socket_id).emit("new-routine", {
+              notification: detailedNotification,
+            });
+          }
+        } else if(notification.student) {
+          const socket_id = await getSocketIdByUserId(notification.student.id);
+          console.log("🚀 ~ RoutineService ~ savedNotifications.forEach ~ socket_id:", socket_id)
+          if(socket_id && detailedNotification) {
+            io.to(socket_id).emit("new-routine", {
+              notification: detailedNotification,
+            });
+          }
+        }
+      })
+    
+      return savedRoutine;
+    }  catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("Invalid data");
+      }
     }
+  }
 
     async getRoutine(uni_id: string, section_id: string){
 

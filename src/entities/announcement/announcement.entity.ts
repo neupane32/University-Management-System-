@@ -1,8 +1,9 @@
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Module } from "../../entities/module/module.entity";
 import { University } from "../../entities/university/university.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 
 @Entity('Announcement')
@@ -28,4 +29,9 @@ export class Announcement extends Base {
     @ManyToOne(() => Module, (module) => module.announce, {onDelete: 'CASCADE'})
     @JoinColumn({name: 'module_id'})
     module: Module;
+
+     @OneToMany(() => Notification, (notification) => notification.announcement, {
+        onDelete: "CASCADE",
+      })
+      notification: Notification[];
 }

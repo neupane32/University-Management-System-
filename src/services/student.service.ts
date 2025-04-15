@@ -6,8 +6,8 @@ import HttpException from "../utils/HttpException.utils";
 import BcryptService from "../utils/bcrypt.utils";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { Assignment } from "../entities/Assignment/assignment.entity";
-// import { ExamRoutine } from "../entities/examRoutine/examRoutine.entity";
 import { submitAssignmnet } from "../entities/Assignment/submitAssignment.entity";
+import { Notification } from "../entities/notification/notification.entity";
 
 const bcryptService = new BcryptService();
 class StudentService {
@@ -19,7 +19,7 @@ class StudentService {
     private readonly submissionRepo = AppDataSource.getRepository(
       submitAssignmnet
     ),
-    // private readonly routineRepo = AppDataSource.getRepository(ExamRoutine)
+     private readonly notificationRepo = AppDataSource.getRepository(Notification)
   ) {}
 
   async loginStudent(data: StudentInterface): Promise<Student> {
@@ -169,17 +169,36 @@ class StudentService {
     return modules;
   }
 
-  // async getApproveRoutine(student_id: string){
-  //   try {
-  //     const routines = await this.routineRepo.find({
-  //       where: {student: {id: student_id}},
-  //       relations: ["module", "approved_by"],
-  //     });
-  //   } catch (error) {
-  //     throw new Error(error.message || "Failed to get routine");
-  //   }
+  async getStudentNotifications(student_id: string){
+    try {
+      const student = await this.studentRepo.findOneBy({id: student_id})
+      if (!student) throw new Error ("Student not found ");
+  
+      const getNotification = await this.notificationRepo.find({
+        where: {student: {id: student_id }},
+        relations: ["announcement", "resource", "assignment", "routine"],
+      });
+      return getNotification;
+    }
+      catch (error) {
+      console.log("🚀 ~ getTeacherNotifications ~ error:", error)
+      
+    }
+}
 
-  // }
+async markAsRead(notificationId:string){
+  const getNotification=await this.notificationRepo.findOne({
+    where:{
+      id:notificationId
+    }
+  })
+  const update= await this.notificationRepo.update({
+    id:getNotification.id
+  },{
+    isRead:true
+  })
+  return update
+  }
 
 
 }

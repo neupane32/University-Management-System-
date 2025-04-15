@@ -19,4 +19,7 @@ router.patch('/update-assignment/:id', teacherAssignmentFileUpload.fields([{name
 router.delete('/delete-assignment-file/:id/:fileId', catchAsync(assignmentController.deleteAssignmentFile));
 router.delete('/delete-assignment/:id', catchAsync(assignmentController.deleteAssignment));
 
+router.get('/get-submitted-assignment/:assigment_id',catchAsync(assignmentController.getSubmittedAssigment))
+
+
 export default router;

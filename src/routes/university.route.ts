@@ -12,9 +12,10 @@ const universityController = new UniversityController();
 // University Auth Routes
 router.post('/uni-signup',universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.createUniversity));
 router.post('/uni-login', catchAsync(universityController.loginUniversity));
-router.patch('/update-profile/:id', universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.updateProfile));
-
 router.use(authentication());
+router.patch('/update-profile/', universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.updateProfile));
+
+
 router.use(authorization([Role.UNIVERSITY]))
 
 router.post('/payment-success', catchAsync(universityController.uniProfile));
@@ -66,5 +67,12 @@ router.delete('/delete-student/:id', catchAsync(universityController.deleteStude
 // assign teacher to a section
 router.post('/uni/add-teacher-to-section', catchAsync(universityController.addTeacherBySection));
 
+//getTotalStudent and teacher
+router.get('/get-total-teacher', catchAsync(universityController.getTotalTeacher));
+router.get('/get-total-student', catchAsync(universityController.getTotalStudent));
+router.get('/get-total-program', catchAsync(universityController.getTotalProgram));
 
+router.get('/teacher_student-ratio-by-program', catchAsync(universityController.getTeacherStudentRatioByProgram));
+router.get('/get-teacher-class', catchAsync(universityController.getTeacherClassesBySectionForCurrentDate));
+router.get('/get-today-announcement', catchAsync(universityController.getTodayAnnouncement));
 export default router;

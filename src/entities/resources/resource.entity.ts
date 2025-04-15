@@ -1,13 +1,9 @@
 import { Module } from "../../entities/module/module.entity";
-import { MediaType } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import path from "path";
-import fs from 'fs';
-import { getTempFolderPath, getUploadFolderpath } from "../../utils/path.utils";
-import { DotenvConfig } from "../../config/env.config";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Section } from "../../entities/Section/section.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 
 @Entity('resource')
@@ -31,5 +27,10 @@ section: Section;
 @ManyToOne(() => Teacher, (teacher) => teacher.resources, { onDelete: 'CASCADE' })
 @JoinColumn({ name: 'teacher_id' })
 teacher: Teacher
+
+  @OneToMany(() => Notification, (notification) => notification.resource, {
+    onDelete: "CASCADE",
+  })
+  notification: Notification[];
 
 }

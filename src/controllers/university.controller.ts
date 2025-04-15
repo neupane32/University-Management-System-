@@ -12,38 +12,49 @@ import HttpException from "../utils/HttpException.utils";
 
 export class UniversityController {
   async createUniversity(req: Request, res: Response) {
-
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const baseUrl =`${req.protocol}://${req.get('host')}`;
-    if(!files){
-      throw  HttpException.notFound('profile not found.')
+    const files = req.files as
+      | { [fieldname: string]: Express.Multer.File[] }
+      | undefined;
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    if (!files) {
+      throw HttpException.notFound("profile not found.");
     }
-    console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
-    const universityProfileImage = files?.['university_profile_image']
-    ?` ${baseUrl}/${files['university_profile_image'][0].path.replace(/\\/g, '/')}` // Replace backslashes for Windows
-       : null;
-       console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
-       console.log("🚀 ~ UniversityController ~ createUniversity ~ universityProfileImage:", universityProfileImage)
+    console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files);
+    const universityProfileImage = files?.["university_profile_image"]
+      ? ` ${baseUrl}/${files["university_profile_image"][0].path.replace(/\\/g, "/")}` // Replace backslashes for Windows
+      : null;
+    console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files);
+    console.log(
+      "🚀 ~ UniversityController ~ createUniversity ~ universityProfileImage:",
+      universityProfileImage
+    );
 
     try {
-      console.log("🚀 ~ UniversityController ~ createUniversity ~ req.body:", req.body)
+      console.log(
+        "🚀 ~ UniversityController ~ createUniversity ~ req.body:",
+        req.body
+      );
 
-     const data= await universityService.createUniversity(req.body as UniversityInterface,universityProfileImage);
+      const data = await universityService.createUniversity(
+        req.body as UniversityInterface,
+        universityProfileImage
+      );
       const token = webTokenUtils.generateTokens(
         {
           id: data.id,
         },
         data.role
       );
-      res.status(StatusCodes.CREATED).json
-      ({ data: {
-        id: data.id,
-        email: data.email,
-        tokens: {
-          accessToken: token.accessToken,
+      res.status(StatusCodes.CREATED).json({
+        data: {
+          id: data.id,
+          email: data.email,
+          tokens: {
+            accessToken: token.accessToken,
+          },
+          message: "university registration Successfully",
         },
-        message: "university registration Successfully",
-      }, });
+      });
     } catch (error) {
       if (error instanceof Error) {
         res.status(StatusCodes.BAD_REQUEST).json({
@@ -85,10 +96,8 @@ export class UniversityController {
   async uniProfile(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      console.log("🚀 ~ UniversityController ~ uniProfile ~ uni_id:", uni_id)
-      const data = await universityService.uniProfile(
-        uni_id as string,
-      );
+      console.log("🚀 ~ UniversityController ~ uniProfile ~ uni_id:", uni_id);
+      const data = await universityService.uniProfile(uni_id as string);
       res.status(StatusCodes.SUCCESS).json({
         data: data,
       });
@@ -97,42 +106,29 @@ export class UniversityController {
     }
   }
 
-
-
-
-
   async updateProfile(req: Request, res: Response) {
-console.log('ya saman aaipugo??')
-const uni_id = req.params.id
-
-const uniID=req.user.id;
-
-
-if(!uniID && uniID===uni_id){
-  res.status(StatusCodes.UNAUTHORIZED).json({message:"you are not the Profile owner."})
-}
-
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const baseUrl =` ${req.protocol}://${req.get('host')}`;
-    const universityProfileImage = files?.['university_profile_image']
-    ?` ${baseUrl}/${files['university_profile_image'][0].path.replace(/\\/g, '/')}` // Replace backslashes for Windows
-       : null;
-       console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files)
-       console.log("🚀 ~ UniversityController ~ createUniversity ~ universityProfileImage:", universityProfileImage)
-
     try {
-      // const uni_id = req.user?.id;
+      const uni_id = req.user?.id;
+      console.log("🚀 ~ UniversityController ~ updateProfile ~ uni_id:", uni_id)
+      const files = req.files as
+        | { [fieldname: string]: Express.Multer.File[] }
+        | undefined;
+      const baseUrl = ` ${req.protocol}://${req.get("host")}`;
+      const universityProfileImage = files?.["university_profile_image"]
+        ? ` ${baseUrl}/${files["university_profile_image"][0].path.replace(/\\/g, "/")}`
+        : null;
 
-      const data= await universityService.updateProfile(
+      const data = await universityService.updateProfile(
         uni_id as string,
         req.body as UniversityInterface,
         universityProfileImage
       );
       res.status(StatusCodes.SUCCESS).json({
-        message:"successfully updated",
-        data
+        message: "successfully updated",
+        data,
       });
     } catch (error: any) {
+      console.log("🚀 ~ UniversityController ~ updateProfile ~ error:", error)
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
@@ -239,11 +235,9 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
-      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id);
 
-      const data = await universityService.findModules(
-        uni_id as string,
-      );
+      const data = await universityService.findModules(uni_id as string);
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -255,7 +249,7 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
-      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id);
 
       const data = await universityService.findModulesByProgram(
         uni_id as string,
@@ -272,13 +266,19 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const section_id = req.params.id;
-      console.log("🚀 ~ UniversityController ~ findModule ~ section_id:", section_id)
+      console.log(
+        "🚀 ~ UniversityController ~ findModule ~ section_id:",
+        section_id
+      );
 
       const data = await universityService.findModulesBySection(
         uni_id as string,
         section_id
       );
-      console.log("🚀 ~ UniversityController ~ findModuleBySection ~ data:", data)
+      console.log(
+        "🚀 ~ UniversityController ~ findModuleBySection ~ data:",
+        data
+      );
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -291,9 +291,9 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const prog_id = req.params.id;
-      const duration = req.params.duration
+      const duration = req.params.duration;
 
-      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id)
+      console.log("🚀 ~ UniversityController ~ findModule ~ prog_id:", prog_id);
 
       const data = await universityService.getModuleByDuration(
         uni_id as string,
@@ -327,7 +327,7 @@ if(!uniID && uniID===uni_id){
 
   async addTeacher(req: Request, res: Response) {
     try {
-      const {modules,sections} = req.body;
+      const { modules, sections } = req.body;
       const uni_id = req.user?.id;
       const data = await universityService.addTeacher(
         uni_id as string,
@@ -343,14 +343,15 @@ if(!uniID && uniID===uni_id){
     }
   }
 
-  async addTeacherBySection(req: Request, res:Response){
+  async addTeacherBySection(req: Request, res: Response) {
     try {
       const data = req.body;
-      console.log("🚀 ~ UniversityController ~ addTeacherBySection ~ data:", data)
-
-      const save = await universityService.addTeacherBySection(
+      console.log(
+        "🚀 ~ UniversityController ~ addTeacherBySection ~ data:",
         data
       );
+
+      const save = await universityService.addTeacherBySection(data);
       res.status(StatusCodes.SUCCESS).json({
         save,
       });
@@ -363,8 +364,8 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
-      const {modules} = req.body;
-      const {sections} = req.body;
+      const { modules } = req.body;
+      const { sections } = req.body;
       console.log(
         "🚀 ~ UniversityController ~ updateTeacher ~ teacher_id:",
         teacher_id
@@ -398,8 +399,11 @@ if(!uniID && uniID===uni_id){
   async getTeacherByModule(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const module_id = req.params.id
-      const data = await universityService.getTeachersByModule(uni_id as string, module_id);
+      const module_id = req.params.id;
+      const data = await universityService.getTeachersByModule(
+        uni_id as string,
+        module_id
+      );
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -429,8 +433,8 @@ if(!uniID && uniID===uni_id){
     try {
       const uni_id = req.user?.id;
       const teacher_id = req.params.id;
-      const {modules} = req.body;
-      const {section} = req.body
+      const { modules } = req.body;
+      const { section } = req.body;
 
       const data = await universityService.deleteTeacher(
         uni_id as string,
@@ -449,13 +453,10 @@ if(!uniID && uniID===uni_id){
   async addStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
-      const body=req.body;
-      console.log("🚀 ~ UniversityController ~ addStudent ~ body:", body)
+      const body = req.body;
+      console.log("🚀 ~ UniversityController ~ addStudent ~ body:", body);
 
-      const data = await universityService.addStudent(
-        uni_id as string,
-        body
-      );
+      const data = await universityService.addStudent(uni_id as string, body);
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -563,6 +564,80 @@ if(!uniID && uniID===uni_id){
         uni_id as string,
         announcement_id
       );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTotalStudent(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTotalStudent(uni_id as string);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTotalTeacher(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTotalTeacher(uni_id as string);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTotalProgram(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTotalProgram(uni_id as string);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTeacherStudentRatioByProgram(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTeacherStudentRatioByProgram(
+        uni_id as string
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTeacherClassesBySectionForCurrentDate(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTeacherClassesBySectionForCurrentDate(uni_id as string)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
+  async getTodayAnnouncement(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getTodayAnnouncements(uni_id as string)
       res.status(StatusCodes.SUCCESS).json({
         data,
       });

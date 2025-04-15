@@ -3,7 +3,6 @@ import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
 import { Column, Entity, OneToMany } from "typeorm";
 import { Teacher } from "../../entities/teacher/teacher.entity";
-import { Resource } from "../../entities/resources/resource.entity";
 import { Student } from "../../entities/student/student.entity";
 import { Routine } from "../../entities/Routine/routine.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
@@ -14,7 +13,7 @@ import { UniversitySubscription } from "../../entities/UniSubscription/unisubscr
 @Entity('University')
 export class University extends Base {
 
-    @Column({nullable: true})
+    @Column()
     profileImagePath: string
 
     @Column({
@@ -36,16 +35,6 @@ export class University extends Base {
         default: Role.UNIVERSITY,
     })
     role: Role;
-
-    @Column({ name: 'verified', default: false })
-    Verified: boolean;
-  
-  
-    @Column({ name: 'otp', nullable: true })
-    otp: string;
-  
-    @Column({ name: 'payment_verified', default: false, nullable: true })
-    payment_verified: boolean;
     
 
     @OneToMany(() => Program, (Program) => Program.university, {cascade: true})

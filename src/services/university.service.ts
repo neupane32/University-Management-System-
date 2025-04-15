@@ -9,16 +9,17 @@ import { ModuleInterface } from "../interface/module.interface";
 import { Module } from "../entities/module/module.entity";
 import { TeacherInterface } from "../interface/teacher.interface";
 import { Teacher } from "../entities/teacher/teacher.entity";
-import { Resource } from "../entities/resources/resource.entity";
-import { StudentInterface } from "../interface/student.interface";
 import { Student } from "../entities/student/student.entity";
-import { DurationType, Gender } from "../constant/enum";
+import { DurationType, Gender, NotificationType } from "../constant/enum";
 import { Announcement } from "../entities/announcement/announcement.entity";
 import { AnnouncementInterface } from "../interface/announcement.interface";
 import { Section } from "../entities/Section/section.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
 import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
-
+import { Notification } from "../entities/notification/notification.entity";
+import {io,getSocketIdByUserId, initializeSocket} from "../socket/socket"
+import { Between } from "typeorm";
+import { Routine } from "../entities/Routine/routine.entity";
 const bcryptservice = new BcryptService();
 
 class UniversityService {
@@ -28,6 +29,10 @@ class UniversityService {
     private readonly modRepo = AppDataSource.getRepository(Module),
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly studentRepo = AppDataSource.getRepository(Student),
+    private readonly notificationRepo = AppDataSource.getRepository(Notification),
+    private readonly routineRepo = AppDataSource.getRepository(Routine),
+    private readonly announcementRepo = AppDataSource.getRepository(Announcement),
+
     private readonly AnnouncementRepo = AppDataSource.getRepository(
       Announcement
     ),
@@ -110,7 +115,7 @@ class UniversityService {
 
   async updateProfile(
     uni_id: string,
-    data: UniversityInterface,
+    data: any,
     universityProfileImage: string
   ) {
     console.log("🚀 ~ UniversityService ~ updateProfile ~ uni_id:", uni_id);
@@ -130,7 +135,7 @@ class UniversityService {
         },
         {
           email: data.email,
-          universityName: data.university_name,
+          universityName: data.universityName,
           profileImagePath: universityProfileImage,
         }
       );
@@ -183,7 +188,7 @@ class UniversityService {
 
   async updateProgam(
     uni_id: string,
-    program_id: string,
+    program_id: string, 
     data: ProgramInterface
   ) {
     try {
@@ -921,18 +926,84 @@ await this.teacher_ModuleRepo.save(module)
 
   async postAnnouncement(uni_id: string, data: AnnouncementInterface) {
     try {
+      // Find the university by ID
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-
+  
+      // Create and save the announcement
       const createAnnouncement = this.AnnouncementRepo.create({
         announce_name: data.announce_name,
         announce_title: data.announce_title,
         announce_date: data.announce_date,
         university: uni,
       });
-
-      const result = await this.AnnouncementRepo.save(createAnnouncement);
-      return createAnnouncement;
+      const savedAnnouncement = await this.AnnouncementRepo.save(createAnnouncement);
+  
+      // Find teachers and students associated with the university
+      const teachers = await this.TeachRepo.find({
+        where: {
+          university: { id: uni_id },
+        },
+      });
+      const students = await this.studentRepo.find({
+        where: {
+          uni: { id: uni_id },
+        },
+      });
+  
+      // Prepare notifications without sending them yet
+      const teacherNotifications = teachers.map((teacher) =>
+        this.notificationRepo.create({
+          message: savedAnnouncement.announce_title,
+          type: NotificationType.ANNOUNCEMENT,
+          university: uni,
+          teacher: teacher,
+          announcement: savedAnnouncement,
+        })
+      );
+  
+      const studentNotifications = students.map((student) =>
+        this.notificationRepo.create({
+          message: savedAnnouncement.announce_title,
+          type: NotificationType.ANNOUNCEMENT,
+          university: uni,
+          student: student,
+          announcement: savedAnnouncement,
+        })
+      );
+  
+      // Save all notifications to the database first
+      const notificationsToSave = [...teacherNotifications, ...studentNotifications];
+      const savedNotifications = await this.notificationRepo.save(notificationsToSave);
+  
+      // After saving, iterate over saved notifications and emit through the socket
+      savedNotifications.forEach(async (notification) => {
+        // Retrieve detailed notification with relations for consistency
+        const detailedNotification = await this.notificationRepo.findOne({
+          where: { id: notification.id },
+          relations: ["announcement", "university"],
+        });
+        console.log("🚀 ~ UniversityService ~ savedNotifications.forEach ~ detailedNotification:", detailedNotification)
+  
+        // Determine whether this is a teacher or a student notification
+        if (notification.teacher) {
+          const socket_id = await getSocketIdByUserId(notification.teacher.id);
+          if (socket_id && detailedNotification) {
+            io.to(socket_id).emit("new-announcement", {
+              notification: detailedNotification,
+            });
+          }
+        } else if (notification.student) {
+          const socket_id = await getSocketIdByUserId(notification.student.id);
+          if (socket_id && detailedNotification) {
+            io.to(socket_id).emit("new-announcement", {
+              notification: detailedNotification,
+            });
+          }
+        }
+      });
+  
+      return savedAnnouncement;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -941,7 +1012,7 @@ await this.teacher_ModuleRepo.save(module)
       }
     }
   }
-
+  
   async getAnnouncement(uni_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
@@ -1013,43 +1084,155 @@ await this.teacher_ModuleRepo.save(module)
     }
   }
 
-  // async approveRoutine(uni_id: string, routine_id: string) {
-  //   try {
-  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!uni) throw new Error("University not found");
+  async getTotalStudent(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
-  //     const routine = await this.routineRepo.findOneBy({ id: routine_id });
-  //     if (!routine) throw new Error("Exam routine not found");
+      const totalStudent = await this.studentRepo.count({
+        where: { uni: { id: uni_id } },
+      });
 
-  //     routine.status = RoutineStatus.APPROVED;
-  //     routine.approved_by = uni;
+      return totalStudent;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
 
-  //     return await this.routineRepo.save(routine);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(error.message);
-  //     } else {
-  //       throw new Error("Failed to approve routine");
-  //     }
-  //   }
-  // }
+  async getTotalTeacher(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
 
-  // async getRoutinesForAdmin(uni_id: string) {
-  //   try {
-  //     const uni = await this.uniRepo.findOneBy({ id: uni_id });
-  //     if (!uni) throw new Error("University not found");
+      const totalTeacher = await this.TeachRepo.count({
+        where: { university: { id: uni_id } },
+      });
 
-  //     const routines = await this.routineRepo.find({
-  //       relations: ["teacher", "module", "approved_by"],
-  //     });
+      return totalTeacher;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
 
-  //     return routines;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(error.message);
-  //     }
-  //   }
-  // }
+  async getTotalProgram(uni_id: string) {
+    try {
+      const uni = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!uni) throw new Error("University Not found");
+
+      const totalProgram = await this.progRepo.count({
+        where: { university: { id: uni_id } },
+      });
+
+      return totalProgram;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+    }
+  }
+
+  async getTeacherStudentRatioByProgram(uni_id: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      const programs = await this.progRepo.find({
+        where: { university: { id: uni_id } },
+        relations: ["sections", "sections.students", "sections.teacher_Section"]
+      });
+  
+      const result = programs.map((prog) => {
+        let studentCount = 0;
+        let teacherCount = 0;
+  
+        prog.sections.forEach((section) => {
+          studentCount += section.students ? section.students.length : 0;
+          teacherCount += section.teacher_Section ? section.teacher_Section.length : 0;
+        });
+  
+        return {
+          programName: prog.name,
+          studentCount,
+          teacherCount,
+          ratio: teacherCount > 0 ? (studentCount / teacherCount).toFixed(2) : "N/A",
+        };
+      });
+  
+      return result;
+    } catch (error) {
+      console.log("🚀 ~ getTeacherStudentRatioByProgram ~ error:", error);
+      throw error;
+    }
+  }
+
+  async getTeacherClassesBySectionForCurrentDate(uni_id: string) {
+    try {
+      // Get today's day. Adjust this according to how 'day' is stored in your entity.
+      const today = new Date();
+      // If day is stored as a weekday name, for example, "Monday", "Tuesday", etc.
+      const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
+  
+      // Ensure the university exists.
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      // Retrieve routines for the current day.
+      const routines = await this.routineRepo.find({
+        where: {
+          teacher: { university: { id: uni_id } },
+          day: weekday, // Adjust this based on how your data is represented.
+        },
+        relations: ["teacher", "section"],
+      });
+  
+      // Format the result. Instead of routine.classTime (which doesn't exist),
+      // use startTime and endTime.
+      const result = routines.map((routine) => ({
+        teacherName: routine.teacher.name,
+        sectionName: routine.section.name,
+        // Combining startTime and endTime to mimic a 'classTime' field.
+        classTime: `${routine.startTime} - ${routine.endTime}`,
+        // Include any additional details you want to show.
+      }));
+  
+      return result;
+    } catch (error) {
+      console.log("Error fetching teacher classes for current date:", error);
+      throw error;
+    }
+  }
+
+  async getTodayAnnouncements(uni_id: string) {
+    try {
+      // Ensure the university exists.
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+  
+      // Calculate the start and end of the current day.
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  
+      // Retrieve announcements for the university with announce_date between start and end of today.
+      const announcements = await this.announcementRepo.find({
+        where: {
+          university: { id: uni_id },
+          announce_date: Between(startOfDay, endOfDay),
+        },
+        relations: ["teacher", "module"], // include teacher and module info if needed
+      });
+  
+      return announcements;
+    } catch (error) {
+      console.error("Error fetching today's announcements:", error);
+      throw error;
+    }
+  }
+  
 }
 
 export default new UniversityService();

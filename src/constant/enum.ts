@@ -39,4 +39,12 @@ export enum AttendanceStatus {
   PRESENT = 'PRESENT',
   ABSENT = 'ABSENT'
 }
+
+export enum NotificationType {
+  ASSIGNMENT = 'ASSIGNMENT',
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+  RESOURCE = 'RESOURCE',
+  ROUTINE = 'ROUTINE'
+
+}
   

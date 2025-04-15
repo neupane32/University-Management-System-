@@ -5,11 +5,12 @@ import webTokenUtils from "../utils/webToken.utils";
 import StudentService from "../services/student.service";
 import SubscriptionService from "../services/subscription.service";
 import { StatusCodes } from "../constant/StatusCode";
+import { AdminInterface } from "../interface/admin.interface";
 
 const subscriptionService = new SubscriptionService();
 
 export class SubscriptionController {
-  // Add general subscription
+  // Add subscription
   async addSubscription(req: Request, res: Response) {
     try {
       const data = await subscriptionService.addSubscription(req.body);
@@ -42,6 +43,45 @@ export class SubscriptionController {
       });
     }
   }
+
+  async updateSubscription(req: Request, res: Response) {
+    try {
+
+      const subscription_id = req.params.id;
+
+      const data = await subscriptionService.updateSubscription(
+        subscription_id,
+        req.body as AdminInterface
+      );
+      console.log("🚀 ~ SubscriptionController ~ updateSubscription ~ data:", data)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+        message: "Subscription updated successfully",
+      });
+
+    } catch (error) {
+      console.log("🚀 ~ SubscriptionController ~ updateSubscription ~ error:", error)
+      
+    }
+  }
+
+  async deleteSubscription(req: Request, res: Response) {
+    try {
+      const subscription_id = req.params.id;
+      const data = await subscriptionService.deleteSubscription(subscription_id);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+        message: "Subscription deleted successfully",
+      });
+    }
+    catch (error) {
+      console.error("🚀 ~ SubscriptionController ~ deleteSubscription ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while deleting subscription",
+      });
+    }
+  }
+
 
   // Add university-specific subscription
   async addUniSubscription(req: Request, res: Response) {
@@ -105,4 +145,26 @@ export class SubscriptionController {
       });
     }
   }
+
+  async getSubscriptiontime(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      if (!uni_id) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: "University ID not provided" });
+      }
+  
+      const timeLeft = await subscriptionService.getSubscriptionTime(uni_id);
+  
+      res.status(StatusCodes.SUCCESS).json({
+        data: timeLeft,
+        message: "Subscription time left fetched successfully"
+      });
+    } catch (error) {
+      console.error("Error fetching subscription time left:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while fetching subscription time left"
+      });
+    }
+  }
+  
 }

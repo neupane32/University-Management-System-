@@ -94,19 +94,26 @@ res.status(StatusCodes.SUCCESS).json({
 
   }
 }
+    async getStudentNotification(req:Request, res:Response){
+      try {
+        const student_id = req.user?.id;
 
-  
+        const data = await studentService.getStudentNotifications(
+          student_id as string
+        );
+        res.status(StatusCodes.SUCCESS).json({ data });
+      } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      }
+    }
 
-// async getRoutine(req:Request, res:Response){
-//   try {
-//     const student_id = req.params.id;
-//     const data = await studentService.getApproveRoutine(student_id);
+    async markAsRead(req:Request,res:Response){
+    
+        const {notificationId}=req.body
+        const data= await studentService.markAsRead(notificationId)
+        res.status(StatusCodes.SUCCESS).json({ data });
+    
+      }
 
-//     res.status(StatusCodes.SUCCESS).json({ data,
-//       message: "Routine get successfully",
-//      });
-//   } catch (error: any) {
-//       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-//   }
-// }
+
 }

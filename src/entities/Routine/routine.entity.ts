@@ -1,11 +1,10 @@
 import { Teacher } from "../teacher/teacher.entity";
 import Base from "../base.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Module } from "../module/module.entity";
 import { University } from "../university/university.entity";
-import { Student } from "../student/student.entity";
 import { Section } from "../../entities/Section/section.entity";
-import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 
 @Entity("Routine")
@@ -23,10 +22,6 @@ export class Routine extends Base {
   @JoinColumn({ name: "university_id" })
   university: University;
 
-  // @ManyToOne(() => Program, (program) => program.routine, { onDelete: "CASCADE", nullable: true })
-  // @JoinColumn({ name: "program_id" })
-  // program: Program;
-
   @ManyToOne(() => Section, (section) => section.routine, {onDelete: "CASCADE"})
   @JoinColumn({name: "section_id"})
   section: Section;
@@ -38,6 +33,10 @@ export class Routine extends Base {
 @JoinColumn({ name: "teacher_id" })
 teacher: Teacher;
  
+  @OneToMany(() => Notification, (notification) => notification.routine, {
+    onDelete: "CASCADE",
+  })
+  notification: Notification[];
 
 
   
