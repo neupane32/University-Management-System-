@@ -14,14 +14,28 @@ router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
 
 
 router.use(authentication());
+
+router.patch('/update-profile', catchAsync(teacherController.updateProfile));
+
  router.use(authorization([Role.TEACHER]));
 
 //teacher
+router.get('/teacher-profile', catchAsync(teacherController.teacherProfile));
+
 router.get('/get-Teacher-by-module', catchAsync(teacherController.getTeacherByModule));
 router.get('/get-sections-by-module/:moduleId', catchAsync(teacherController.getSectionsByModule));
 router.get('/get-teacher-sections',catchAsync(teacherController.getTeacherSection));
 
 router.get('/get-routine-by-teacher', catchAsync(routineController.getRoutineByTeacher));
+router.get('/get-notification-by-teacher', catchAsync(teacherController.getTeacherNotification));
 
 
+
+router.get('/get-modules-by-section-of-teacher/:sectionId',catchAsync(teacherController.getModulesBySectionOfTeacher))
+
+
+
+router.get('/get-teachers-sections',catchAsync(teacherController.getSections))
+
+router.post('/mark-as-read',catchAsync(teacherController.markAsRead))
 export default router;

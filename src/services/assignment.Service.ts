@@ -10,7 +10,10 @@ import { Student } from "../entities/student/student.entity";
 import { submitAssignmnet } from "../entities/Assignment/submitAssignment.entity";
 import { Student_Assignment } from "../entities/Assignment/student_assignment.entity";
 import { Submission_File } from "../entities/Assignment/submission_file.entity";
-import { AssignmentStatus } from "../constant/enum";
+import { AssignmentStatus, NotificationType } from "../constant/enum";
+import { Notification } from "../entities/notification/notification.entity";
+import { getSocketIdByUserId } from "../socket/socket";
+import { io } from "../socket/socket";
 
 class AssignmentService {
   constructor(
@@ -20,6 +23,9 @@ class AssignmentService {
       Assignment_File
     ),
     private readonly studentRepo = AppDataSource.getRepository(Student),
+    private readonly notificationRepo = AppDataSource.getRepository(
+      Notification
+    ),
     private readonly submitAssignmentRepo = AppDataSource.getRepository(
       submitAssignmnet
     ),
@@ -36,40 +42,103 @@ class AssignmentService {
     TeacherAssignmentFile: any[],
     teacher_id: string
   ) {
-    console.log("🚀 ~ AssignmentService ~ data:", data)
-  
+    try {
+      console.log("🚀 ~ AssignmentService ~ data:", data);
 
-    const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
-    if (!teacher) throw new Error("Teacher Not found");
+      // const teacher = await this.teacherRepo.findOne({where{id: teacher_id}  });
+      const teacher = await this.teacherRepo.findOne({
+        where: {
+          id: teacher_id,
+        },
+        relations: ["university"],
+      });
+      if (!teacher) throw new Error("Teacher Not found");
 
-    const addAssignment = this.assignmentRepo.create({
-      title: data.title,
-      description: data.description,
-      due_date: data.due_date,
-      module: { id: data.module },
-      teacher: { id: teacher_id },
-    });
-    await this.assignmentRepo.save(addAssignment);
-    if (TeacherAssignmentFile) {
-      for (const file of TeacherAssignmentFile) {
-        console.log("🚀 ~ AssignmentService ~ file:", file);
-        const baseUrl = DotenvConfig.BASE_URL;
+      const addAssignment = this.assignmentRepo.create({
+        title: data.title,
+        description: data.description,
+        due_date: data.due_date,
+        module: { id: data.module },
+        teacher: { id: teacher_id },
+      });
+      await this.assignmentRepo.save(addAssignment);
+      if (TeacherAssignmentFile) {
+        for (const file of TeacherAssignmentFile) {
+          console.log("🚀 ~ AssignmentService ~ file:", file);
+          const baseUrl = DotenvConfig.BASE_URL;
 
-        const TeacherAssignmentFile = file ? `${baseUrl}/${file.path}` : null;
-        console.log(
-          "🚀 ~ AssignmentService ~ TeacherAssignmentFile:",
-          TeacherAssignmentFile
-        );
-        const assignmentFile = this.assignmentFileRepo.create({
-          filePath: TeacherAssignmentFile,
-          assignment: addAssignment,
-          fileName: file.filename,
-        });
-        console.log("🚀 ~ AssignmentService ~ assignmentFile:", assignmentFile)
-        await this.assignmentFileRepo.save(assignmentFile);
+          const TeacherAssignmentFile = file ? `${baseUrl}/${file.path}` : null;
+          console.log(
+            "🚀 ~ AssignmentService ~ TeacherAssignmentFile:",
+            TeacherAssignmentFile
+          );
+          const assignmentFile = this.assignmentFileRepo.create({
+            filePath: TeacherAssignmentFile,
+            assignment: addAssignment,
+            fileName: file.filename,
+          });
+          console.log(
+            "🚀 ~ AssignmentService ~ assignmentFile:",
+            assignmentFile
+          );
+          await this.assignmentFileRepo.save(assignmentFile);
+        }
       }
+      console.log("object", teacher);
+      const students = await this.studentRepo.find({
+        where: {
+          uni: { id: teacher.university.id },
+        },
+      });
+
+      const assignmentNotifications = students.map((student) =>
+        this.notificationRepo.create({
+          message: `New assignment posted: ${addAssignment.title}`,
+          type: NotificationType.ASSIGNMENT,
+          university: teacher.university,
+          student: student,
+          assignment: addAssignment,
+        })
+      );
+
+      //save all notification to the database first
+      const notificationToSave = [...assignmentNotifications];
+
+      const savedNotifications =
+        await this.notificationRepo.save(notificationToSave);
+
+      //after saving, iterate over the saved notifications and emit through the socket
+      savedNotifications.forEach(async (notification) => {
+        const detailedNotification = await this.notificationRepo.findOne({
+          where: { id: notification.id },
+          relations: ["teacher", "student", "assignment"],
+        });
+
+        console.log(
+          "🚀 ~ AssignmentService ~ savedNotifications.forEach ~ detailedNotification:",
+          detailedNotification
+        );
+
+        //determine whether this is teacher or student
+        if (notification.student) {
+          const socket_id = await getSocketIdByUserId(notification.student.id);
+          console.log(
+            "🚀 ~ AssignmentService ~ savedNotifications.forEach ~ socket_id:",
+            socket_id
+          );
+          if (socket_id && detailedNotification) {
+            io.to(socket_id).emit("new-assignment", {
+              notification: detailedNotification,
+            });
+          }
+        }
+      });
+
+      return addAssignment;
+    } catch (error) {
+      console.log("🚀 ~ AssignmentService ~ addAssignment ~ error:", error);
+      throw new Error(error.message);
     }
-    return addAssignment;
   }
 
   async getAssignment(teacher_id: string) {
@@ -206,12 +275,15 @@ class AssignmentService {
       });
       if (!assignment) throw new Error("Assignment not found");
       const submissionDate = new Date(data.dateTime);
-      console.log("🚀 ~ AssignmentService ~ submissionDate:", submissionDate)
+      console.log("🚀 ~ AssignmentService ~ submissionDate:", submissionDate);
       const dueDate = new Date(assignment.due_date);
-      console.log("🚀 ~ AssignmentService ~ dueDate:", dueDate)
-      
+      console.log("🚀 ~ AssignmentService ~ dueDate:", dueDate);
+
       if (submissionDate > dueDate) {
-          await this.assignmentRepo.update({id:assignment_id},{status:AssignmentStatus.CLOSED})
+        await this.assignmentRepo.update(
+          { id: assignment_id },
+          { status: AssignmentStatus.CLOSED }
+        );
         throw new Error("Cannot submit assignment after the due date");
       }
       const submitAssignments = await this.submitAssignmentRepo.create({
@@ -250,7 +322,7 @@ class AssignmentService {
   async getAssignmentByStudent(student_id: string, module_id: string) {
     const student = await this.studentRepo.findOneBy({ id: student_id });
     if (!student) throw new Error("student not found");
-    
+
     const assignments = await this.assignmentRepo.find({
       where: {
         module: { id: module_id },
@@ -266,16 +338,19 @@ class AssignmentService {
       ],
     });
     if (!assignments) throw new Error("Assignment not found");
-  
-    const processedAssignments = assignments.map(assignment => {
+
+    const processedAssignments = assignments.map((assignment) => {
       let submitted = false;
       if (assignment.submissions) {
         // Loop over each submitAssignmnet.
         assignment.submissions.forEach((submission) => {
           if (submission.submissions) {
-           // @ts-ignore
-            submission.submissions.forEach(studentSubmission => {
-              if (studentSubmission.student && studentSubmission.student.id === student_id) {
+            // @ts-ignore
+            submission.submissions.forEach((studentSubmission) => {
+              if (
+                studentSubmission.student &&
+                studentSubmission.student.id === student_id
+              ) {
                 submitted = true;
               }
             });
@@ -284,10 +359,9 @@ class AssignmentService {
       }
       return { ...assignment, isSubmitted: submitted };
     });
-  
+
     return processedAssignments;
   }
-  
 
   async updateAssignmentByStudent(
     student_id: string,
@@ -295,25 +369,36 @@ class AssignmentService {
     studentAssignmentFiles: any[],
     data: any
   ) {
-    console.log("🚀 ~ AssignmentService ~ student_id:", student_id)
-    console.log("🚀 ~ AssignmentService ~ SubmitAssignment_id:", SubmitAssignment_id)
+    console.log("🚀 ~ AssignmentService ~ student_id:", student_id);
+    console.log(
+      "🚀 ~ AssignmentService ~ SubmitAssignment_id:",
+      SubmitAssignment_id
+    );
     try {
       const student = await this.studentRepo.findOneBy({ id: student_id });
       if (!student) throw new Error("Student Not Found");
 
-      const assignment = await this.submitAssignmentRepo.findOne({where:{ id: SubmitAssignment_id}, relations:["assignment"]});
+      const assignment = await this.submitAssignmentRepo.findOne({
+        where: { id: SubmitAssignment_id },
+        relations: ["assignment"],
+      });
       if (!assignment) throw new Error("Assignment for submit not found");
-      console.log("🚀 ~ AssignmentService ~ assignment:", assignment)
-const assignment_id = assignment.assignment
-      console.log("🚀 ~ AssignmentService ~ assignment_id:", assignment_id)
-      const findAssignment = await this.assignmentRepo.findOneBy({id:assignment.assignment.id})
-      if(!findAssignment) throw new Error("Assignment not found")
-      console.log("🚀 ~ AssignmentService ~ findAssignment:", findAssignment)
+      console.log("🚀 ~ AssignmentService ~ assignment:", assignment);
+      const assignment_id = assignment.assignment;
+      console.log("🚀 ~ AssignmentService ~ assignment_id:", assignment_id);
+      const findAssignment = await this.assignmentRepo.findOneBy({
+        id: assignment.assignment.id,
+      });
+      if (!findAssignment) throw new Error("Assignment not found");
+      console.log("🚀 ~ AssignmentService ~ findAssignment:", findAssignment);
       const submissionDate = new Date(data.dateTime);
       const dueDate = new Date(findAssignment.due_date);
-      
+
       if (submissionDate > dueDate) {
-          await this.assignmentRepo.update({id:findAssignment.id},{status:AssignmentStatus.CLOSED})
+        await this.assignmentRepo.update(
+          { id: findAssignment.id },
+          { status: AssignmentStatus.CLOSED }
+        );
         throw new Error("Cannot submit assignment after the due date");
       }
       const studentAssignment = await this.studentAssignmentRepo.findOne({
@@ -362,13 +447,18 @@ const assignment_id = assignment.assignment
     submissionAssignment_id: string,
     fileId: string
   ) {
-    console.log("🚀 ~ AssignmentService ~ submissionAssignment_id:", submissionAssignment_id)
+    console.log(
+      "🚀 ~ AssignmentService ~ submissionAssignment_id:",
+      submissionAssignment_id
+    );
     try {
-        const student = await this.studentRepo.findOneBy({ id: student_id });
-        if (!student) throw new Error("Student Not Found");
-  
-        const assignment = await this.submitAssignmentRepo.findOneBy({ id: submissionAssignment_id});
-        if (!assignment) throw new Error("Assignment for submit not found");
+      const student = await this.studentRepo.findOneBy({ id: student_id });
+      if (!student) throw new Error("Student Not Found");
+
+      const assignment = await this.submitAssignmentRepo.findOneBy({
+        id: submissionAssignment_id,
+      });
+      if (!assignment) throw new Error("Assignment for submit not found");
 
       const file = await this.submissionFileRepo.findOne({
         where: { id: fileId },
@@ -388,11 +478,37 @@ const assignment_id = assignment.assignment
 
       await this.submissionFileRepo.delete({ id: fileId });
 
-      return " Submitted Assignment file deleted successfully" 
+      return " Submitted Assignment file deleted successfully";
     } catch (error) {
-    console.log("🚀 ~ AssignmentService ~ error:", error)
+      console.log("🚀 ~ AssignmentService ~ error:", error);
     }
   }
+  async getSubmittedAssigment(submission_id: string) {
+    console.log(
+      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ submission_id:",
+      submission_id
+    );
+    const getSubmittedAssigment = await this.submitAssignmentRepo.findOne({
+      where: {
+        assignment: {
+          id: submission_id,
+        },
+      },
+      relations: [
+        "assignment",
+        "assignment.files",
+        "submissions",
+        "submissions.student",
+        "submissions.files", // <-- include this line to fetch submitted files
+      ],    });
+    console.log(
+      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ getSubmittedAssigment:",
+      getSubmittedAssigment
+    );
+    return getSubmittedAssigment;
+  }
+  
+  
 }
 
 export default AssignmentService;

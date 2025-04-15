@@ -3,10 +3,13 @@ import app from './config/app.config';
 import { DotenvConfig } from './config/env.config';
 import { AppDataSource } from './config/database.config';
 import adminSeedMiddleware from "./middleware/adminSeed.middleware";
+import { initializeSocket } from './socket/socket';
 async function listen() {
   const PORT = DotenvConfig.PORT;
   const httpServer = createServer(app);
+  initializeSocket(httpServer)
   httpServer.listen(PORT);
+
   console.log(`Server is Listening on port : ${DotenvConfig.PORT} `);
 }
 AppDataSource.initialize()

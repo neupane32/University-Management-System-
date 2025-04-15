@@ -27,6 +27,7 @@ export class AssignmentController {
         file,
         teacher_id
       );
+      console.log('VAYO TA --------------------------------------------------')
       res.status(StatusCodes.CREATED).json(data);
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -213,6 +214,18 @@ export class AssignmentController {
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+  async getSubmittedAssigment(req:Request,res:Response){
+    try{
+      const assigment_id = req.params.assigment_id
+      const data= await assignmentService.getSubmittedAssigment(assigment_id)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+      
+    }catch(error){
+
     }
   }
 }

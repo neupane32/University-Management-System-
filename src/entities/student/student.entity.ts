@@ -1,18 +1,12 @@
 import { University } from "../../entities/university/university.entity";
 import { Gender, Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import {
-  Column,
-  Entity,
-  OneToOne,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, ManyToOne, JoinColumn} from "typeorm";
 
 import { Section } from "../../entities/Section/section.entity";
 import { Student_Assignment } from "../../entities/Assignment/student_assignment.entity";
 import { Attendance } from "../../entities/Attendance/attendance.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @Entity("student")
 export class Student extends Base {
@@ -65,9 +59,16 @@ export class Student extends Base {
   @JoinColumn({ name: "section_id" })
   section: Section;
 
-    @OneToMany(() => Student_Assignment, (submission) => submission.student, {onDelete: 'CASCADE'})
-     submission: Student_Assignment;
+  @OneToMany(() => Student_Assignment, (submission) => submission.student, {
+    onDelete: "CASCADE",
+  })
+  submission: Student_Assignment;
 
- @OneToMany(() => Attendance, (attendance) => attendance.student)
-attendances: Attendance[];
+  @OneToMany(() => Attendance, (attendance) => attendance.student)
+  attendances: Attendance[];
+
+  @OneToMany(() => Notification, (notification) => notification.student, {
+    onDelete: "CASCADE",
+  })
+  notification: Notification[];
 }

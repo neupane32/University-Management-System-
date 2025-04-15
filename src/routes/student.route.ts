@@ -28,9 +28,12 @@ router.delete('/delete-assignment-file/:id/:fileId', catchAsync(assignmentContro
 router.get('/get-module-by-student/:id', catchAsync(resourceController.getResourceByStudent));
  router.get('/get-routine-by-student', catchAsync(routineController.getRoutineByStudent));
 
-
-// router.get('/find-sutdents', catchAsync(studentController.getStudent));
 router.get('/student-profile',catchAsync(studentController.studentProfile));
 router.get('/student-modules',catchAsync(studentController.getStudentModules))
+
+router.get('/get-notification-by-student', catchAsync(studentController.getStudentNotification));
+router.post('/mark-as-read',catchAsync(studentController.markAsRead))
+
+
 
 export default router;
