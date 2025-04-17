@@ -37,4 +37,35 @@ export class AdminController {
       }
     }
   }
+
+  async getAllUniversity(req: Request, res: Response) {
+    try {
+      const data = await adminService.getAllUniversity(req.body as AdminInterface);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+        message: "Universities fetched successfully",
+      });
+    } catch (error) {
+      console.error("🚀 ~ AdminController ~ getAllUniversity ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while fetching universities",
+      });
+    }
+  }
+
+  async getCompareUniversitySubscription(req: Request, res: Response) {
+    try {
+      const data = await adminService.getCompareUniversitySubscription(req.body as AdminInterface);
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+        message: "Subscription comparison fetched successfully",
+      });
+    } catch (error) {
+      console.error("🚀 ~ AdminController ~ getCompareUniversitySubscription ~ error:", error);
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : "Error while fetching subscription comparison",
+      });
+    }
+  }
+
 }

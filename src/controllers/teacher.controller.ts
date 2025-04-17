@@ -168,4 +168,39 @@ export class TeacherController {
     res.status(StatusCodes.SUCCESS).json({ data });
 
   }
+
+  async getPendingAssignment(req:Request,res:Response){
+    const teacherId= req.user.id
+    const data= await teacherService.getPendingAssignment(teacherId)
+    res.status(StatusCodes.SUCCESS).json({ data });
+  }
+
+
+async  getAttendanceOverviewByTeacher(req:Request,res:Response){
+  try {
+    const teacherId= req.user.id
+    const data= await teacherService.getAttendanceOverviewByTeacher(teacherId)
+    res.status(StatusCodes.SUCCESS).json({ data });
+    
+  } catch (error) {
+    console.log("🚀 ~ TeacherController ~ getAttendanceOverviewByTeacher ~ error:", error)
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    
+  }
+}
+
+async getTodaySchedule(req:Request,res:Response){
+  try {
+    const teacherId= req.user.id
+    const data= await teacherService.getTodayScheduleByTeacher(teacherId)
+
+    res.status(StatusCodes.SUCCESS).json({ data });
+
+    
+  } catch (error) {
+    console.log("🚀 ~ TeacherController ~ getTodaySchedule ~ error:", error)
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    
+  }
+}
 }

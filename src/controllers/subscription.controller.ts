@@ -13,10 +13,13 @@ export class SubscriptionController {
   // Add subscription
   async addSubscription(req: Request, res: Response) {
     try {
-      const data = await subscriptionService.addSubscription(req.body);
+      const admin_id = req.user?.id;
+      const data = await subscriptionService.addSubscription(
+        req.body);
       console.log("🚀 ~ SubscriptionController ~ addSubscription ~ data:", data);
 
       res.status(StatusCodes.SUCCESS).json({
+        
         data,
         message: "Subscription added successfully",
       });
@@ -87,7 +90,7 @@ export class SubscriptionController {
   async addUniSubscription(req: Request, res: Response) {
     try {
       const data = req.body;
-      const uni_id = req.user.id; // Ensure `req.user` is populated via auth middleware
+      const uni_id = req.user.id;
       console.log("🚀 ~ SubscriptionController ~ addUniSubscription ~ data:", data);
 
       const saved = await subscriptionService.addUniSubscription(data, uni_id);

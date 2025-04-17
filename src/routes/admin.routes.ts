@@ -14,6 +14,9 @@ router.post('/login', catchAsync(adminController.loginAdmin));
 router.use(authentication());
 router.use(authorization([Role.ADMIN]));
 
+router.get('/get-all-university', catchAsync(adminController.getAllUniversity));
+router.get('/get-compare-university-subscription', catchAsync(adminController.getCompareUniversitySubscription));
+
 
 
 export default router;

@@ -123,7 +123,9 @@ await Promise.all(
 
       const sections = await this.sectionRepo.find({
         where: { university: { id: uni_id }, program:{id:progId} },
-      });
+      }
+    
+    );
       console.log("🚀 ~ SectionService ~ getSectionByProgramId ~ sections:", sections)
 
       return sections;

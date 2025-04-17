@@ -6,9 +6,11 @@ import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { RoutineController } from "../controllers/routine.controller";
 
+
 const router: Router = Router();
 const teacherController = new TeacherController;
-const routineController = new RoutineController
+const routineController = new RoutineController;
+
 
 router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
 
@@ -38,4 +40,10 @@ router.get('/get-modules-by-section-of-teacher/:sectionId',catchAsync(teacherCon
 router.get('/get-teachers-sections',catchAsync(teacherController.getSections))
 
 router.post('/mark-as-read',catchAsync(teacherController.markAsRead))
+// router.get('/get-teacher-class', catchAsync(teacherController.getTodayClass));
+
+//dashboard operation
+router.get('/get-pending-assignment',catchAsync(teacherController.getPendingAssignment));
+router.get('/get-Attendance-overview-by-section',catchAsync(teacherController.getAttendanceOverviewByTeacher));
+router.get('/get-today-schedule',catchAsync(teacherController.getTodaySchedule));
 export default router;

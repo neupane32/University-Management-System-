@@ -645,4 +645,17 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async getSubscriptionByUni(req:Request, res:Response){
+    try {
+      const uni_id = req.user?.id;
+      const data = await universityService.getSubscriptionByUni(uni_id as string)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+      
+    } catch (error) {
+      console.log("🚀 ~ UniversityController ~ getSubscriptionByUni ~ error:", error)
+    }
+  }
 }
