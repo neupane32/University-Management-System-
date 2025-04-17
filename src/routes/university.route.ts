@@ -6,8 +6,10 @@ import {universityProfileImagesUpload} from '../middleware/multer.middleware'
 import { authorization } from '../middleware/authorization.middleware';
 import {subscriptionAuthorization} from '../middleware/subscriptionAuthorization.middleware'
 import { Role } from '../constant/enum';
+import { SubscriptionController } from '../controllers/subscription.controller';
 const router = express.Router();
 const universityController = new UniversityController();
+const subscriptionController = new SubscriptionController
 
 // University Auth Routes
 router.post('/uni-signup',universityProfileImagesUpload.fields([{name:'university_profile_image'}]), catchAsync(universityController.createUniversity));
@@ -18,7 +20,7 @@ router.patch('/update-profile/', universityProfileImagesUpload.fields([{name:'un
 
 router.use(authorization([Role.UNIVERSITY]))
 
-router.post('/payment-success', catchAsync(universityController.uniProfile));
+router.post('/success', catchAsync(subscriptionController.addUniSubscription));
 
 
 //uni profile
@@ -37,16 +39,12 @@ router.get('/uni/find-programs', catchAsync(universityController.findProgram));
 router.patch('/uni/update-program/:id', catchAsync(universityController.updateProgram));
 router.delete('/uni/delete-program/:id', catchAsync(universityController.deleteProgram));
 
-
-router.use(subscriptionAuthorization())
-
 // Module Routes
 router.post('/uni/add-modules/:id', catchAsync(universityController.addModule));
 router.patch('/uni/update-modules/:id', catchAsync(universityController.updateModule));
 router.get('/uni/find-modules', catchAsync(universityController.findModule)); 
 router.get('/uni/find-modules-by-id/:id', catchAsync(universityController.findModuleByProgram)); 
 router.get('/uni/find-modules-by-section/:id', catchAsync(universityController.findModuleBySection)); 
-// router.get('uni/find-moudules-by-teacher',catchAsync(universityController.findModuleByTeacher));
 router.get('/uni/find-modules-by-duration/:id/:duration', catchAsync(universityController.findModuleByDuration)); 
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 
@@ -75,4 +73,10 @@ router.get('/get-total-program', catchAsync(universityController.getTotalProgram
 router.get('/teacher_student-ratio-by-program', catchAsync(universityController.getTeacherStudentRatioByProgram));
 router.get('/get-teacher-class', catchAsync(universityController.getTeacherClassesBySectionForCurrentDate));
 router.get('/get-today-announcement', catchAsync(universityController.getTodayAnnouncement));
+
+router.post('/Khalti-subscription', catchAsync(subscriptionController.initiatePayment));
+router.get('/subscription-time-left', catchAsync(subscriptionController.getSubscriptiontime));
+router.get('/subscription-details-by-university', catchAsync(universityController.getSubscriptionByUni));
+
+
 export default router;

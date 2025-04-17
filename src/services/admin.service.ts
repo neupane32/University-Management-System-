@@ -4,12 +4,14 @@ import BcryptService from "../utils/bcrypt.utils";
 import HttpException from "../utils/HttpException.utils";
 import { University } from "../entities/university/university.entity";
 import { Admin } from "../entities/admin/admin.entity";
+import { Subscription } from "../entities/Subscription/subscription.entity";
 const bcryptservice = new BcryptService();
 
 class AdminService {
     constructor (
         private readonly adminRepo = AppDataSource.getRepository(Admin),
-        private readonly uniRepo = AppDataSource.getRepository(University)
+        private readonly uniRepo = AppDataSource.getRepository(University),
+        private readonly uniSubscriptionRepo = AppDataSource.getRepository(Subscription)
     ) {
     }
     async loginAdmin(data:AdminInterface){
@@ -39,5 +41,28 @@ class AdminService {
             }
         }
     }
+
+    async getAllUniversity(data: AdminInterface): Promise<University[]> {
+      try {
+        const universities = await this.uniRepo.find();
+        console.log("Fetched universities:", universities);
+        return universities;
+      } catch (error) {
+        console.error("Error fetching universities:", error);
+      }
     }
+
+    async getCompareUniversitySubscription(data: AdminInterface): Promise<Subscription[]> {
+      try {
+        const subscriptionComparison = await this.uniSubscriptionRepo.find({
+          relations: ['subscription', 'university'],
+        });
+  
+        console.log('University Subscription Comparison Data:', subscriptionComparison);
+        return subscriptionComparison;
+      } catch (error) {
+        console.error('Error fetching university subscription comparison:', error);
+      }
+    }
+  }
 export default new AdminService();

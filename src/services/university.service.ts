@@ -17,9 +17,10 @@ import { Section } from "../entities/Section/section.entity";
 import { Teacher_Module } from "../entities/TeacherModule/teacherModule.entity";
 import { Teacher_Section } from "../entities/TeacherSection/TeacherSection.entity";
 import { Notification } from "../entities/notification/notification.entity";
-import {io,getSocketIdByUserId, initializeSocket} from "../socket/socket"
+import { io, getSocketIdByUserId, initializeSocket } from "../socket/socket";
 import { Between } from "typeorm";
 import { Routine } from "../entities/Routine/routine.entity";
+import { UniversitySubscription } from "../entities/UniSubscription/unisubscription.entity";
 const bcryptservice = new BcryptService();
 
 class UniversityService {
@@ -29,9 +30,16 @@ class UniversityService {
     private readonly modRepo = AppDataSource.getRepository(Module),
     private readonly TeachRepo = AppDataSource.getRepository(Teacher),
     private readonly studentRepo = AppDataSource.getRepository(Student),
-    private readonly notificationRepo = AppDataSource.getRepository(Notification),
+    private readonly notificationRepo = AppDataSource.getRepository(
+      Notification
+    ),
     private readonly routineRepo = AppDataSource.getRepository(Routine),
-    private readonly announcementRepo = AppDataSource.getRepository(Announcement),
+    private readonly uniSubscriptionRepo = AppDataSource.getRepository(
+      UniversitySubscription
+    ),
+    private readonly announcementRepo = AppDataSource.getRepository(
+      Announcement
+    ),
 
     private readonly AnnouncementRepo = AppDataSource.getRepository(
       Announcement
@@ -188,7 +196,7 @@ class UniversityService {
 
   async updateProgam(
     uni_id: string,
-    program_id: string, 
+    program_id: string,
     data: ProgramInterface
   ) {
     try {
@@ -370,15 +378,12 @@ class UniversityService {
       const program = await this.sectionRepo.findOneBy({ id: section_id });
       if (!program) throw new Error("Section not found");
 
-      // const modules = await this.modRepo.find({
-      //   where: { se: { id: section_id } },
-      //   relations: ["program"],
-      // });
-      const modules = await this.sectionRepo.createQueryBuilder("section")
-      .leftJoinAndSelect("section.moduleSection","moduleSection")
-      .leftJoinAndSelect("moduleSection.module","module")
-      .where("section.id =:section_id",{section_id})
-      .getMany()
+      const modules = await this.sectionRepo
+        .createQueryBuilder("section")
+        .leftJoinAndSelect("section.moduleSection", "moduleSection")
+        .leftJoinAndSelect("moduleSection.module", "module")
+        .where("section.id =:section_id", { section_id })
+        .getMany();
       console.log("🚀 ~ UniversityService ~ findModules ~ modules:", modules);
       if (!module) throw new Error("Module Not found");
 
@@ -422,7 +427,6 @@ class UniversityService {
 
       const hashPassword = await bcryptservice.hash(data.password);
 
-      // Create and save the teacher
       const teacher = this.TeachRepo.create({
         name: data.name,
         email: data.email,
@@ -433,22 +437,18 @@ class UniversityService {
       });
       await this.TeachRepo.save(teacher);
 
-     // In addTeacher method
-await Promise.all(
-  module_id.map(async (moduleId) => {
-    const module = await this.modRepo.findOneBy({ id: moduleId });
-    if (!module) throw new Error(`Module with ID ${moduleId} not found`);
+      await Promise.all(
+        module_id.map(async (moduleId) => {
+          const module = await this.modRepo.findOneBy({ id: moduleId });
+          if (!module) throw new Error(`Module with ID ${moduleId} not found`);
 
-    const teacherModule = this.teacher_ModuleRepo.create({
-      teacher,
-      module,
-    });
-    await this.teacher_ModuleRepo.save(teacherModule);
-  })
-);
-
-// Similar correction for sections
-
+          const teacherModule = this.teacher_ModuleRepo.create({
+            teacher,
+            module,
+          });
+          await this.teacher_ModuleRepo.save(teacherModule);
+        })
+      );
       await Promise.all(
         sections_id.map(async (sectionId) => {
           const section = await this.sectionRepo.findOne({
@@ -505,7 +505,6 @@ await Promise.all(
         await this.TeachRepo.update({ id: teacher_id }, updateFields);
       }
 
-      // Handle module updates
       const existingTeacherModules = await this.teacher_ModuleRepo.find({
         where: { teacher: { id: teacher_id } },
         relations: ["module"],
@@ -519,7 +518,6 @@ await Promise.all(
 
       const newModuleIds = new Set(modules);
 
-      // Remove outdated modules
       for (const relation of existingTeacherModules) {
         if (relation.module?.id && !newModuleIds.has(relation.module.id)) {
           await this.teacher_ModuleRepo.delete({
@@ -529,7 +527,6 @@ await Promise.all(
         }
       }
 
-      // Add new modules
       for (const moduleId of modules) {
         if (!existingModuleIds.has(moduleId)) {
           console.log("🚀 ~ UniversityService ~ moduleId:", moduleId);
@@ -549,7 +546,7 @@ await Promise.all(
           }
         }
       }
-      // Handle section updates
+
       const existingTeacherSections = await this.teacher_SectionRepo.find({
         where: { teacher: { id: teacher_id } },
         relations: ["section"],
@@ -563,7 +560,6 @@ await Promise.all(
 
       const newSectionIds = new Set(sections);
 
-      // Remove outdated sections
       for (const relation of existingTeacherSections) {
         if (relation.section?.id && !newSectionIds.has(relation.section.id)) {
           await this.teacher_SectionRepo.delete({
@@ -573,7 +569,6 @@ await Promise.all(
         }
       }
 
-      // Add new sections
       for (const sectionId of sections) {
         if (!existingSectionIds.has(sectionId)) {
           const section = await this.sectionRepo.findOneBy({ id: sectionId });
@@ -693,13 +688,11 @@ await Promise.all(
         teacher: { id: data.teacherId },
       });
       const saved = await this.teacher_SectionRepo.save(section);
-const  module = this.teacher_ModuleRepo.create(
-  {
-    teacher:{id:data.teacherId},
-    module:{id:data.moduleId}
-  }
-)
-await this.teacher_ModuleRepo.save(module)
+      const module = this.teacher_ModuleRepo.create({
+        teacher: { id: data.teacherId },
+        module: { id: data.moduleId },
+      });
+      await this.teacher_ModuleRepo.save(module);
       return saved;
     } catch (error) {
       console.log(
@@ -844,10 +837,10 @@ await this.teacher_ModuleRepo.save(module)
         password: hashPassword,
         uni: uni,
         section: {
-          id:data.section_id
-        }
+          id: data.section_id,
+        },
       });
-      console.log("🚀 ~ UniversityService ~ addStudent ~ student:", student)
+      console.log("🚀 ~ UniversityService ~ addStudent ~ student:", student);
 
       await this.studentRepo.save(student);
 
@@ -865,7 +858,8 @@ await this.teacher_ModuleRepo.save(module)
       if (!uni) throw new Error("University Not found");
 
       const students = await this.studentRepo.find({
-        where: { uni: { id: uni_id } }, relations:["section"]
+        where: { uni: { id: uni_id } },
+        relations: ["section"],
       });
 
       return students;
@@ -929,7 +923,7 @@ await this.teacher_ModuleRepo.save(module)
       // Find the university by ID
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
-  
+
       // Create and save the announcement
       const createAnnouncement = this.AnnouncementRepo.create({
         announce_name: data.announce_name,
@@ -937,8 +931,9 @@ await this.teacher_ModuleRepo.save(module)
         announce_date: data.announce_date,
         university: uni,
       });
-      const savedAnnouncement = await this.AnnouncementRepo.save(createAnnouncement);
-  
+      const savedAnnouncement =
+        await this.AnnouncementRepo.save(createAnnouncement);
+
       // Find teachers and students associated with the university
       const teachers = await this.TeachRepo.find({
         where: {
@@ -950,8 +945,7 @@ await this.teacher_ModuleRepo.save(module)
           uni: { id: uni_id },
         },
       });
-  
-      // Prepare notifications without sending them yet
+
       const teacherNotifications = teachers.map((teacher) =>
         this.notificationRepo.create({
           message: savedAnnouncement.announce_title,
@@ -961,7 +955,7 @@ await this.teacher_ModuleRepo.save(module)
           announcement: savedAnnouncement,
         })
       );
-  
+
       const studentNotifications = students.map((student) =>
         this.notificationRepo.create({
           message: savedAnnouncement.announce_title,
@@ -971,11 +965,15 @@ await this.teacher_ModuleRepo.save(module)
           announcement: savedAnnouncement,
         })
       );
-  
+
       // Save all notifications to the database first
-      const notificationsToSave = [...teacherNotifications, ...studentNotifications];
-      const savedNotifications = await this.notificationRepo.save(notificationsToSave);
-  
+      const notificationsToSave = [
+        ...teacherNotifications,
+        ...studentNotifications,
+      ];
+      const savedNotifications =
+        await this.notificationRepo.save(notificationsToSave);
+
       // After saving, iterate over saved notifications and emit through the socket
       savedNotifications.forEach(async (notification) => {
         // Retrieve detailed notification with relations for consistency
@@ -983,8 +981,11 @@ await this.teacher_ModuleRepo.save(module)
           where: { id: notification.id },
           relations: ["announcement", "university"],
         });
-        console.log("🚀 ~ UniversityService ~ savedNotifications.forEach ~ detailedNotification:", detailedNotification)
-  
+        console.log(
+          "🚀 ~ UniversityService ~ savedNotifications.forEach ~ detailedNotification:",
+          detailedNotification
+        );
+
         // Determine whether this is a teacher or a student notification
         if (notification.teacher) {
           const socket_id = await getSocketIdByUserId(notification.teacher.id);
@@ -1002,7 +1003,7 @@ await this.teacher_ModuleRepo.save(module)
           }
         }
       });
-  
+
       return savedAnnouncement;
     } catch (error) {
       if (error instanceof Error) {
@@ -1012,7 +1013,7 @@ await this.teacher_ModuleRepo.save(module)
       }
     }
   }
-  
+
   async getAnnouncement(uni_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
@@ -1139,29 +1140,36 @@ await this.teacher_ModuleRepo.save(module)
     try {
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
+
       const programs = await this.progRepo.find({
         where: { university: { id: uni_id } },
-        relations: ["sections", "sections.students", "sections.teacher_Section"]
+        relations: [
+          "sections",
+          "sections.students",
+          "sections.teacher_Section",
+        ],
       });
-  
+
       const result = programs.map((prog) => {
         let studentCount = 0;
         let teacherCount = 0;
-  
+
         prog.sections.forEach((section) => {
           studentCount += section.students ? section.students.length : 0;
-          teacherCount += section.teacher_Section ? section.teacher_Section.length : 0;
+          teacherCount += section.teacher_Section
+            ? section.teacher_Section.length
+            : 0;
         });
-  
+
         return {
           programName: prog.name,
           studentCount,
           teacherCount,
-          ratio: teacherCount > 0 ? (studentCount / teacherCount).toFixed(2) : "N/A",
+          ratio:
+            teacherCount > 0 ? (studentCount / teacherCount).toFixed(2) : "N/A",
         };
       });
-  
+
       return result;
     } catch (error) {
       console.log("🚀 ~ getTeacherStudentRatioByProgram ~ error:", error);
@@ -1171,34 +1179,26 @@ await this.teacher_ModuleRepo.save(module)
 
   async getTeacherClassesBySectionForCurrentDate(uni_id: string) {
     try {
-      // Get today's day. Adjust this according to how 'day' is stored in your entity.
       const today = new Date();
-      // If day is stored as a weekday name, for example, "Monday", "Tuesday", etc.
       const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
-  
-      // Ensure the university exists.
+
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
-      // Retrieve routines for the current day.
+
       const routines = await this.routineRepo.find({
         where: {
           teacher: { university: { id: uni_id } },
-          day: weekday, // Adjust this based on how your data is represented.
+          day: weekday,
         },
         relations: ["teacher", "section"],
       });
-  
-      // Format the result. Instead of routine.classTime (which doesn't exist),
-      // use startTime and endTime.
+
       const result = routines.map((routine) => ({
         teacherName: routine.teacher.name,
         sectionName: routine.section.name,
-        // Combining startTime and endTime to mimic a 'classTime' field.
         classTime: `${routine.startTime} - ${routine.endTime}`,
-        // Include any additional details you want to show.
       }));
-  
+
       return result;
     } catch (error) {
       console.log("Error fetching teacher classes for current date:", error);
@@ -1208,31 +1208,54 @@ await this.teacher_ModuleRepo.save(module)
 
   async getTodayAnnouncements(uni_id: string) {
     try {
-      // Ensure the university exists.
       const university = await this.uniRepo.findOneBy({ id: uni_id });
       if (!university) throw new Error("University not found");
-  
-      // Calculate the start and end of the current day.
+
       const today = new Date();
-      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-  
-      // Retrieve announcements for the university with announce_date between start and end of today.
+      const startOfDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      const endOfDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1
+      );
+
       const announcements = await this.announcementRepo.find({
         where: {
           university: { id: uni_id },
           announce_date: Between(startOfDay, endOfDay),
         },
-        relations: ["teacher", "module"], // include teacher and module info if needed
+        relations: ["teacher", "module"],
       });
-  
+
       return announcements;
     } catch (error) {
       console.error("Error fetching today's announcements:", error);
       throw error;
     }
   }
+
+  async getSubscriptionByUni(uni_id: string) {
+    try {
+      const subscriptions = await this.uniSubscriptionRepo.find({
+        where: {
+          university: { id: uni_id },
+        },
+        relations: ["subscription", "university"],
+      });
   
+      if (!subscriptions || subscriptions.length === 0) {
+        throw new Error("No subscriptions found for the given university");
+      }
+  
+      return subscriptions;
+    } catch (error) {
+    console.log("🚀 ~ UniversityService ~ getSubscriptionByUni ~ error:", error)
+    }
+  }
 }
 
 export default new UniversityService();
