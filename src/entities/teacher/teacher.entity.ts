@@ -1,7 +1,7 @@
 import { University } from "../../entities/university/university.entity";
 import { Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Assignment } from "../../entities/Assignment/assignment.entity";
@@ -9,13 +9,14 @@ import { Routine } from "../../entities/Routine/routine.entity";
 import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
 import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
 import { Notification } from "../../entities/notification/notification.entity";
+import { Room } from "../../entities/room/room.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column()
   profileImagePath: string;
 
   @Column({
@@ -66,6 +67,9 @@ export class Teacher extends Base {
     
     @OneToMany(() => Notification, (notification) => notification.teacher, {onDelete: "CASCADE"})
     notification: Notification[];
+
+    @OneToOne(() => Room, (room) => room.teacher, {onDelete: "CASCADE"})
+    room: Room;
   
 
 

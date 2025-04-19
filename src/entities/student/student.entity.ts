@@ -1,12 +1,13 @@
 import { University } from "../../entities/university/university.entity";
 import { Gender, Role } from "../../constant/enum";
 import Base from "../../entities/base.entity";
-import { Column, Entity, OneToMany, ManyToOne, JoinColumn} from "typeorm";
+import { Column, Entity, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 
 import { Section } from "../../entities/Section/section.entity";
 import { Student_Assignment } from "../../entities/Assignment/student_assignment.entity";
 import { Attendance } from "../../entities/Attendance/attendance.entity";
 import { Notification } from "../../entities/notification/notification.entity";
+import { Room } from "../../entities/room/room.entity";
 
 @Entity("student")
 export class Student extends Base {
@@ -47,6 +48,9 @@ export class Student extends Base {
   @Column()
   admissionYear: number;
 
+  @Column()
+  profileImagePath: string;
+
   @ManyToOne(() => University, (uni) => uni.student, {
     onDelete: "CASCADE",
   })
@@ -71,4 +75,7 @@ export class Student extends Base {
     onDelete: "CASCADE",
   })
   notification: Notification[];
+
+  @ManyToOne(() => Room, (room) => room.student, {cascade: true})
+  room: Room;
 }

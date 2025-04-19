@@ -11,14 +11,17 @@ const teacherResoureFilePath = "uploads/teacherResourceFiles";
 const teacherAssignmentFilePath = "uploads/teacherAssignmentFiles";
 const studentAssignmentFilePath="uploads/studentAssignmentFiles";
  const teacherProfileImagesPath="uploads/teacherProfileImages";
-// const scoreSubmissionPath="uploads/scoreSubmissionImages";
+const studentProfileImagesPath="uploads/studentProfileImages";
 // const teamImagePath="uploads/teamImages";
 ensureDirectoryExistence(universityProfileImagesPath);
+ensureDirectoryExistence(teacherProfileImagesPath);
+ensureDirectoryExistence(studentProfileImagesPath);
+
 ensureDirectoryExistence(teacherResoureFilePath);
+
 ensureDirectoryExistence(teacherAssignmentFilePath);
 ensureDirectoryExistence(studentAssignmentFilePath);
-ensureDirectoryExistence(teacherAssignmentFilePath);
-// ensureDirectoryExistence(bucksPath)
+
 // ensureDirectoryExistence(scoreSubmissionPath)
 
 //university Profile
@@ -44,6 +47,18 @@ const teacherProfileStorage= multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   }
 })
+
+//Student Profile
+const studentProfileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (file.fieldname === 'student_profile_image') {
+      cb(null, studentProfileImagesPath);
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
 //teacher resource
 const teacherResourceStorage= multer.diskStorage({
@@ -98,6 +113,11 @@ export const universityProfileImagesUpload = multer({
 
 export const teacherProfileImagesUpload = multer({
   storage: teacherProfileStorage,
+  fileFilter: fileFilter,
+});
+
+export const studentProfileImagesUpload = multer({
+  storage: studentProfileStorage,
   fileFilter: fileFilter,
 });
 

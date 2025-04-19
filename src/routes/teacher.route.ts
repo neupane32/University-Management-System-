@@ -5,6 +5,7 @@ import { authorization } from "../middleware/authorization.middleware";
 import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { RoutineController } from "../controllers/routine.controller";
+import { teacherProfileImagesUpload } from "../middleware/multer.middleware";
 
 
 const router: Router = Router();
@@ -17,12 +18,14 @@ router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
 
 router.use(authentication());
 
-router.patch('/update-profile', catchAsync(teacherController.updateProfile));
+
 
  router.use(authorization([Role.TEACHER]));
 
 //teacher
 router.get('/teacher-profile', catchAsync(teacherController.teacherProfile));
+router.patch('/update-profile', teacherProfileImagesUpload.fields([{name: 'teacher_profile_image'}]), catchAsync(teacherController.updateProfile));
+
 
 router.get('/get-Teacher-by-module', catchAsync(teacherController.getTeacherByModule));
 router.get('/get-sections-by-module/:moduleId', catchAsync(teacherController.getSectionsByModule));
@@ -46,4 +49,5 @@ router.post('/mark-as-read',catchAsync(teacherController.markAsRead))
 router.get('/get-pending-assignment',catchAsync(teacherController.getPendingAssignment));
 router.get('/get-Attendance-overview-by-section',catchAsync(teacherController.getAttendanceOverviewByTeacher));
 router.get('/get-today-schedule',catchAsync(teacherController.getTodaySchedule));
+router.get('/get-total-section', catchAsync(teacherController.getTotalSection));
 export default router;

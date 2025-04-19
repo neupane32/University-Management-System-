@@ -79,10 +79,9 @@ class TeacherService {
 
   async teacherProfile(teacher_id: string) {
     try {
-      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
+      const teacher = await this.teacherRepo.findOneBy({ id: teacher_id});
       if (!teacher) throw new Error(" Teacher not found");
-      console.log("🚀 ~ teacherProfile ~ teacher:", teacher)
-      
+
       return teacher;
     } catch (error) {
     console.log("🚀 ~ teacherProfile ~ error:", error)
@@ -245,6 +244,7 @@ async getSections(teacherId:string){
     (section, index, self) =>
       self.findIndex(s => s.id === section.id) === index
   );
+  console.log("🚀 ~ TeacherService ~ getSections ~ uniqueSections:", uniqueSections)
   
   return uniqueSections;
 }
@@ -289,7 +289,7 @@ async getPendingAssignment(teacherId: string): Promise<number> {
 async getAttendanceOverviewByTeacher(
   teacherId: string,
 ){
-  
+
   const teacherSections = await this.teacher_sectionRepo.find({
     where: { teacher: { id: teacherId } },
     relations: ['section', 'section.students'],
@@ -337,7 +337,7 @@ async getAttendanceOverviewByTeacher(
   return overview;
 }
 
-async getTodayScheduleByTeacher(teacherId: string): Promise<any[]> {
+async getTodayScheduleByTeacher(teacherId: string) {
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const todayName = days[new Date().getDay()];
 
@@ -364,6 +364,24 @@ async getTodayScheduleByTeacher(teacherId: string): Promise<any[]> {
   }));
 }
 
+async getTotalSectionsByTeacher(teacherId: string) {
+  try {
+    const teacher = await this.teacherRepo.findOneBy({ id: teacherId });
+    if (!teacher) throw new Error("Teacher not found");
+
+    const total = await this.teacher_sectionRepo.count({
+      where: { teacher: { id: teacherId } }
+    });
+  
+    return total;
+    
+  } catch (error) {
+    console.error("Error fetching total sections: ", error);
+    throw new Error("Error fetching total sections");
+    
+  }
+
+}
 }
 
 export default TeacherService;
