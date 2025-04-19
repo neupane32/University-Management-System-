@@ -2,7 +2,7 @@ import { catchAsync } from '../utils/catchAsync.utils';
 import { UniversityController } from '../controllers/university.controller';
 import express from 'express';
 import { authentication } from '../middleware/authentication.middleware';
-import {universityProfileImagesUpload} from '../middleware/multer.middleware'
+import {studentProfileImagesUpload, teacherAssignmentFileUpload, teacherProfileImagesUpload, universityProfileImagesUpload} from '../middleware/multer.middleware'
 import { authorization } from '../middleware/authorization.middleware';
 import {subscriptionAuthorization} from '../middleware/subscriptionAuthorization.middleware'
 import { Role } from '../constant/enum';
@@ -34,7 +34,6 @@ router.delete('/uni/delete-Announcement/:id', catchAsync(universityController.de
 // Program Routes
 
 router.post('/uni/programs', catchAsync(universityController.addProgram));
-
 router.get('/uni/find-programs', catchAsync(universityController.findProgram));
 router.patch('/uni/update-program/:id', catchAsync(universityController.updateProgram));
 router.delete('/uni/delete-program/:id', catchAsync(universityController.deleteProgram));
@@ -49,17 +48,17 @@ router.get('/uni/find-modules-by-duration/:id/:duration', catchAsync(universityC
 router.delete('/uni/delete-modules/:id', catchAsync(universityController.deleteModule));
 
 // Teacher Routes
-router.post('/uni/add-teachers', catchAsync(universityController.addTeacher));
-router.patch('/uni/edit-teacher/:id', catchAsync(universityController.updateTeacher));
+router.post('/uni/add-teachers',teacherProfileImagesUpload.fields([{name: 'teacher_profile_image'}]), catchAsync(universityController.addTeacher));
+router.patch('/uni/edit-teacher/:id',teacherProfileImagesUpload.fields([{name: 'teacher_profile_image'}]), catchAsync(universityController.updateTeacher));
 router.get('/uni/find-teachers', catchAsync(universityController.getTeacher));
 router.get('/uni/find-teachers-by-id/:id', catchAsync(universityController.getTeacherByModule));
 router.get('/uni/teachers/:id', catchAsync(universityController.getTeacherById));
 router.delete('/uni/delete-teacher/:id', catchAsync(universityController.deleteTeacher));
 
 // Student Routes
-router.post('/add-students', catchAsync(universityController.addStudent));
+router.post('/add-students', studentProfileImagesUpload.fields([{name: 'student_profile_image'}]), catchAsync(universityController.addStudent) );;
 router.get('/find-students', catchAsync(universityController.getStudent));
-router.patch('/edit-student/:id', catchAsync(universityController.editStudent)); 
+router.patch('/edit-student/:id', studentProfileImagesUpload.fields([{name: 'student_profile_image'}]), catchAsync(universityController.editStudent)); 
 router.delete('/delete-student/:id', catchAsync(universityController.deleteStudent));
 
 // assign teacher to a section

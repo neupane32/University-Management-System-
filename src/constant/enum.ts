@@ -8,10 +8,10 @@ export enum Environment {
   }
   
   export enum Role {
-    ADMIN = 'ADMIN',
     UNIVERSITY = 'UNIVERSITY',
     TEACHER = 'TEACHER',
-    STUDENT = 'STUDENT'
+    STUDENT = 'STUDENT',
+    ADMIN = 'ADMIN' 
   
   }
   export enum Status {

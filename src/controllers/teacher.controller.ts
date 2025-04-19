@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "../constant/StatusCode";
 import webTokenUtils from "../utils/webToken.utils";
 import { TeacherInterface } from "../interface/teacher.interface";
+import HttpException from "../utils/HttpException.utils";
 const teacherService = new TeacherService();
 
 export class TeacherController {
@@ -55,19 +56,22 @@ export class TeacherController {
   async updateProfile(req: Request, res: Response) {
     try {
       const teacher_id = req.user?.id;
+
       const files = req.files as
       | { [fieldname: string]: Express.Multer.File[] }
       | undefined;
-
-      const baseurl = `${req.protocol}://${req.get("host")}/`;
-      const teacherProfileImage = files?.["teacher_profile_image"]
-      ? `${baseurl}/${files["teacher_profile_image"][0].path.replace(/\\/g, "/")}`
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    if (!files) {
+      throw HttpException.notFound("profile not found.");
+    }
+    const teacherProfileImage = files?.["teacher_profile_image"]
+      ? ` ${baseUrl}/${files["teacher_profile_image"][0].path.replace(/\\/g, "/")}`
       : null;
 
       const data = await teacherService.updateProfile(
         teacher_id as string,
         req.body as TeacherInterface,
-        teacherProfileImage as string
+        teacherProfileImage
       );
       res.status(StatusCodes.SUCCESS).json({
         data,
@@ -199,6 +203,21 @@ async getTodaySchedule(req:Request,res:Response){
     
   } catch (error) {
     console.log("🚀 ~ TeacherController ~ getTodaySchedule ~ error:", error)
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    
+  }
+}
+
+async getTotalSection(req:Request,res:Response){
+  try {
+    const teacherId= req.user.id
+    const data= await teacherService.getTotalSectionsByTeacher(teacherId)
+
+    res.status(StatusCodes.SUCCESS).json({ data });
+
+    
+  } catch (error) {
+    console.log("🚀 ~ TeacherController ~ getTotalSection ~ error:", error)
     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     
   }

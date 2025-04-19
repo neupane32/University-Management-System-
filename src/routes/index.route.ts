@@ -10,6 +10,7 @@ import routine from './routine.routes';
 import resource from './resource.routes';
 import assignment from './assignment.routes';
 import attendance from './attendance.routes';
+import videocall from './videocall.routes';
 
 export interface IndexRoute {
     path: string;
@@ -71,6 +72,12 @@ const routes: IndexRoute[] = [
         route: attendance
 
     },
+    {
+        path: '/call',
+        route: videocall
+
+    },
+    
 ];
 
 

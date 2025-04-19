@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import Base from "../../entities/base.entity";
 import { University } from "../../entities/university/university.entity";
 import { Program } from "../../entities/Programs/program.entity";
@@ -10,6 +10,7 @@ import { Resource } from "../../entities/resources/resource.entity";
 import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
 import { Module_Section } from "../../entities/ModuleSection/ModuleSection.entity";
 import { Attendance } from "../../entities/Attendance/attendance.entity";
+import { Room } from "../../entities/room/room.entity";
 
 @Entity("section")
 export class Section extends Base {
@@ -59,4 +60,7 @@ teacher_Section: Teacher_Section[];
 
   @OneToMany(() => Attendance, (attendance) => attendance.section)
 attendances: Attendance[];
+
+    @OneToOne(() => Room, (room) => room.section, {onDelete: "CASCADE"})
+    room: Room;
 }
