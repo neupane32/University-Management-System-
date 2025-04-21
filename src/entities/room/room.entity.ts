@@ -7,6 +7,9 @@ import { Student } from "../../entities/student/student.entity";
 @Entity("Room")
 export class Room extends Base {
 
+  @Column({nullable: true})
+  meetingLink: string;
+
   @Column()
   startTime: string;
 

@@ -11,7 +11,7 @@ import resource from './resource.routes';
 import assignment from './assignment.routes';
 import attendance from './attendance.routes';
 import videocall from './videocall.routes';
-
+import chat from './chat.routes'
 export interface IndexRoute {
     path: string;
     route: Router;
@@ -75,6 +75,11 @@ const routes: IndexRoute[] = [
     {
         path: '/call',
         route: videocall
+
+    },
+    {
+        path: '/chat',
+        route: chat
 
     },
     
