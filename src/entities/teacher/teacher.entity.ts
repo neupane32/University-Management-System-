@@ -10,6 +10,7 @@ import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entit
 import { Teacher_Section } from "../../entities/TeacherSection/TeacherSection.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Room } from "../../entities/room/room.entity";
+import { Chat } from "../../entities/chat/chat.entity";
 
 @Entity('teacher')
 export class Teacher extends Base {
@@ -71,7 +72,11 @@ export class Teacher extends Base {
     @OneToOne(() => Room, (room) => room.teacher, {onDelete: "CASCADE"})
     room: Room;
   
-
+    @OneToMany(() => Chat, chat => chat.teacherSender)
+    sentChats: Chat[];
+  
+    @OneToMany(() => Chat, chat => chat.teacherReceiver)
+    receivedChats: Chat[];
 
 
 }

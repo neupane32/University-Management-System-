@@ -13,9 +13,9 @@ export class VideocallController {
 
             const data = await videocallService.createRoom(teacher_id, req.body);
             res.status(StatusCodes.CREATED).json({
-                status: true,
+                data,
                 message: "Room created successfully",
-                data: data
+              
             });
 
         } catch (error) {

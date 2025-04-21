@@ -8,6 +8,7 @@ import { Student_Assignment } from "../../entities/Assignment/student_assignment
 import { Attendance } from "../../entities/Attendance/attendance.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Room } from "../../entities/room/room.entity";
+import { Chat } from "../../entities/chat/chat.entity";
 
 @Entity("student")
 export class Student extends Base {
@@ -78,4 +79,9 @@ export class Student extends Base {
 
   @ManyToOne(() => Room, (room) => room.student, {cascade: true})
   room: Room;
+  @OneToMany(() => Chat, chat => chat.studentSender)
+  sentChats: Chat[];
+
+  @OneToMany(() => Chat, chat => chat.studentReceiver)
+  receivedChats: Chat[];
 }

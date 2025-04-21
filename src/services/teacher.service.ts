@@ -350,10 +350,6 @@ async getTodayScheduleByTeacher(teacherId: string) {
     order: { startTime: 'ASC' },
   });
 
-  if (!routines || routines.length === 0) {
-    throw new Error('No schedule found for today.');
-  }
-
   return routines.map(r => ({
     sectionId:   r.section.id,
     sectionName: r.section.name,

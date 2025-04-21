@@ -20,6 +20,7 @@ class videocallService {
       }
 
       const room = this.roomRepo.create({
+        meetingLink: data.meetingLink,
         startTime: data.startTime,
         endTime: data.endTime,
         section: data.section,
