@@ -5,12 +5,16 @@ import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { AssignmentController } from "../controllers/assignment.controller";
 import { teacherAssignmentFileUpload } from "../middleware/multer.middleware";
+import { subscriptionAuthorization } from "../middleware/subscriptionAuthorization.middleware";
+
 
 const router: Router = Router();
 const assignmentController = new AssignmentController;
 
 router.use(authentication());
 router.use(authorization([Role.TEACHER]));
+
+router.use(subscriptionAuthorization())
 
 //resource operation
 router.post('/add-assignment', teacherAssignmentFileUpload.fields([{name:'teacher_assignment_file'}]), catchAsync(assignmentController.addAssignment));

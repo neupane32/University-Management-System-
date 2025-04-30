@@ -36,7 +36,6 @@ class ChatService {
     } else {
       throw new Error("Invalid receiver type");
     }
-
     //create and save
     const chat = this.chatRepo.create(chatData);
     const savedChat = await this.chatRepo.save(chat);
@@ -57,6 +56,7 @@ class ChatService {
     }
     return fullChat;
   }
+  
   async getChatBetweenUsers(id1: string, id2: string): Promise<Chat[]> {
     return this.chatRepo
       .createQueryBuilder("chat")

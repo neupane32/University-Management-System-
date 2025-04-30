@@ -54,13 +54,8 @@ class SubscriptionService {
     }
   }
 
-  async updateSubscription(
-    subscription_id: string,
-    data: any
-  ) {
+  async updateSubscription(subscription_id: string, data: any) {
     try {
-
-
       const subscription = await this.subscriptionRepo.findOne({
         where: { id: subscription_id },
       });
@@ -158,34 +153,38 @@ class SubscriptionService {
   }
 
   async getSubscriptionTime(uni_id: string) {
-    const activeSubscription = await this.uniSubscriptionRepo.findOne({
-      where: {
-        university: { id: uni_id },
-      },
-    });
+    try {
+      const activeSubscription = await this.uniSubscriptionRepo.findOne({
+        where: {
+          university: { id: uni_id },
+        },
+      });
 
-    if (!activeSubscription) {
-      throw new Error("No active subscription found for this university");
+      if (!activeSubscription) {
+        throw new Error("No active subscription found for this university");
+      }
+
+      const currentDate = new Date();
+      let timeLeftMs =
+        activeSubscription.endDate.getTime() - currentDate.getTime();
+
+      if (timeLeftMs <= 0) {
+        activeSubscription.isActive = false;
+        await this.uniSubscriptionRepo.save(activeSubscription);
+        timeLeftMs = 0;
+      }
+
+      const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeftMs % (1000 * 60)) / 1000);
+
+      return { days, hours, minutes, seconds };
+    } catch (error) {
+      console.log("🚀 ~ getSubscriptionTime ~ error:", error);
     }
-
-    const currentDate = new Date();
-    let timeLeftMs =
-      activeSubscription.endDate.getTime() - currentDate.getTime();
-
-    if (timeLeftMs <= 0) {
-      activeSubscription.isActive = false;
-      await this.uniSubscriptionRepo.save(activeSubscription);
-      timeLeftMs = 0;
-    }
-
-    const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeftMs % (1000 * 60)) / 1000);
-
-    return { days, hours, minutes, seconds };
   }
 }
 export default SubscriptionService;

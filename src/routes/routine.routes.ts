@@ -3,7 +3,6 @@ import { Router } from "express";
 import { authentication } from "../middleware/authentication.middleware";
 import { authorization } from "../middleware/authorization.middleware";
 import { Role } from "../constant/enum";
-import { SectionController } from "../controllers/section.controller";
 import { RoutineController } from "../controllers/routine.controller";
 
 const router: Router = Router();

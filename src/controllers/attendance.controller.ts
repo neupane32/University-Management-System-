@@ -8,11 +8,7 @@ export class AttendanceController {
 
   async addAttendance(req: Request, res: Response) {
     try {
-
-console.log('xiro??')
-
       const teacher_id = req.user?.id;
-
 
       const data = await attendanceService.addAttendace(
         req.body,
@@ -35,6 +31,7 @@ console.log('xiro??')
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+  
   async getAttendanceByDate(req:Request,res:Response){
     try{
 

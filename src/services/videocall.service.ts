@@ -33,6 +33,44 @@ class videocallService {
     }
   }
 
+
+
+  async getRoomByStudent(student_id: string) {
+    console.log("🚀 ~ videocallService ~ getRoomByStudent ~ student_id:", student_id)
+    console.log("dfad")
+    const student = await this.studentRepo.findOne({
+      where: { id: student_id },
+      relations: ["section"]
+    });
+    console.log("🚀 ~ videocallService ~ getRoomByStudent ~ student:", student)
+    if (!student) throw new Error("Student not found");
+    if (!student.section) {
+      console.log(" j vaye ni ")
+      throw new Error("Student is not assigned to any section");}
+
+      const room = await this.roomRepo.findOne({
+        where: { section: { id: student.section.id } },
+        relations: ["section", "teacher"]
+      });
+    console.log("🚀 ~ videocallService ~ getRoomByStudent ~ room:", room)
+    if (!room) throw new Error("No active room for your section");
+
+    const now = new Date();
+    const [startH, startM] = room.startTime.split(':').map(Number);
+    const [endH, endM] = room.endTime.split(':').map(Number);
+
+    const startDate = new Date(now);
+    startDate.setHours(startH, startM, 0, 0);
+    const endDate = new Date(now);
+    endDate.setHours(endH, endM, 0, 0);
+
+    if (now >= startDate && now <= endDate) {
+      return room;
+    } else {
+      throw new Error("Room is not active at this time");
+    }
+  }
+
   async getRoom(teacher_id: string) {
     try {
       const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });
@@ -54,37 +92,6 @@ class videocallService {
       console.log("🚀 ~ getRoom ~ error:", error);
     }
   }
-
-  async getRoomByStudent(student_id: string) {
-    const student = await this.studentRepo.findOne({
-      where: { id: student_id },
-      relations: ["section"]
-    });
-    if (!student) throw new Error("Student not found");
-    if (!student.section) throw new Error("Student is not assigned to any section");
-
-    const room = await this.roomRepo.findOne({
-      where: { section: { id: student.section.id } },
-      relations: ["section", "teacher"]
-    });
-    if (!room) throw new Error("No active room for your section");
-
-    const now = new Date();
-    const [startH, startM] = room.startTime.split(':').map(Number);
-    const [endH, endM] = room.endTime.split(':').map(Number);
-
-    const startDate = new Date(now);
-    startDate.setHours(startH, startM, 0, 0);
-    const endDate = new Date(now);
-    endDate.setHours(endH, endM, 0, 0);
-
-    if (now >= startDate && now <= endDate) {
-      return room;
-    } else {
-      throw new Error("Room is not active at this time");
-    }
-  }
-
   async deleteRoom(teacher_id: string, room_id: string) {
     try {
       const teacher = await this.teacherRepo.findOneBy({ id: teacher_id });

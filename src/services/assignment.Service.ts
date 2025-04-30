@@ -37,15 +37,8 @@ class AssignmentService {
     )
   ) {}
 
-  async addAssignment(
-    data: any,
-    TeacherAssignmentFile: any[],
-    teacher_id: string
-  ) {
+  async addAssignment(data: any, TeacherAssignmentFile: any[], teacher_id: string) {
     try {
-      console.log("🚀 ~ AssignmentService ~ data:", data);
-
-      // const teacher = await this.teacherRepo.findOne({where{id: teacher_id}  });
       const teacher = await this.teacherRepo.findOne({
         where: {
           id: teacher_id,
@@ -169,8 +162,7 @@ class AssignmentService {
       });
       if (!assignment) throw new Error("Assignnment not found");
 
-      const update = await this.assignmentRepo.update(
-        { id },
+      const update = await this.assignmentRepo.update(        { id },
         {
           title: data.title,
           description: data.description,
@@ -260,12 +252,33 @@ class AssignmentService {
     return "Assignment deleted successfully";
   }
 
-  async submitAssignment(
-    student_id: string,
-    assignment_id: string,
-    assignment_file: any[],
-    data: any
-  ) {
+  async getSubmittedAssigment(submission_id: string) {
+    console.log(
+      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ submission_id:",
+      submission_id
+    );
+    const getSubmittedAssigment = await this.submitAssignmentRepo.findOne({
+      where: {
+        assignment: {
+          id: submission_id,
+        },
+      },
+      relations: [
+        "assignment",
+        "assignment.files",
+        "submissions",
+        "submissions.student",
+        "submissions.files",
+      ],    });
+    console.log(
+      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ getSubmittedAssigment:",
+      getSubmittedAssigment
+    );
+    return getSubmittedAssigment;
+  }
+  
+
+  async submitAssignment(student_id: string, assignment_id: string, assignment_file: any[], data: any) {
     try {
       const student = await this.studentRepo.findOneBy({ id: student_id });
       if (!student) throw new Error("Student Not Found");
@@ -314,7 +327,6 @@ class AssignmentService {
         return studentAssignment;
       }
     } catch (error: any) {
-      throw new Error(error.message);
       console.log("🚀 ~ AssignmentService ~ submitAssignment ~ error:", error);
     }
   }
@@ -483,31 +495,7 @@ class AssignmentService {
       console.log("🚀 ~ AssignmentService ~ error:", error);
     }
   }
-  async getSubmittedAssigment(submission_id: string) {
-    console.log(
-      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ submission_id:",
-      submission_id
-    );
-    const getSubmittedAssigment = await this.submitAssignmentRepo.findOne({
-      where: {
-        assignment: {
-          id: submission_id,
-        },
-      },
-      relations: [
-        "assignment",
-        "assignment.files",
-        "submissions",
-        "submissions.student",
-        "submissions.files", // <-- include this line to fetch submitted files
-      ],    });
-    console.log(
-      "🚀 ~ AssignmentService ~ getSubmittedAssigment ~ getSubmittedAssigment:",
-      getSubmittedAssigment
-    );
-    return getSubmittedAssigment;
-  }
-  
+ 
   
 }
 

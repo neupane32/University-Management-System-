@@ -22,18 +22,15 @@ export class ResourceController {
       (
         data,
       );
-
-      
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-
   async getResource(req:Request, res:Response){
     try {
       const teacher_id = req.user?.id;
       const module_id = req.params.id;
-
+      
       const data = await resourceService.getResource(
         teacher_id as string,
         module_id
@@ -42,9 +39,7 @@ export class ResourceController {
       ({
         success: true,
         data
-      }
-      );
-      
+      });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }

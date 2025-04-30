@@ -21,7 +21,7 @@ export class UniversityController {
     }
     console.log("🚀 ~ UniversityController ~ createUniversity ~ files:", files);
     const universityProfileImage = files?.["university_profile_image"]
-      ? ` ${baseUrl}/${files["university_profile_image"][0].path.replace(/\\/g, "/")}` // Replace backslashes for Windows
+      ? ` ${baseUrl}/${files["university_profile_image"][0].path.replace(/\\/g, "/")}`
       : null;
     try {
       const data = await universityService.createUniversity(
@@ -133,7 +133,7 @@ export class UniversityController {
         req.body as ProgramInterface
       );
       res.status(StatusCodes.SUCCESS).json({
-        data: data,
+        data,
       });
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -187,6 +187,7 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
   async addModule(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -237,6 +238,24 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
+  async deleteModule(req: Request, res: Response) {
+    try {
+      const uni_id = req.user?.id;
+      const module_id = req.params.id;
+
+      const data = await universityService.deleteModule(
+        uni_id as string,
+        module_id
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
   async findModuleByProgram(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -300,23 +319,7 @@ export class UniversityController {
     }
   }
 
-  async deleteModule(req: Request, res: Response) {
-    try {
-      const uni_id = req.user?.id;
-      const module_id = req.params.id;
-
-      const data = await universityService.deleteModule(
-        uni_id as string,
-        module_id
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
-
+ 
   async addTeacher(req: Request, res: Response) {
     try{
     const uni_id = req.user?.id;
@@ -386,6 +389,7 @@ export class UniversityController {
         req.body as TeacherInterface,
         teacherProfileImage
       );
+      console.log("🚀 ~ UniversityController ~ updateTeacher ~ data:", data)
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -405,6 +409,7 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
+
   async getTeacherByModule(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;
@@ -481,7 +486,6 @@ export class UniversityController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-
   async getStudent(req: Request, res: Response) {
     try {
       const uni_id = req.user?.id;

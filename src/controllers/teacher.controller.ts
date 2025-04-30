@@ -212,6 +212,7 @@ async getTotalSection(req:Request,res:Response){
   try {
     const teacherId= req.user.id
     const data= await teacherService.getTotalSectionsByTeacher(teacherId)
+    console.log("🚀 ~ TeacherController ~ getTotalSection ~ data:", data)
 
     res.status(StatusCodes.SUCCESS).json({ data });
 

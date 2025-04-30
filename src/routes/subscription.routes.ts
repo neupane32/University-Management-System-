@@ -1,5 +1,4 @@
 import { authentication } from "../middleware/authentication.middleware";
-import { StudentController } from "../controllers/student.controller";
 import { Router } from "express";
 import { authorization } from "../middleware/authorization.middleware";
 import { Role } from "../constant/enum";

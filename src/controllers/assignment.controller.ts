@@ -27,7 +27,6 @@ export class AssignmentController {
         file,
         teacher_id
       );
-      console.log('VAYO TA --------------------------------------------------')
       res.status(StatusCodes.CREATED).json(data);
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -51,23 +50,19 @@ export class AssignmentController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       const uploadedFiles = files["teacher_assignment_file"];
-
       const file = uploadedFiles?.map((file, index) => {
         return {
           filename: file.filename,
           path: file.path,
         };
       });
-
       const data = req.body;
-
       const updatedAssignment = await assignmentService.updateAssignment(
         teacher_id,
         assignmentId,
         file,
         data
       );
-
       res.status(StatusCodes.SUCCESS).json({
         message: "Assignment updated successfully",
         data: updatedAssignment,
@@ -117,6 +112,19 @@ export class AssignmentController {
     }
   }
 
+  async getSubmittedAssigment(req:Request,res:Response){
+    try{
+      const assigment_id = req.params.assigment_id
+      const data= await assignmentService.getSubmittedAssigment(assigment_id)
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+      
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+  }
+
   async submitAssignment(req: Request, res: Response) {
     try {
       const studentId = req.user?.id;
@@ -131,9 +139,6 @@ export class AssignmentController {
           path: file.path,
         };
       });
-
-      console.log("🚀 ~ AssignmentController ~ addAssignment ~ files:", files);
-
       const data = await assignmentService.submitAssignment(
         studentId,
         assignmentId,
@@ -145,12 +150,10 @@ export class AssignmentController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-
   async getAssignmentByStudent(req: Request, res: Response) {
     try {
       const student_id = req.user?.id;
       const moduleId = req.params.moduleId;
-      console.log("🚀 ~ AssignmentController ~ getAssignmentByStudent ~ module_id:", moduleId)
 
       const data = await assignmentService.getAssignmentByStudent(
         student_id,
@@ -216,16 +219,5 @@ export class AssignmentController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-  async getSubmittedAssigment(req:Request,res:Response){
-    try{
-      const assigment_id = req.params.assigment_id
-      const data= await assignmentService.getSubmittedAssigment(assigment_id)
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-      
-    }catch(error){
 
-    }
-  }
 }

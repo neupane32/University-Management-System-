@@ -53,6 +53,7 @@ export class RoutineController {
       routine_id,
       data
     );
+    console.log("🚀 ~ RoutineController ~ updateRoutine ~ update:", update)
     res.status(StatusCodes.SUCCESS).json({
       data: update,
     });

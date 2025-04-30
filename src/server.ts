@@ -4,6 +4,7 @@ import { DotenvConfig } from './config/env.config';
 import { AppDataSource } from './config/database.config';
 import adminSeedMiddleware from "./middleware/adminSeed.middleware";
 import { initializeSocket } from './socket/socket';
+import { CronService } from './services/cron.service';
 async function listen() {
   const PORT = DotenvConfig.PORT;
   const httpServer = createServer(app);
@@ -17,6 +18,8 @@ AppDataSource.initialize()
   console.log('Database connected successfully');
   listen();
   adminSeedMiddleware.seedAdmin()
+  new CronService();
+
   })
   .catch((err) => {
     console.log(`Database failed to connect`, err);

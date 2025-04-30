@@ -1,19 +1,16 @@
 import { University } from "../../entities/university/university.entity";
 import { Program } from "../../entities/Programs/program.entity";
 import Base from "../../entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne,OneToMany} from "typeorm";
 import { Resource } from "../../entities/resources/resource.entity";
-import { Teacher } from "../../entities/teacher/teacher.entity";
 import { Announcement } from "../../entities/announcement/announcement.entity";
 import { Assignment } from "../../entities/Assignment/assignment.entity";
-import { Section } from "../../entities/Section/section.entity";
 import { Teacher_Module } from "../../entities/TeacherModule/teacherModule.entity";
 import { Module_Section } from "../../entities/ModuleSection/ModuleSection.entity";
-import { Routine } from "../../entities/Routine/routine.entity";
+import { ExamRoutine } from "../../entities/Routine/exam_routine.entity";
 
 @Entity("module")
 export class Module extends Base {
-  [x: string]: any;
   @Column()
   name: string;
 
@@ -32,11 +29,11 @@ export class Module extends Base {
   @JoinColumn({ name: "uni_id" })
   university: University;
 
-  @Column("int", {nullable: true})
+  @Column("int", { nullable: true })
   durationReference: number;
 
   @OneToMany(() => Resource, (resource) => resource.module, { cascade: true })
-  module: Module[];
+  module: Resource[];
 
   @OneToMany(() => Announcement, (announce) => announce.module, {
     cascade: true,
@@ -48,10 +45,12 @@ export class Module extends Base {
   })
   assignments: Assignment[];
 
-  // @OneToMany(() => Section, (section) => section.module, { cascade: true })
-  // section: Section[];
+  @OneToMany(() => ExamRoutine, (examRoutines) => examRoutines.university, {
+    cascade: true,
+  })
+  examRoutines: ExamRoutine;
 
-  @OneToMany(() => Teacher_Module, (teacherModule) => teacherModule.teacher, {
+  @OneToMany(() => Teacher_Module, (teacherModule) => teacherModule.module, {
     cascade: true,
   })
   modules: Teacher_Module[];
@@ -61,10 +60,7 @@ export class Module extends Base {
   })
   moduleSection: Module_Section[];
 
-    @OneToMany(() => Module, (routine) => routine.module, {onDelete: "CASCADE"})
-    routine: Module;
-
-  
-
-
+  @OneToMany(() => Module, (routine) => routine.module, { onDelete: "CASCADE" })
+  routine: Module;
+  resource: any;
 }

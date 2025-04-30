@@ -16,4 +16,6 @@ router.use(authentication());
 router.post('/add-resource', teacherResourceFileUpload.fields([{name:'teacher_resource_file'}]), catchAsync(resourceController.addResource));
 router.get('/get-resource/:id', catchAsync(resourceController.getResource));
 router.delete('/delete-resource/:id', catchAsync(resourceController.deleteResource));
+
+
 export default router;

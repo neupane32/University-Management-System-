@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Assignment } from "./assignment.entity";
-import { Student } from "../../entities/student/student.entity";
+
 import Base from "../../entities/base.entity";
 import { Student_Assignment } from "./student_assignment.entity";
 

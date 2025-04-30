@@ -12,8 +12,8 @@ export enum Environment {
     TEACHER = 'TEACHER',
     STUDENT = 'STUDENT',
     ADMIN = 'ADMIN' 
-  
   }
+  
   export enum Status {
     ACCEPTED = 'ACCEPTED',
     PENDING = 'PENDING',
@@ -44,7 +44,8 @@ export enum NotificationType {
   ASSIGNMENT = 'ASSIGNMENT',
   ANNOUNCEMENT = 'ANNOUNCEMENT',
   RESOURCE = 'RESOURCE',
-  ROUTINE = 'ROUTINE'
-
+  ROUTINE = 'ROUTINE',
+  ASSIGNMENT_DUE='ASSIGNMENT_DUE',
+  MEETING_REMINDER='MEETING_REMINDER'
 }
   
