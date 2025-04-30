@@ -121,11 +121,7 @@ class UniversityService {
     }
   }
 
-  async updateProfile(
-    uni_id: string,
-    data: any,
-    universityProfileImage: string
-  ) {
+  async updateProfile(uni_id: string,data: any, universityProfileImage: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University Not found");
@@ -501,15 +497,7 @@ class UniversityService {
       if (!uni) throw new Error("University not found");
 
       const teachers = await this.TeachRepo.find({
-        where: { university: { id: uni_id } },
-        select: [
-          "id",
-          "name",
-          "email",
-          "gender",
-          "contact",
-          "profileImagePath",
-        ],
+        where: { university: { id: uni_id } }
       });
       console.log("🚀 ~ UniversityService ~ getTeachers ~ teachers:", teachers);
 
@@ -519,6 +507,27 @@ class UniversityService {
         throw new Error(error.message);
       } else {
         throw new Error("An unexpected error occurred while fetching teachers");
+      }
+    }
+  }
+  async deleteTeacher(uni_id: string, teacher_id: string) {
+    try {
+      const university = await this.uniRepo.findOneBy({ id: uni_id });
+      if (!university) throw new Error("University not found");
+
+      const teacher = await this.TeachRepo.findOneBy({ id: teacher_id });
+      if (!teacher)
+        throw new Error(
+          "Teacher not found or does not belong to the university"
+        );
+
+      await this.TeachRepo.delete({ id: teacher.id });
+      return "Teacher deleted successfully";
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Teacher not found");
       }
     }
   }
@@ -593,27 +602,7 @@ class UniversityService {
     }
   }
 
-  async deleteTeacher(uni_id: string, teacher_id: string) {
-    try {
-      const university = await this.uniRepo.findOneBy({ id: uni_id });
-      if (!university) throw new Error("University not found");
 
-      const teacher = await this.TeachRepo.findOneBy({ id: teacher_id });
-      if (!teacher)
-        throw new Error(
-          "Teacher not found or does not belong to the university"
-        );
-
-      await this.TeachRepo.delete({ id: teacher.id });
-      return "Teacher deleted successfully";
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error("Teacher not found");
-      }
-    }
-  }
 
   async addStudent(uni_id: string, StudentProfileImage: string, data: any) {
     console.log("🚀 ~ UniversityService ~ addStudent ~ data:", data);
@@ -626,7 +615,6 @@ class UniversityService {
 
       const hashPassword = await bcryptservice.hash(data.password);
 
-      // Create and save the student
       const student = this.studentRepo.create({
         uni: uni,
         profileImagePath: StudentProfileImage,
@@ -654,7 +642,6 @@ class UniversityService {
       }
     }
   }
-
   async getStudent(uni_id: string) {
     try {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
@@ -686,8 +673,6 @@ class UniversityService {
       const student = await this.studentRepo.findOneBy({ id: student_id });
       if (!student) throw new Error("Student Not found");
 
-      const hashPassword = await bcryptservice.hash(data.password);
-
       const updateStudent = await this.studentRepo.update(
         { id: student_id },
         {
@@ -699,12 +684,12 @@ class UniversityService {
           gender: data.gender,
           admissionYear: data.admissionYear,
           email: data.email,
-          password: hashPassword,
           uni: uni,
           section: data.section_id,
           profileImagePath: studentProfileImage,
         }
       );
+      console.log("🚀 ~ UniversityService ~ updateStudent:", updateStudent)
 
       return updateStudent;
     } catch (error) {
@@ -736,7 +721,6 @@ class UniversityService {
       const uni = await this.uniRepo.findOneBy({ id: uni_id });
       if (!uni) throw new Error("University not found");
 
-      // Create and save the announcement
       const createAnnouncement = this.AnnouncementRepo.create({
         announce_name: data.announce_name,
         announce_title: data.announce_title,
@@ -756,7 +740,6 @@ class UniversityService {
           uni: { id: uni_id },
         },
       });
-
       const teacherNotifications = teachers.map((teacher) =>
         this.notificationRepo.create({
           message: savedAnnouncement.announce_title,
@@ -766,7 +749,6 @@ class UniversityService {
           announcement: savedAnnouncement,
         })
       );
-
       const studentNotifications = students.map((student) =>
         this.notificationRepo.create({
           message: savedAnnouncement.announce_title,
@@ -776,7 +758,6 @@ class UniversityService {
           announcement: savedAnnouncement,
         })
       );
-
       // Save all notifications to the database first
       const notificationsToSave = [
         ...teacherNotifications,
@@ -792,11 +773,6 @@ class UniversityService {
           where: { id: notification.id },
           relations: ["announcement", "university"],
         });
-        console.log(
-          "🚀 ~ UniversityService ~ savedNotifications.forEach ~ detailedNotification:",
-          detailedNotification
-        );
-
         // Determine whether this is a teacher or a student notification
         if (notification.teacher) {
           const socket_id = await getSocketIdByUserId(notification.teacher.id);

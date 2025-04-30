@@ -67,20 +67,6 @@ export class StudentController {
     }
   }
 
-  async getAnnouncementsByStudent(req:Request, res:Response) {
-    try {
-      const student_id = req.user?.id;
-      const data = await studentService.getAnnouncementsByStudent(
-        student_id as string
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data,
-      });
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
-  }
-
   async getAssignments(req: Request, res: Response) {
     try {
       const module_id = req.params.module_id;
@@ -129,6 +115,7 @@ export class StudentController {
         req.body as StudentInterface,
         teacherProfileImage
       );
+      console.log("🚀 ~ StudentController ~ updateProfile ~ data:", data)
       res.status(StatusCodes.SUCCESS).json({
         data,
       });
@@ -165,6 +152,20 @@ export class StudentController {
     const { notificationId } = req.body;
     const data = await studentService.markAsRead(notificationId);
     res.status(StatusCodes.SUCCESS).json({ data });
+  }
+  
+  async getAnnouncementsByStudent(req:Request, res:Response) {
+    try {
+      const student_id = req.user?.id;
+      const data = await studentService.getAnnouncementsByStudent(
+        student_id as string
+      );
+      res.status(StatusCodes.SUCCESS).json({
+        data,
+      });
+    } catch (error) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
   }
 
   async getTodaySchedule(req: Request, res: Response) {

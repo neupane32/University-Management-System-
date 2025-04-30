@@ -85,8 +85,6 @@ export class SubscriptionController {
     }
   }
 
-
-  // Add university-specific subscription
   async addUniSubscription(req: Request, res: Response) {
     try {
       const data = req.body;

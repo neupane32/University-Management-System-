@@ -6,11 +6,13 @@ import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { RoutineController } from "../controllers/routine.controller";
 import { teacherProfileImagesUpload } from "../middleware/multer.middleware";
+import { ExamRoutineController } from "../controllers/examRoutine.controller";
 
 
 const router: Router = Router();
 const teacherController = new TeacherController;
 const routineController = new RoutineController;
+const examRoutineController = new ExamRoutineController;
 
 
 router.post('/teacher-login', catchAsync(teacherController.loginTeacher));
@@ -32,6 +34,8 @@ router.get('/get-sections-by-module/:moduleId', catchAsync(teacherController.get
 router.get('/get-teacher-sections',catchAsync(teacherController.getTeacherSection));
 
 router.get('/get-routine-by-teacher', catchAsync(routineController.getRoutineByTeacher));
+
+router.get('/get-exam-routine-by-teacher', catchAsync(examRoutineController.getExamRoutineByTeacher));
 router.get('/get-notification-by-teacher', catchAsync(teacherController.getTeacherNotification));
 
 
@@ -43,7 +47,7 @@ router.get('/get-modules-by-section-of-teacher/:sectionId',catchAsync(teacherCon
 router.get('/get-teachers-sections',catchAsync(teacherController.getSections))
 
 router.post('/mark-as-read',catchAsync(teacherController.markAsRead))
-// router.get('/get-teacher-class', catchAsync(teacherController.getTodayClass));
+
 
 //dashboard operation
 router.get('/get-pending-assignment',catchAsync(teacherController.getPendingAssignment));

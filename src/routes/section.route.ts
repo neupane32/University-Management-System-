@@ -20,9 +20,6 @@ router.get('/get-section-by-program/:id', catchAsync(sectionController.getSectio
 router.patch('/update-section/:id/:program_id', catchAsync(sectionController.updateSection));
 router.delete('/delete-section/:id', catchAsync(sectionController.deleteSection));
 
-
-
-
 //get university all section
 router.get('/find-All-section', catchAsync(sectionController.getuniversitySection));
 

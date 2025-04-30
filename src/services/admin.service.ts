@@ -20,7 +20,6 @@ class AdminService {
 
       }
       console.log("🚀 ~ AdminService ~ loginAdmin ~ data:", data)
-      console.log(data.email,'----')
         try {
             const adminLogin = await this.adminRepo.findOne({
                 where: { email : data.email},

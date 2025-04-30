@@ -35,12 +35,12 @@ class StudentService {
       });
 
       if (!student)
-        throw HttpException.badRequest("Entered Email is not regustred yet!!");
+        throw new Error ("Entered Email is not registered yet!!");
       const isPassword = await bcryptService.compare(
         data.password,
         student.password
       );
-      if (!isPassword) throw HttpException.badRequest("Incorrect password");
+      if (!isPassword) throw new Error("Incorrect password");
 
       return await this.getStudentById(student.id);
     } catch (error) {
@@ -96,31 +96,6 @@ class StudentService {
       return announcements;
     } catch (error) {
       throw new Error(error.message || "Failed to fetch announcements");
-    }
-  }
-
-  async getAnnouncementsByStudent(student_id: string) {
-    try {
-      const student = await this.studentRepo.findOne({
-        where: { id: student_id },
-        relations: ["uni"]
-      });
-      if (!student) {
-        throw new Error("Student not found");
-      }
-
-      const announcements = await this.announceRepo.find({
-        where: { university: { id: student.uni.id } },
-        relations: ["university"]
-      });
-    
-      if (!announcements.length) {
-        throw new Error("No announcements found for this university");
-      }
-    
-      return announcements;
-    } catch (error) {
-      console.log("🚀 ~ StudentService ~ getAnnouncementsByStudent ~ error:", error)
     }
   }
 
@@ -275,7 +250,7 @@ class StudentService {
     return update;
   }
 
-  async getTodaySchedule(studentId: string): Promise<Routine[]> {
+  async getTodaySchedule(studentId: string) {
     const student = await this.studentRepo.findOne({
       where: { id: studentId },
       relations: ['section'],
@@ -298,6 +273,30 @@ class StudentService {
     });
 
     return todaySchedule;
+  }
+  async getAnnouncementsByStudent(student_id: string) {
+    try {
+      const student = await this.studentRepo.findOne({
+        where: { id: student_id },
+        relations: ["uni"]
+      });
+      if (!student) {
+        throw new Error("Student not found");
+      }
+
+      const announcements = await this.announceRepo.find({
+        where: { university: { id: student.uni.id } },
+        relations: ["university"]
+      });
+    
+      if (!announcements.length) {
+        throw new Error("No announcements found for this university");
+      }
+    
+      return announcements;
+    } catch (error) {
+      console.log("🚀 ~ StudentService ~ getAnnouncementsByStudent ~ error:", error)
+    }
   }
 }
 export default StudentService;

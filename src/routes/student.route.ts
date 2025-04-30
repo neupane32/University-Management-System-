@@ -9,12 +9,14 @@ import { studentAssignmentFileUpload, studentProfileImagesUpload } from "../midd
 import { ResourceController } from "../controllers/resource.controller";
 import { RoutineController } from "../controllers/routine.controller";
 import { VideocallController } from "../controllers/videocall.controller";
+import { ExamRoutineController } from "../controllers/examRoutine.controller";
 
 const router: Router = Router();
 const studentController = new StudentController;
 const assignmentController = new AssignmentController;
 const resourceController = new ResourceController();
 const routineController = new RoutineController();
+const examRoutineController = new ExamRoutineController();
 const videocallController = new VideocallController();
 
 router.post('/login', catchAsync(studentController.loginStudent));
@@ -26,6 +28,7 @@ router.patch('/update-profile', studentProfileImagesUpload.fields([{name: 'stude
 
 router.get('/get-announcements/:module_id', catchAsync(studentController.getAnnouncements));
 router.get('/get-all-announcements', catchAsync(studentController.getAnnouncementsByStudent));
+
 router.get('/get-assignments/:module_id', catchAsync(studentController.getAssignments));
 router.post('/submit-assignments/:id',studentAssignmentFileUpload.fields([{name: 'student_assignment_file'}]) ,catchAsync(assignmentController.submitAssignment));
 router.get('/get-assignmentsByStudent/:moduleId', catchAsync(assignmentController.getAssignmentByStudent));
@@ -33,7 +36,10 @@ router.patch('/update-assignment/:id', studentAssignmentFileUpload.fields([{name
 router.delete('/delete-assignment-file/:id/:fileId', catchAsync(assignmentController.deleteAssignmentFileByStudent));
 
 router.get('/get-module-by-student/:id', catchAsync(resourceController.getResourceByStudent));
+
  router.get('/get-routine-by-student', catchAsync(routineController.getRoutineByStudent));
+ router.get('/get-examRoutine-by-student', catchAsync(examRoutineController.getExamRoutineByStudent));
+
 
 router.get('/student-profile',catchAsync(studentController.studentProfile));
 router.get('/student-modules',catchAsync(studentController.getStudentModules))

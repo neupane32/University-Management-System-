@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-
     "start": "ts-node-dev src/server.ts",
     "format": "npx prettier --write ."
   },
@@ -21,6 +20,7 @@
     "body-parser": "^1.20.2",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",

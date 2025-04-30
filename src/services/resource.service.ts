@@ -38,7 +38,6 @@ class ResourceService {
       if (!teacherSection) {
         throw new Error("Teacher is not assigned to this section");
       }
-
       const addResource = this.resourceRepo.create({
         title: data.title,
         module: { id: data.module_id },
@@ -116,14 +115,21 @@ class ResourceService {
   }
 
   async getResourceByStudent(module_id: string) {
-    const module = await this.moduleRepo.findOneBy({ id: module_id });
-    if (!module) throw new Error("Module Not Found");
+    try {
+      const module = await this.moduleRepo.findOneBy({ id: module_id });
+      if (!module) throw new Error("Module Not Found");
 
-    return await this.resourceRepo.find({
-      where: { module: { id: module_id } },
-      relations: ["module", "section"],
-      order: { createdAt: "DESC" },
-    });
+      return await this.resourceRepo.find({
+        where: { module: { id: module_id } },
+        relations: ["module", "section"],
+        order: { createdAt: "DESC" },
+      });
+    } catch (error) {
+      console.log(
+        "🚀 ~ ResourceService ~ getResourceByStudent ~ error:",
+        error
+      );
+    }
   }
 
   async deleteResource(teacher_id: string, resource_id) {

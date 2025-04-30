@@ -2,11 +2,9 @@ import { University } from "../../entities/university/university.entity";
 import Base from "../../entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Module } from "../../entities/module/module.entity";
-import { Teacher } from "../../entities/teacher/teacher.entity";
-import { Student } from "../../entities/student/student.entity";
 import { DurationType } from "../../constant/enum";
 import { Section } from "../../entities/Section/section.entity";
-import { Routine } from "../../entities/Routine/routine.entity";
+import { ExamRoutine } from "../../entities/Routine/exam_routine.entity";
 
 
 @Entity('Program')
@@ -32,8 +30,8 @@ export class Program extends Base {
     @OneToMany(() => Section, (sections) => sections.program, { cascade: true })
     sections: Section[];
 
-    // @OneToMany(() => Routine, (routine) => routine.program, { cascade: true })
-    // routine: Routine[];
+     @OneToMany(() => ExamRoutine, (examRoutines) => examRoutines.university, { cascade:true })
+    examRoutines: ExamRoutine;
 
     @OneToMany(() => Module, (module) => module.program, { cascade: true })
     module: Module;

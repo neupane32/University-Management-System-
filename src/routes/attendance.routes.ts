@@ -3,9 +3,9 @@ import { Router } from "express";
 import { authorization } from "../middleware/authorization.middleware";
 import { Role } from "../constant/enum";
 import { catchAsync } from "../utils/catchAsync.utils";
-import { teacherAssignmentFileUpload } from "../middleware/multer.middleware";
 import { AttendanceController } from "../controllers/attendance.controller";
 import { subscriptionAuthorization } from "../middleware/subscriptionAuthorization.middleware";
+
 
 const router: Router = Router();
 const attendanceController = new AttendanceController;
@@ -13,8 +13,8 @@ const attendanceController = new AttendanceController;
 router.use(authentication());
 router.use(authorization([Role.TEACHER]));
 
-// router.use(subscriptionAuthorization())
 
+router.use(subscriptionAuthorization())
 
 //Attendance Operation
 router.post('/add-attendance', catchAsync(attendanceController.addAttendance));

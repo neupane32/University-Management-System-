@@ -1,11 +1,8 @@
 import cors from "cors";
 import express, { Request, Response, NextFunction, Application } from "express";
-import { DotenvConfig } from "../config/env.config";
-import { StatusCodes } from "../constant/StatusCode";
 import bodyParser from "body-parser";
 import routes from "../routes/index.route";
 import path from "path";
-import { errorHandler } from "./errorHandler.middleware";
 import morgan from "morgan";
 
 import BcryptService from "../utils/bcrypt.utils";
